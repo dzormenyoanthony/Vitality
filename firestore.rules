@@ -1,0 +1,19 @@
+rules_version = '2';
+
+// Vitaly — Firestore security rules (PROJECT_SPEC.md §21, §25).
+//
+// A user may only read/write their own profile document. No other
+// collections are defined yet (blood-pressure readings arrive in Phase 3
+// and must add their own owner-scoped rules following this same pattern).
+// Deploy via the Firebase console or `firebase deploy --only firestore:rules`.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

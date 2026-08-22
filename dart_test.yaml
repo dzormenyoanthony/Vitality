@@ -1,0 +1,6 @@
+# Serializes test execution. Blood-pressure tests use Drift's native SQLite
+# FFI binding (drift/native.dart); running multiple test files concurrently
+# across isolates causes native-library initialization contention that
+# hangs the suite. See test/features/blood_pressure/presentation/
+# reading_detail_screen_test.dart for the full investigation notes.
+concurrency: 1
