@@ -15,6 +15,7 @@ abstract final class AppRoutes {
   static const String trends = '/trends';
   static const String reminders = '/reminders';
   static const String reminderForm = '/reminder-form';
+  static const String settings = '/settings';
 
   static String readingDetailPath(int id) => '/reading/$id';
 }

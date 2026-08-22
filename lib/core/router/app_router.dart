@@ -15,6 +15,7 @@ import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/reminders/data/reminder.dart';
 import '../../features/reminders/presentation/reminder_form_screen.dart';
 import '../../features/reminders/presentation/reminders_screen.dart';
+import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 import '../constants/app_routes.dart';
 import 'auth_gate_provider.dart';
@@ -129,6 +130,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => ReminderFormScreen(
           existingReminder: state.extra as Reminder?,
         ),
+      ),
+      GoRoute(
+        path: AppRoutes.settings,
+        name: AppRoutes.settings,
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
   );

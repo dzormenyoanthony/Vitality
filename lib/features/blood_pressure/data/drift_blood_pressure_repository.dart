@@ -93,4 +93,9 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
   Future<void> deleteReading(int id) {
     return (_db.delete(_db.readings)..where((r) => r.id.equals(id))).go();
   }
+
+  @override
+  Future<void> deleteAll() {
+    return _db.delete(_db.readings).go();
+  }
 }

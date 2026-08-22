@@ -59,4 +59,16 @@ class FirestoreUserProfileRepository implements UserProfileRepository {
       'onboardingCompleted': true,
     }, SetOptions(merge: true));
   }
+
+  @override
+  Future<void> updateDisplayName(String uid, String displayName) {
+    return _users.doc(uid).set({
+      'displayName': displayName,
+    }, SetOptions(merge: true));
+  }
+
+  @override
+  Future<void> deleteProfile(String uid) {
+    return _users.doc(uid).delete();
+  }
 }

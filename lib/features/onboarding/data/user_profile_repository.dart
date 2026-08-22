@@ -9,4 +9,8 @@ abstract interface class UserProfileRepository {
   Future<void> createProfile({required String uid, required String displayName});
 
   Future<void> completeOnboarding(String uid);
+
+  Future<void> updateDisplayName(String uid, String displayName);
+
+  Future<void> deleteProfile(String uid);
 }

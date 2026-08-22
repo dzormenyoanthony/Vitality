@@ -7,6 +7,10 @@ abstract interface class ReminderRepository {
 
   Stream<Reminder?> watchById(int id);
 
+  /// A one-shot read, for callers that need a single snapshot rather than
+  /// a live subscription (e.g. deleting an account).
+  Future<List<Reminder>> getAll();
+
   Future<int> addReminder({
     required String label,
     required int hour,
@@ -26,4 +30,8 @@ abstract interface class ReminderRepository {
   Future<void> setEnabled(int id, bool enabled);
 
   Future<void> deleteReminder(int id);
+
+  /// Deletes every reminder. Used when deleting the account (PROJECT_SPEC.md
+  /// §25) — local storage isn't partitioned per user, so this is a full wipe.
+  Future<void> deleteAll();
 }

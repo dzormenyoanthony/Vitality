@@ -22,7 +22,6 @@ abstract interface class AuthRepository {
   Future<void> sendPasswordResetEmail(String email);
 
   /// Permanently deletes the current user's account
-  /// (PROJECT_SPEC.md §20, §24). No UI entry point yet — Phase 2 only
-  /// requires the capability to exist behind the interface.
+  /// (PROJECT_SPEC.md §20, §24).
   Future<void> deleteAccount();
 }

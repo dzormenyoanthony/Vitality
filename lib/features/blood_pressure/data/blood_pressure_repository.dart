@@ -29,4 +29,8 @@ abstract interface class BloodPressureRepository {
   });
 
   Future<void> deleteReading(int id);
+
+  /// Deletes every reading. Used when deleting the account (PROJECT_SPEC.md
+  /// §25) — local storage isn't partitioned per user, so this is a full wipe.
+  Future<void> deleteAll();
 }

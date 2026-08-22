@@ -41,6 +41,12 @@ class DriftReminderRepository implements ReminderRepository {
   }
 
   @override
+  Future<List<Reminder>> getAll() async {
+    final rows = await _db.select(_db.reminders).get();
+    return rows.map(_toDomain).toList();
+  }
+
+  @override
   Future<int> addReminder({
     required String label,
     required int hour,
@@ -93,5 +99,10 @@ class DriftReminderRepository implements ReminderRepository {
   @override
   Future<void> deleteReminder(int id) {
     return (_db.delete(_db.reminders)..where((r) => r.id.equals(id))).go();
+  }
+
+  @override
+  Future<void> deleteAll() {
+    return _db.delete(_db.reminders).go();
   }
 }

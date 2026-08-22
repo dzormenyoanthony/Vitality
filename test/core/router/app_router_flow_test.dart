@@ -2,7 +2,9 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:vitality/core/services/shared_preferences_provider.dart';
 import 'package:vitality/features/authentication/data/auth_providers.dart';
 import 'package:vitality/features/authentication/data/fake_auth_repository.dart';
 import 'package:vitality/features/blood_pressure/data/app_database.dart';
@@ -47,6 +49,8 @@ void main() {
       addTearDown(authRepository.dispose);
       addTearDown(profileRepository.dispose);
       addTearDown(db.close);
+      SharedPreferences.setMockInitialValues({});
+      final prefs = await SharedPreferences.getInstance();
 
       await tester.pumpWidget(
         ProviderScope(
@@ -54,6 +58,7 @@ void main() {
             authRepositoryProvider.overrideWithValue(authRepository),
             userProfileRepositoryProvider.overrideWithValue(profileRepository),
             appDatabaseProvider.overrideWithValue(db),
+            sharedPreferencesProvider.overrideWithValue(prefs),
           ],
           child: const VitalyApp(),
         ),

@@ -38,9 +38,9 @@ class DashboardScreen extends ConsumerWidget {
         title: const Text('Vitaly'),
         actions: [
           IconButton(
-            tooltip: 'Sign out',
-            icon: const Icon(Icons.logout),
-            onPressed: () => ref.read(authRepositoryProvider).signOut(),
+            tooltip: 'Settings',
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () => context.push(AppRoutes.settings),
           ),
         ],
       ),
@@ -84,7 +84,15 @@ class _DashboardBody extends StatelessWidget {
 
     if (readings.isEmpty) {
       return ListView(
-        padding: const EdgeInsets.all(AppSpacing.lg),
+        // Extra bottom padding so the last card can scroll clear of the
+        // "Record BP" FAB, which otherwise overlaps and blocks taps on
+        // content near the bottom of the list.
+        padding: const EdgeInsets.fromLTRB(
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg,
+          AppSpacing.lg + AppSpacing.xxl,
+        ),
         children: [
           Text(greeting, style: theme.textTheme.headlineMedium),
           const SizedBox(height: AppSpacing.lg),
@@ -104,7 +112,15 @@ class _DashboardBody extends StatelessWidget {
     final weekly = TrendCalculator.compute(readings, TrendPeriod.sevenDays, DateTime.now());
 
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.lg),
+      // Extra bottom padding so the last card (including "View trends")
+      // can scroll clear of the "Record BP" FAB, which otherwise overlaps
+      // and blocks taps on content near the bottom of the list.
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg,
+        AppSpacing.lg + AppSpacing.xxl,
+      ),
       children: [
         Text(greeting, style: theme.textTheme.headlineMedium),
         const SizedBox(height: AppSpacing.lg),

@@ -4,12 +4,14 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
 
 import 'core/constants/app_routes.dart';
 import 'core/router/app_router.dart';
 import 'core/router/auth_gate_provider.dart';
+import 'core/services/shared_preferences_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_mode_provider.dart';
 import 'core/utils/logger.dart';
@@ -39,13 +41,18 @@ Future<void> main() async {
   );
   await notificationScheduler.initialize();
 
+  final sharedPreferences = await SharedPreferences.getInstance();
+
   try {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     runApp(
       ProviderScope(
-        overrides: [notificationSchedulerProvider.overrideWithValue(notificationScheduler)],
+        overrides: [
+          notificationSchedulerProvider.overrideWithValue(notificationScheduler),
+          sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+        ],
         child: const VitalyApp(),
       ),
     );
@@ -74,6 +81,7 @@ class _StartupFailureApp extends StatelessWidget {
     );
   }
 }
+
 
 class VitalyApp extends ConsumerWidget {
   const VitalyApp({super.key});

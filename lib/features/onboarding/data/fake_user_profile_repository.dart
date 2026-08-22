@@ -48,6 +48,23 @@ class FakeUserProfileRepository implements UserProfileRepository {
     _changes.add(uid);
   }
 
+  @override
+  Future<void> updateDisplayName(String uid, String displayName) async {
+    final existing = _profiles[uid];
+    if (existing == null) return;
+    _profiles[uid] = UserProfile(
+      displayName: displayName,
+      onboardingCompleted: existing.onboardingCompleted,
+    );
+    _changes.add(uid);
+  }
+
+  @override
+  Future<void> deleteProfile(String uid) async {
+    _profiles.remove(uid);
+    _changes.add(uid);
+  }
+
   /// Test-only: makes subsequent (or already-active) [watchProfile] calls
   /// for [uid] emit an error, simulating e.g. a denied Firestore read.
   void simulateProfileError(String uid) {
