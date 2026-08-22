@@ -1,9 +1,33 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drift/native.dart';
+import 'package:fake_cloud_firestore/fake_cloud_firestore.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:vitality/features/blood_pressure/data/app_database.dart';
 import 'package:vitality/features/blood_pressure/data/blood_pressure_reading.dart';
 import 'package:vitality/features/blood_pressure/data/drift_blood_pressure_repository.dart';
+
+/// `_pushToFirestore` is fire-and-forget, so tests that exercise it must
+/// poll rather than assume it's finished by the time the awaited
+/// repository call returns (same reasoning documented in
+/// test/features/reminders/presentation/reminder_controller_test.dart).
+Future<T> _waitFor<T>(
+  Future<T> Function() read,
+  bool Function(T value) condition, {
+  Duration timeout = const Duration(seconds: 2),
+}) async {
+  final deadline = DateTime.now().add(timeout);
+  while (true) {
+    final value = await read();
+    if (condition(value)) return value;
+    if (DateTime.now().isAfter(deadline)) {
+      throw TimeoutException('Condition not met within $timeout');
+    }
+    await Future<void>.delayed(const Duration(milliseconds: 5));
+  }
+}
 
 void main() {
   late AppDatabase db;
@@ -96,5 +120,63 @@ void main() {
 
     expect(await repository.watchAll().first, isEmpty);
     expect(await repository.watchById(id).first, isNull);
+  });
+
+  test('deleteReading soft-deletes without a Firestore configured: the row still exists', () async {
+    final id = await repository.addReading(
+      systolic: 120,
+      diastolic: 80,
+      timestamp: DateTime(2026, 1, 1),
+    );
+
+    await repository.deleteReading(id);
+
+    final rawRow = await (db.select(db.readings)..where((r) => r.id.equals(id))).getSingle();
+    expect(rawRow.deletedAt, isNotNull);
+  });
+
+  group('with Firestore configured', () {
+    late FakeFirebaseFirestore firestore;
+    late DriftBloodPressureRepository syncedRepository;
+    const uid = 'test-uid';
+
+    setUp(() {
+      firestore = FakeFirebaseFirestore();
+      syncedRepository = DriftBloodPressureRepository(db, firestore: firestore, currentUid: () => uid);
+    });
+
+    Future<List<QueryDocumentSnapshot<Map<String, dynamic>>>> remoteDocs() async {
+      final snapshot = await firestore.collection('users').doc(uid).collection('readings').get();
+      return snapshot.docs;
+    }
+
+    test('addReading pushes the new reading to Firestore', () async {
+      await syncedRepository.addReading(
+        systolic: 120,
+        diastolic: 80,
+        timestamp: DateTime(2026, 1, 1),
+      );
+
+      final docs = await _waitFor(() => remoteDocs(), (docs) => docs.isNotEmpty);
+      expect(docs.single.data()['systolic'], 120);
+
+      final row = await (db.select(db.readings)..limit(1)).getSingle();
+      expect(row.remoteId, docs.single.id);
+    });
+
+    test('deleteReading removes the pushed reading from Firestore and hard-deletes locally', () async {
+      final id = await syncedRepository.addReading(
+        systolic: 120,
+        diastolic: 80,
+        timestamp: DateTime(2026, 1, 1),
+      );
+      await _waitFor(() => remoteDocs(), (docs) => docs.isNotEmpty);
+
+      await syncedRepository.deleteReading(id);
+
+      await _waitFor(() => remoteDocs(), (docs) => docs.isEmpty);
+      final rows = await db.select(db.readings).get();
+      expect(rows, isEmpty);
+    });
   });
 }

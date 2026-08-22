@@ -105,6 +105,28 @@ class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _remoteIdMeta = const VerificationMeta(
+    'remoteId',
+  );
+  @override
+  late final GeneratedColumn<String> remoteId = GeneratedColumn<String>(
+    'remote_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -116,6 +138,8 @@ class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
     measurementContext,
     createdAt,
     updatedAt,
+    remoteId,
+    deletedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -193,6 +217,18 @@ class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('remote_id')) {
+      context.handle(
+        _remoteIdMeta,
+        remoteId.isAcceptableOrUnknown(data['remote_id']!, _remoteIdMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -238,6 +274,14 @@ class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      remoteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_id'],
+      ),
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
     );
   }
 
@@ -257,6 +301,16 @@ class Reading extends DataClass implements Insertable<Reading> {
   final String? measurementContext;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// The Firestore document id once this row has been synced
+  /// (PROJECT_SPEC.md §21-22) — `null` until the first successful push.
+  final String? remoteId;
+
+  /// Soft-delete marker: set instead of a hard SQL delete so the sync
+  /// layer can propagate the deletion to Firestore before the local row
+  /// is actually removed. Rows with this set are filtered out of every
+  /// read query.
+  final DateTime? deletedAt;
   const Reading({
     required this.id,
     required this.systolic,
@@ -267,6 +321,8 @@ class Reading extends DataClass implements Insertable<Reading> {
     this.measurementContext,
     required this.createdAt,
     required this.updatedAt,
+    this.remoteId,
+    this.deletedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -286,6 +342,12 @@ class Reading extends DataClass implements Insertable<Reading> {
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || remoteId != null) {
+      map['remote_id'] = Variable<String>(remoteId);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     return map;
   }
 
@@ -306,6 +368,12 @@ class Reading extends DataClass implements Insertable<Reading> {
           : Value(measurementContext),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      remoteId: remoteId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteId),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
     );
   }
 
@@ -326,6 +394,8 @@ class Reading extends DataClass implements Insertable<Reading> {
       ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      remoteId: serializer.fromJson<String?>(json['remoteId']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
   }
   @override
@@ -341,6 +411,8 @@ class Reading extends DataClass implements Insertable<Reading> {
       'measurementContext': serializer.toJson<String?>(measurementContext),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'remoteId': serializer.toJson<String?>(remoteId),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
   }
 
@@ -354,6 +426,8 @@ class Reading extends DataClass implements Insertable<Reading> {
     Value<String?> measurementContext = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
+    Value<String?> remoteId = const Value.absent(),
+    Value<DateTime?> deletedAt = const Value.absent(),
   }) => Reading(
     id: id ?? this.id,
     systolic: systolic ?? this.systolic,
@@ -366,6 +440,8 @@ class Reading extends DataClass implements Insertable<Reading> {
         : this.measurementContext,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    remoteId: remoteId.present ? remoteId.value : this.remoteId,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
   );
   Reading copyWithCompanion(ReadingsCompanion data) {
     return Reading(
@@ -380,6 +456,8 @@ class Reading extends DataClass implements Insertable<Reading> {
           : this.measurementContext,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
   }
 
@@ -394,7 +472,9 @@ class Reading extends DataClass implements Insertable<Reading> {
           ..write('notes: $notes, ')
           ..write('measurementContext: $measurementContext, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('remoteId: $remoteId, ')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
@@ -410,6 +490,8 @@ class Reading extends DataClass implements Insertable<Reading> {
     measurementContext,
     createdAt,
     updatedAt,
+    remoteId,
+    deletedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -423,7 +505,9 @@ class Reading extends DataClass implements Insertable<Reading> {
           other.notes == this.notes &&
           other.measurementContext == this.measurementContext &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.remoteId == this.remoteId &&
+          other.deletedAt == this.deletedAt);
 }
 
 class ReadingsCompanion extends UpdateCompanion<Reading> {
@@ -436,6 +520,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
   final Value<String?> measurementContext;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<String?> remoteId;
+  final Value<DateTime?> deletedAt;
   const ReadingsCompanion({
     this.id = const Value.absent(),
     this.systolic = const Value.absent(),
@@ -446,6 +532,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     this.measurementContext = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.remoteId = const Value.absent(),
+    this.deletedAt = const Value.absent(),
   });
   ReadingsCompanion.insert({
     this.id = const Value.absent(),
@@ -457,6 +545,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     this.measurementContext = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.remoteId = const Value.absent(),
+    this.deletedAt = const Value.absent(),
   }) : systolic = Value(systolic),
        diastolic = Value(diastolic),
        timestamp = Value(timestamp),
@@ -472,6 +562,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     Expression<String>? measurementContext,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<String>? remoteId,
+    Expression<DateTime>? deletedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -483,6 +575,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
       if (measurementContext != null) 'measurement_context': measurementContext,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (remoteId != null) 'remote_id': remoteId,
+      if (deletedAt != null) 'deleted_at': deletedAt,
     });
   }
 
@@ -496,6 +590,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     Value<String?>? measurementContext,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<String?>? remoteId,
+    Value<DateTime?>? deletedAt,
   }) {
     return ReadingsCompanion(
       id: id ?? this.id,
@@ -507,6 +603,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
       measurementContext: measurementContext ?? this.measurementContext,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      remoteId: remoteId ?? this.remoteId,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
@@ -540,6 +638,12 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (remoteId.present) {
+      map['remote_id'] = Variable<String>(remoteId.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
     return map;
   }
 
@@ -554,7 +658,9 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
           ..write('notes: $notes, ')
           ..write('measurementContext: $measurementContext, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('remoteId: $remoteId, ')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
@@ -654,6 +760,28 @@ class $RemindersTable extends Reminders
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _remoteIdMeta = const VerificationMeta(
+    'remoteId',
+  );
+  @override
+  late final GeneratedColumn<String> remoteId = GeneratedColumn<String>(
+    'remote_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -664,6 +792,8 @@ class $RemindersTable extends Reminders
     enabled,
     createdAt,
     updatedAt,
+    remoteId,
+    deletedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -737,6 +867,18 @@ class $RemindersTable extends Reminders
     } else if (isInserting) {
       context.missing(_updatedAtMeta);
     }
+    if (data.containsKey('remote_id')) {
+      context.handle(
+        _remoteIdMeta,
+        remoteId.isAcceptableOrUnknown(data['remote_id']!, _remoteIdMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
     return context;
   }
 
@@ -778,6 +920,14 @@ class $RemindersTable extends Reminders
         DriftSqlType.dateTime,
         data['${effectivePrefix}updated_at'],
       )!,
+      remoteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_id'],
+      ),
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
     );
   }
 
@@ -796,6 +946,16 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
   final bool enabled;
   final DateTime createdAt;
   final DateTime updatedAt;
+
+  /// The Firestore document id once this row has been synced
+  /// (PROJECT_SPEC.md §21-22) — `null` until the first successful push.
+  final String? remoteId;
+
+  /// Soft-delete marker: set instead of a hard SQL delete so the sync
+  /// layer can propagate the deletion to Firestore before the local row
+  /// is actually removed. Rows with this set are filtered out of every
+  /// read query.
+  final DateTime? deletedAt;
   const ReminderRow({
     required this.id,
     required this.label,
@@ -805,6 +965,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     required this.enabled,
     required this.createdAt,
     required this.updatedAt,
+    this.remoteId,
+    this.deletedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -817,6 +979,12 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     map['enabled'] = Variable<bool>(enabled);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || remoteId != null) {
+      map['remote_id'] = Variable<String>(remoteId);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
     return map;
   }
 
@@ -830,6 +998,12 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       enabled: Value(enabled),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
+      remoteId: remoteId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteId),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
     );
   }
 
@@ -847,6 +1021,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       enabled: serializer.fromJson<bool>(json['enabled']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      remoteId: serializer.fromJson<String?>(json['remoteId']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
     );
   }
   @override
@@ -861,6 +1037,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       'enabled': serializer.toJson<bool>(enabled),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'remoteId': serializer.toJson<String?>(remoteId),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
     };
   }
 
@@ -873,6 +1051,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     bool? enabled,
     DateTime? createdAt,
     DateTime? updatedAt,
+    Value<String?> remoteId = const Value.absent(),
+    Value<DateTime?> deletedAt = const Value.absent(),
   }) => ReminderRow(
     id: id ?? this.id,
     label: label ?? this.label,
@@ -882,6 +1062,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     enabled: enabled ?? this.enabled,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
+    remoteId: remoteId.present ? remoteId.value : this.remoteId,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
   );
   ReminderRow copyWithCompanion(RemindersCompanion data) {
     return ReminderRow(
@@ -895,6 +1077,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       enabled: data.enabled.present ? data.enabled.value : this.enabled,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
     );
   }
 
@@ -908,7 +1092,9 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           ..write('daysOfWeek: $daysOfWeek, ')
           ..write('enabled: $enabled, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('remoteId: $remoteId, ')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
@@ -923,6 +1109,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     enabled,
     createdAt,
     updatedAt,
+    remoteId,
+    deletedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -935,7 +1123,9 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           other.daysOfWeek == this.daysOfWeek &&
           other.enabled == this.enabled &&
           other.createdAt == this.createdAt &&
-          other.updatedAt == this.updatedAt);
+          other.updatedAt == this.updatedAt &&
+          other.remoteId == this.remoteId &&
+          other.deletedAt == this.deletedAt);
 }
 
 class RemindersCompanion extends UpdateCompanion<ReminderRow> {
@@ -947,6 +1137,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
   final Value<bool> enabled;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
+  final Value<String?> remoteId;
+  final Value<DateTime?> deletedAt;
   const RemindersCompanion({
     this.id = const Value.absent(),
     this.label = const Value.absent(),
@@ -956,6 +1148,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     this.enabled = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
+    this.remoteId = const Value.absent(),
+    this.deletedAt = const Value.absent(),
   });
   RemindersCompanion.insert({
     this.id = const Value.absent(),
@@ -966,6 +1160,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     this.enabled = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
+    this.remoteId = const Value.absent(),
+    this.deletedAt = const Value.absent(),
   }) : label = Value(label),
        hour = Value(hour),
        minute = Value(minute),
@@ -981,6 +1177,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     Expression<bool>? enabled,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
+    Expression<String>? remoteId,
+    Expression<DateTime>? deletedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -991,6 +1189,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
       if (enabled != null) 'enabled': enabled,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
+      if (remoteId != null) 'remote_id': remoteId,
+      if (deletedAt != null) 'deleted_at': deletedAt,
     });
   }
 
@@ -1003,6 +1203,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     Value<bool>? enabled,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
+    Value<String?>? remoteId,
+    Value<DateTime?>? deletedAt,
   }) {
     return RemindersCompanion(
       id: id ?? this.id,
@@ -1013,6 +1215,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
       enabled: enabled ?? this.enabled,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      remoteId: remoteId ?? this.remoteId,
+      deletedAt: deletedAt ?? this.deletedAt,
     );
   }
 
@@ -1043,6 +1247,12 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     if (updatedAt.present) {
       map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
+    if (remoteId.present) {
+      map['remote_id'] = Variable<String>(remoteId.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
     return map;
   }
 
@@ -1056,7 +1266,9 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
           ..write('daysOfWeek: $daysOfWeek, ')
           ..write('enabled: $enabled, ')
           ..write('createdAt: $createdAt, ')
-          ..write('updatedAt: $updatedAt')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('remoteId: $remoteId, ')
+          ..write('deletedAt: $deletedAt')
           ..write(')'))
         .toString();
   }
@@ -1084,6 +1296,8 @@ typedef $$ReadingsTableCreateCompanionBuilder = ReadingsCompanion Function({
   Value<String?> measurementContext,
   required DateTime createdAt,
   required DateTime updatedAt,
+  Value<String?> remoteId,
+  Value<DateTime?> deletedAt,
 });
 typedef $$ReadingsTableUpdateCompanionBuilder = ReadingsCompanion Function({
   Value<int> id,
@@ -1095,6 +1309,8 @@ typedef $$ReadingsTableUpdateCompanionBuilder = ReadingsCompanion Function({
   Value<String?> measurementContext,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
+  Value<String?> remoteId,
+  Value<DateTime?> deletedAt,
 });
 
 class $$ReadingsTableFilterComposer
@@ -1148,6 +1364,16 @@ class $$ReadingsTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1205,6 +1431,16 @@ class $$ReadingsTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$ReadingsTableAnnotationComposer
@@ -1244,6 +1480,12 @@ class $$ReadingsTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteId =>
+      $composableBuilder(column: $table.remoteId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 }
 
 class $$ReadingsTableTableManager
@@ -1283,6 +1525,8 @@ class $$ReadingsTableTableManager
                 Value<String?> measurementContext = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<String?> remoteId = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
               }) => ReadingsCompanion(
                 id: id,
                 systolic: systolic,
@@ -1293,6 +1537,8 @@ class $$ReadingsTableTableManager
                 measurementContext: measurementContext,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                remoteId: remoteId,
+                deletedAt: deletedAt,
               ),
           createCompanionCallback:
               ({
@@ -1305,6 +1551,8 @@ class $$ReadingsTableTableManager
                 Value<String?> measurementContext = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<String?> remoteId = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
               }) => ReadingsCompanion.insert(
                 id: id,
                 systolic: systolic,
@@ -1315,6 +1563,8 @@ class $$ReadingsTableTableManager
                 measurementContext: measurementContext,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                remoteId: remoteId,
+                deletedAt: deletedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -1347,6 +1597,8 @@ typedef $$RemindersTableCreateCompanionBuilder = RemindersCompanion Function({
   Value<bool> enabled,
   required DateTime createdAt,
   required DateTime updatedAt,
+  Value<String?> remoteId,
+  Value<DateTime?> deletedAt,
 });
 typedef $$RemindersTableUpdateCompanionBuilder = RemindersCompanion Function({
   Value<int> id,
@@ -1357,6 +1609,8 @@ typedef $$RemindersTableUpdateCompanionBuilder = RemindersCompanion Function({
   Value<bool> enabled,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
+  Value<String?> remoteId,
+  Value<DateTime?> deletedAt,
 });
 
 class $$RemindersTableFilterComposer
@@ -1405,6 +1659,16 @@ class $$RemindersTableFilterComposer
 
   ColumnFilters<DateTime> get updatedAt => $composableBuilder(
     column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -1457,6 +1721,16 @@ class $$RemindersTableOrderingComposer
     column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$RemindersTableAnnotationComposer
@@ -1493,6 +1767,12 @@ class $$RemindersTableAnnotationComposer
 
   GeneratedColumn<DateTime> get updatedAt =>
       $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteId =>
+      $composableBuilder(column: $table.remoteId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 }
 
 class $$RemindersTableTableManager
@@ -1534,6 +1814,8 @@ class $$RemindersTableTableManager
                 Value<bool> enabled = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
+                Value<String?> remoteId = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
               }) => RemindersCompanion(
                 id: id,
                 label: label,
@@ -1543,6 +1825,8 @@ class $$RemindersTableTableManager
                 enabled: enabled,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                remoteId: remoteId,
+                deletedAt: deletedAt,
               ),
           createCompanionCallback:
               ({
@@ -1554,6 +1838,8 @@ class $$RemindersTableTableManager
                 Value<bool> enabled = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
+                Value<String?> remoteId = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
               }) => RemindersCompanion.insert(
                 id: id,
                 label: label,
@@ -1563,6 +1849,8 @@ class $$RemindersTableTableManager
                 enabled: enabled,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
+                remoteId: remoteId,
+                deletedAt: deletedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))

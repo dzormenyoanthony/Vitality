@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -12,10 +14,15 @@ import 'core/constants/app_routes.dart';
 import 'core/router/app_router.dart';
 import 'core/router/auth_gate_provider.dart';
 import 'core/services/shared_preferences_provider.dart';
+import 'core/sync/sync_provider.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_mode_provider.dart';
 import 'core/utils/logger.dart';
 import 'core/widgets/error_view.dart';
+import 'features/blood_pressure/data/app_database.dart';
+import 'features/blood_pressure/data/blood_pressure_providers.dart';
+import 'features/blood_pressure/data/drift_blood_pressure_repository.dart';
+import 'features/reminders/data/drift_reminder_repository.dart';
 import 'features/reminders/data/flutter_local_notifications_scheduler.dart';
 import 'features/reminders/data/reminder_deep_link_provider.dart';
 import 'features/reminders/data/reminder_providers.dart';
@@ -42,6 +49,8 @@ Future<void> main() async {
   await notificationScheduler.initialize();
 
   final sharedPreferences = await SharedPreferences.getInstance();
+  final db = AppDatabase();
+  String? currentUid() => fb.FirebaseAuth.instance.currentUser?.uid;
 
   try {
     await Firebase.initializeApp(
@@ -52,6 +61,21 @@ Future<void> main() async {
         overrides: [
           notificationSchedulerProvider.overrideWithValue(notificationScheduler),
           sharedPreferencesProvider.overrideWithValue(sharedPreferences),
+          appDatabaseProvider.overrideWithValue(db),
+          bloodPressureRepositoryProvider.overrideWithValue(
+            DriftBloodPressureRepository(
+              db,
+              firestore: FirebaseFirestore.instance,
+              currentUid: currentUid,
+            ),
+          ),
+          reminderRepositoryProvider.overrideWithValue(
+            DriftReminderRepository(
+              db,
+              firestore: FirebaseFirestore.instance,
+              currentUid: currentUid,
+            ),
+          ),
         ],
         child: const VitalyApp(),
       ),
@@ -83,8 +107,37 @@ class _StartupFailureApp extends StatelessWidget {
 }
 
 
-class VitalyApp extends ConsumerWidget {
+class VitalyApp extends ConsumerStatefulWidget {
   const VitalyApp({super.key});
+
+  @override
+  ConsumerState<VitalyApp> createState() => _VitalyAppState();
+}
+
+class _VitalyAppState extends ConsumerState<VitalyApp> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// The "connection restored" half of PROJECT_SPEC.md §22's sync flow: no
+  /// live connectivity listener, just a resync whenever the user returns
+  /// to the app — a simple, honest proxy that needs no extra dependency.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+    final gate = ref.read(authGateProvider);
+    if (gate is AuthGateReady) {
+      ref.read(syncCoordinatorProvider).syncAll(gate.uid);
+    }
+  }
 
   void _consumeDeepLinkIfReady(WidgetRef ref, GoRouter router) {
     if (!ref.read(pendingDeepLinkProvider)) return;
@@ -93,13 +146,28 @@ class VitalyApp extends ConsumerWidget {
     router.push(AppRoutes.recordBp);
   }
 
+  /// Kicks off a sync pass on every sign-in (including a fresh device
+  /// downloading existing history for the first time), and clears local
+  /// data on sign-out so a different account signing in on the same
+  /// device never sees the previous account's cached rows
+  /// (PROJECT_SPEC.md §21-22).
+  void _handleAuthGateChange(AuthGateState? previous, AuthGateState next) {
+    if (next is AuthGateReady) {
+      ref.read(syncCoordinatorProvider).syncAll(next.uid);
+    } else if (next is AuthGateUnauthenticated) {
+      ref.read(bloodPressureRepositoryProvider).deleteAll();
+      ref.read(reminderRepositoryProvider).deleteAll();
+    }
+  }
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(themeModeProvider);
 
     ref.listen(pendingDeepLinkProvider, (_, _) => _consumeDeepLinkIfReady(ref, router));
     ref.listen(authGateProvider, (_, _) => _consumeDeepLinkIfReady(ref, router));
+    ref.listen(authGateProvider, _handleAuthGateChange);
 
     return MaterialApp.router(
       title: 'Vitaly',

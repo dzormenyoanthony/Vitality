@@ -19,6 +19,16 @@ class Readings extends Table {
   TextColumn get measurementContext => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+
+  /// The Firestore document id once this row has been synced
+  /// (PROJECT_SPEC.md §21-22) — `null` until the first successful push.
+  TextColumn get remoteId => text().nullable()();
+
+  /// Soft-delete marker: set instead of a hard SQL delete so the sync
+  /// layer can propagate the deletion to Firestore before the local row
+  /// is actually removed. Rows with this set are filtered out of every
+  /// read query.
+  DateTimeColumn get deletedAt => dateTime().nullable()();
 }
 
 /// Local Drift table backing reminders (PROJECT_SPEC.md §17).
@@ -41,6 +51,16 @@ class Reminders extends Table {
   BoolColumn get enabled => boolean().withDefault(const Constant(true))();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
+
+  /// The Firestore document id once this row has been synced
+  /// (PROJECT_SPEC.md §21-22) — `null` until the first successful push.
+  TextColumn get remoteId => text().nullable()();
+
+  /// Soft-delete marker: set instead of a hard SQL delete so the sync
+  /// layer can propagate the deletion to Firestore before the local row
+  /// is actually removed. Rows with this set are filtered out of every
+  /// read query.
+  DateTimeColumn get deletedAt => dateTime().nullable()();
 }
 
 @DriftDatabase(tables: [Readings, Reminders])
@@ -48,7 +68,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -56,6 +76,12 @@ class AppDatabase extends _$AppDatabase {
     onUpgrade: (m, from, to) async {
       if (from < 2) {
         await m.createTable(reminders);
+      }
+      if (from < 3) {
+        await m.addColumn(readings, readings.remoteId);
+        await m.addColumn(readings, readings.deletedAt);
+        await m.addColumn(reminders, reminders.remoteId);
+        await m.addColumn(reminders, reminders.deletedAt);
       }
     },
   );

@@ -1,13 +1,26 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:drift/drift.dart';
 
+import '../../../core/utils/logger.dart';
 import 'app_database.dart';
 import 'blood_pressure_reading.dart';
 import 'blood_pressure_repository.dart';
 
+/// Local Drift storage for readings, with an optional best-effort push to
+/// Firestore after each write (PROJECT_SPEC.md §21-22). Sync is a no-op
+/// when [firestore]/[currentUid] aren't supplied — existing local-only
+/// callers and tests are unaffected. The bidirectional pull/reconcile pass
+/// lives separately in `lib/core/sync/sync_coordinator.dart`; this class
+/// only ever pushes what it just wrote (or deletes what it just
+/// soft-deleted) — it never pulls.
 class DriftBloodPressureRepository implements BloodPressureRepository {
-  DriftBloodPressureRepository(this._db);
+  DriftBloodPressureRepository(this._db, {this.firestore, this.currentUid});
 
   final AppDatabase _db;
+  final FirebaseFirestore? firestore;
+  final String? Function()? currentUid;
 
   BloodPressureReading _toDomain(Reading row) {
     return BloodPressureReading(
@@ -28,13 +41,15 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
   @override
   Stream<List<BloodPressureReading>> watchAll() {
     final query = _db.select(_db.readings)
+      ..where((r) => r.deletedAt.isNull())
       ..orderBy([(r) => OrderingTerm.desc(r.timestamp)]);
     return query.watch().map((rows) => rows.map(_toDomain).toList());
   }
 
   @override
   Stream<BloodPressureReading?> watchById(int id) {
-    final query = _db.select(_db.readings)..where((r) => r.id.equals(id));
+    final query = _db.select(_db.readings)
+      ..where((r) => r.id.equals(id) & r.deletedAt.isNull());
     return query.watchSingleOrNull().map(
       (row) => row == null ? null : _toDomain(row),
     );
@@ -48,9 +63,9 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
     required DateTime timestamp,
     String? notes,
     MeasurementContext? measurementContext,
-  }) {
+  }) async {
     final now = DateTime.now();
-    return _db
+    final id = await _db
         .into(_db.readings)
         .insert(
           ReadingsCompanion.insert(
@@ -64,6 +79,8 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
             updatedAt: now,
           ),
         );
+    unawaited(_pushToFirestore(id));
+    return id;
   }
 
   @override
@@ -75,8 +92,8 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
     required DateTime timestamp,
     String? notes,
     MeasurementContext? measurementContext,
-  }) {
-    return (_db.update(_db.readings)..where((r) => r.id.equals(id))).write(
+  }) async {
+    await (_db.update(_db.readings)..where((r) => r.id.equals(id))).write(
       ReadingsCompanion(
         systolic: Value(systolic),
         diastolic: Value(diastolic),
@@ -87,15 +104,67 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
         updatedAt: Value(DateTime.now()),
       ),
     );
+    unawaited(_pushToFirestore(id));
   }
 
   @override
-  Future<void> deleteReading(int id) {
-    return (_db.delete(_db.readings)..where((r) => r.id.equals(id))).go();
+  Future<void> deleteReading(int id) async {
+    await (_db.update(_db.readings)..where((r) => r.id.equals(id))).write(
+      ReadingsCompanion(deletedAt: Value(DateTime.now())),
+    );
+    unawaited(_pushToFirestore(id));
   }
 
   @override
   Future<void> deleteAll() {
     return _db.delete(_db.readings).go();
+  }
+
+  /// Best-effort: pushes the current local state of [id] to Firestore (or
+  /// deletes the remote doc if the row is soft-deleted), then reconciles
+  /// the local row (writing back a new `remoteId`, or hard-deleting once a
+  /// pending remote delete succeeds). Never throws — failures are logged
+  /// and left for the next [SyncCoordinator] pass to retry.
+  Future<void> _pushToFirestore(int id) async {
+    final firestore = this.firestore;
+    final uid = currentUid?.call();
+    if (firestore == null || uid == null) return;
+
+    try {
+      final row = await (_db.select(
+        _db.readings,
+      )..where((r) => r.id.equals(id))).getSingleOrNull();
+      if (row == null) return;
+
+      final collection = firestore.collection('users').doc(uid).collection('readings');
+
+      if (row.deletedAt != null) {
+        if (row.remoteId != null) {
+          await collection.doc(row.remoteId).delete();
+        }
+        await (_db.delete(_db.readings)..where((r) => r.id.equals(id))).go();
+        return;
+      }
+
+      final docRef = row.remoteId == null ? collection.doc() : collection.doc(row.remoteId);
+      await docRef.set({
+        'systolic': row.systolic,
+        'diastolic': row.diastolic,
+        'pulse': row.pulse,
+        'timestamp': Timestamp.fromDate(row.timestamp),
+        'notes': row.notes,
+        'measurementContext': row.measurementContext,
+        'createdAt': Timestamp.fromDate(row.createdAt),
+        'updatedAt': Timestamp.fromDate(row.updatedAt),
+      }, SetOptions(merge: true));
+
+      if (row.remoteId == null) {
+        await (_db.update(_db.readings)..where((r) => r.id.equals(id))).write(
+          ReadingsCompanion(remoteId: Value(docRef.id)),
+        );
+      }
+    } catch (error, stackTrace) {
+      AppLogger.error('Failed to sync reading $id to Firestore', error: error, stackTrace: stackTrace);
+    }
   }
 }
