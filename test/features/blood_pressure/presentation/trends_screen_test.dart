@@ -1,4 +1,5 @@
 import 'package:drift/native.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -88,6 +89,31 @@ void main() {
       findsOneWidget,
     );
 
+    await db.close();
+  });
+
+  testWidgets('the trend chart exposes a screen-reader description (PROJECT_SPEC.md §35)', (
+    tester,
+  ) async {
+    final handle = tester.ensureSemantics();
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = DriftBloodPressureRepository(db);
+    await repository.addReading(systolic: 120, diastolic: 80, timestamp: DateTime.now());
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: TrendsScreen()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    final semantics = tester.getSemantics(find.byType(LineChart).first);
+    expect(semantics.label, isNotEmpty);
+
+    handle.dispose();
     await db.close();
   });
 }

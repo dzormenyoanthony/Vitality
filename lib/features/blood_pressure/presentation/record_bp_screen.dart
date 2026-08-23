@@ -122,7 +122,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                         enabled: !isSaving,
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                          labelText: 'Systolic',
+                          labelText: 'Systolic (mmHg)',
                           suffixText: 'mmHg',
                         ),
                         validator: ReadingValidator.validateSystolic,
@@ -135,7 +135,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                         enabled: !isSaving,
                         keyboardType: TextInputType.number,
                         decoration: const InputDecoration(
-                          labelText: 'Diastolic',
+                          labelText: 'Diastolic (mmHg)',
                           suffixText: 'mmHg',
                         ),
                         validator: ReadingValidator.validateDiastolic,
@@ -149,7 +149,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                   enabled: !isSaving,
                   keyboardType: TextInputType.number,
                   decoration: const InputDecoration(
-                    labelText: 'Pulse (optional)',
+                    labelText: 'Pulse (optional, bpm)',
                     suffixText: 'bpm',
                   ),
                   validator: ReadingValidator.validatePulse,
@@ -158,7 +158,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                 ListTile(
                   contentPadding: EdgeInsets.zero,
                   title: const Text('Date & time'),
-                  subtitle: Text(_timestamp.toString()),
+                  subtitle: Text(_formatTimestamp(_timestamp)),
                   trailing: const Icon(Icons.edit_calendar_outlined),
                   onTap: isSaving ? null : _pickTimestamp,
                 ),
@@ -197,10 +197,13 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                 FilledButton(
                   onPressed: isSaving ? null : _submit,
                   child: isSaving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                      ? Semantics(
+                          label: 'Saving',
+                          child: const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                         )
                       : Text(_isEditing ? 'Save changes' : 'Save'),
                 ),
@@ -212,3 +215,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
     );
   }
 }
+
+String _formatTimestamp(DateTime ts) =>
+    '${ts.year}-${ts.month.toString().padLeft(2, '0')}-${ts.day.toString().padLeft(2, '0')} '
+    '${ts.hour.toString().padLeft(2, '0')}:${ts.minute.toString().padLeft(2, '0')}';

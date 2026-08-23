@@ -109,10 +109,39 @@ class _Legend extends StatelessWidget {
         const SizedBox(width: AppSpacing.xs),
         const Text('Systolic'),
         const SizedBox(width: AppSpacing.lg),
-        Container(width: 16, height: 3, color: theme.colorScheme.secondary),
+        _DashedSwatch(color: theme.colorScheme.secondary),
         const SizedBox(width: AppSpacing.xs),
         const Text('Diastolic (dashed)'),
       ],
+    );
+  }
+}
+
+/// A short dashed line, so the legend conveys the diastolic line's dash
+/// pattern by shape (not just its color) — PROJECT_SPEC.md §35.
+class _DashedSwatch extends StatelessWidget {
+  const _DashedSwatch({required this.color});
+
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      height: 3,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final dash in [true, false, true, false, true])
+            Padding(
+              padding: const EdgeInsets.only(right: 2),
+              child: Container(
+                width: 4,
+                height: 3,
+                color: dash ? color : Colors.transparent,
+              ),
+            ),
+        ],
+      ),
     );
   }
 }
@@ -132,31 +161,39 @@ class _BpChart extends StatelessWidget {
       diastolicSpots.add(FlSpot(i.toDouble(), readings[i].diastolic.toDouble()));
     }
 
-    return SizedBox(
-      height: 220,
-      child: LineChart(
-        LineChartData(
-          titlesData: _dateTitlesData(readings),
-          gridData: const FlGridData(drawVerticalLine: false),
-          borderData: FlBorderData(show: false),
-          lineTouchData: const LineTouchData(enabled: false),
-          lineBarsData: [
-            LineChartBarData(
-              spots: systolicSpots,
-              color: theme.colorScheme.primary,
-              barWidth: 2.5,
-              // A line needs 2+ points to be visible; show a dot instead
-              // so a single reading isn't rendered as an empty chart.
-              dotData: FlDotData(show: systolicSpots.length < 2),
+    return Semantics(
+      label:
+          'Blood pressure trend chart. See the summary below for averages '
+          'and reading count.',
+      child: ExcludeSemantics(
+        child: SizedBox(
+          height: 220,
+          child: LineChart(
+            LineChartData(
+              titlesData: _dateTitlesData(readings, theme),
+              gridData: const FlGridData(drawVerticalLine: false),
+              borderData: FlBorderData(show: false),
+              lineTouchData: const LineTouchData(enabled: false),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: systolicSpots,
+                  color: theme.colorScheme.primary,
+                  barWidth: 2.5,
+                  // A line needs 2+ points to be visible; show a dot
+                  // instead so a single reading isn't rendered as an
+                  // empty chart.
+                  dotData: FlDotData(show: systolicSpots.length < 2),
+                ),
+                LineChartBarData(
+                  spots: diastolicSpots,
+                  color: theme.colorScheme.secondary,
+                  barWidth: 2.5,
+                  dashArray: const [6, 4],
+                  dotData: FlDotData(show: diastolicSpots.length < 2),
+                ),
+              ],
             ),
-            LineChartBarData(
-              spots: diastolicSpots,
-              color: theme.colorScheme.secondary,
-              barWidth: 2.5,
-              dashArray: const [6, 4],
-              dotData: FlDotData(show: diastolicSpots.length < 2),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -177,29 +214,41 @@ class _PulseChart extends StatelessWidget {
       if (pulse != null) spots.add(FlSpot(i.toDouble(), pulse.toDouble()));
     }
 
-    return SizedBox(
-      height: 160,
-      child: LineChart(
-        LineChartData(
-          titlesData: _dateTitlesData(readings),
-          gridData: const FlGridData(drawVerticalLine: false),
-          borderData: FlBorderData(show: false),
-          lineTouchData: const LineTouchData(enabled: false),
-          lineBarsData: [
-            LineChartBarData(
-              spots: spots,
-              color: theme.colorScheme.tertiary,
-              barWidth: 2.5,
-              dotData: FlDotData(show: spots.length < 2),
+    return Semantics(
+      label: 'Pulse trend chart. See the summary below for averages.',
+      child: ExcludeSemantics(
+        child: SizedBox(
+          height: 160,
+          child: LineChart(
+            LineChartData(
+              titlesData: _dateTitlesData(readings, theme),
+              gridData: const FlGridData(drawVerticalLine: false),
+              borderData: FlBorderData(show: false),
+              lineTouchData: const LineTouchData(enabled: false),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: spots,
+                  color: theme.colorScheme.tertiary,
+                  barWidth: 2.5,
+                  dotData: FlDotData(show: spots.length < 2),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-FlTitlesData _dateTitlesData(List<BloodPressureReading> readings) {
+FlTitlesData _dateTitlesData(List<BloodPressureReading> readings, ThemeData theme) {
+  // Explicit theme-aware color so axis labels stay readable in dark mode
+  // instead of falling back to fl_chart's non-theme-aware default style
+  // (PROJECT_SPEC.md §35: "chart labels" need sufficient contrast).
+  final axisStyle = theme.textTheme.bodySmall?.copyWith(
+    color: theme.colorScheme.onSurfaceVariant,
+  );
+
   String labelFor(double x) {
     final index = x.round();
     if (index < 0 || index >= readings.length) return '';
@@ -210,14 +259,23 @@ FlTitlesData _dateTitlesData(List<BloodPressureReading> readings) {
   return FlTitlesData(
     topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
     rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-    leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: true, reservedSize: 36)),
+    leftTitles: AxisTitles(
+      sideTitles: SideTitles(
+        showTitles: true,
+        reservedSize: 36,
+        getTitlesWidget: (value, meta) =>
+            Text(value.round().toString(), style: axisStyle),
+      ),
+    ),
     bottomTitles: AxisTitles(
       sideTitles: SideTitles(
         showTitles: true,
         reservedSize: 24,
         interval: readings.length > 1 ? (readings.length - 1).toDouble() : 1,
-        getTitlesWidget: (value, meta) =>
-            Padding(padding: const EdgeInsets.only(top: 4), child: Text(labelFor(value))),
+        getTitlesWidget: (value, meta) => Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(labelFor(value), style: axisStyle),
+        ),
       ),
     ),
   );

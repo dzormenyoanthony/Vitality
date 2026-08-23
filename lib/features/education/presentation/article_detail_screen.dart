@@ -51,7 +51,7 @@ class ArticleDetailScreen extends ConsumerWidget {
           Text(
             'This is general information, not personalized medical advice. '
             'If you feel unwell, contact a clinician or emergency services.',
-            style: theme.textTheme.bodySmall,
+            style: theme.textTheme.bodyMedium,
           ),
         ],
       ),

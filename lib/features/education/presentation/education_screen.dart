@@ -55,7 +55,7 @@ class EducationScreen extends ConsumerWidget {
           Text(
             'Sources listed on each article. If you feel unwell, contact a '
             'clinician or emergency services.',
-            style: theme.textTheme.bodySmall,
+            style: theme.textTheme.bodyMedium,
           ),
         ],
       ),
