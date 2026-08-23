@@ -16,6 +16,25 @@ abstract final class AppColors {
   /// Warm CTA accent (FAB, primary "add" actions) — distinct from the
   /// brand teal so calls to action stand out.
   static const Color actionAccent = Color(0xFFD8654A);
+
+  /// Splash screen colors, sampled directly from
+  /// `design_references/Splash.png` — independent of light/dark theme,
+  /// since the splash is a fixed brand moment shown before the user's
+  /// theme preference is relevant.
+  static const Color splashBackground = Color(0xFF0C4F4A);
+  static const Color splashBlobBright = Color(0xFF12665F);
+  static const Color splashBlobSmall = Color(0xFF31554D);
+  static const Color splashBlobBottom = Color(0xFF0A423E);
+
+  /// Pale mint fill behind the splash icon, matching the reference —
+  /// intentionally not [AppAccentColors.mintBackground] since this needs
+  /// to stay legible against [splashBackground] regardless of app theme.
+  static const Color splashIconBackground = Color(0xFFCDEBE5);
+
+  /// Coral used only on the splash screen (wordmark dot, loading bar) —
+  /// sampled from the reference, distinct from [actionAccent].
+  static const Color splashAccent = Color(0xFFF2765C);
+  static const Color splashProgressTrack = Color(0xFF3D726E);
 }
 
 /// Four decorative (background, foreground) accent pairs used for
