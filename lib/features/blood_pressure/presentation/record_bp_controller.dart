@@ -18,7 +18,9 @@ class RecordBpController extends AsyncNotifier<void> {
     int? pulse,
     required DateTime timestamp,
     String? notes,
-    MeasurementContext? measurementContext,
+    List<MeasurementContext> measurementContexts = const [],
+    BodyPosition? bodyPosition,
+    CuffArm? cuffArm,
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -30,7 +32,9 @@ class RecordBpController extends AsyncNotifier<void> {
           pulse: pulse,
           timestamp: timestamp,
           notes: notes,
-          measurementContext: measurementContext,
+          measurementContexts: measurementContexts,
+          bodyPosition: bodyPosition,
+          cuffArm: cuffArm,
         );
       } else {
         await repository.updateReading(
@@ -40,7 +44,9 @@ class RecordBpController extends AsyncNotifier<void> {
           pulse: pulse,
           timestamp: timestamp,
           notes: notes,
-          measurementContext: measurementContext,
+          measurementContexts: measurementContexts,
+          bodyPosition: bodyPosition,
+          cuffArm: cuffArm,
         );
       }
     });

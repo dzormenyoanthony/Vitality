@@ -9,6 +9,7 @@ import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
+import '../domain/same_time_comparison.dart';
 import 'measurement_context_label.dart';
 
 /// Full detail of a single reading, with edit and delete actions
@@ -85,7 +86,8 @@ class ReadingDetailScreen extends ConsumerWidget {
           if (reading == null) {
             return const ErrorView(message: 'This reading no longer exists.');
           }
-          return _ReadingDetailBody(reading: reading);
+          final allReadings = ref.watch(readingsStreamProvider).value ?? [reading];
+          return _ReadingDetailBody(reading: reading, allReadings: allReadings);
         },
       ),
     );
@@ -93,13 +95,16 @@ class ReadingDetailScreen extends ConsumerWidget {
 }
 
 class _ReadingDetailBody extends StatelessWidget {
-  const _ReadingDetailBody({required this.reading});
+  const _ReadingDetailBody({required this.reading, required this.allReadings});
 
   final BloodPressureReading reading;
+  final List<BloodPressureReading> allReadings;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final comparison = sameTimeOfDayReadings(allReadings, reading);
+
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
@@ -108,17 +113,102 @@ class _ReadingDetailBody extends StatelessWidget {
           style: theme.textTheme.headlineMedium,
         ),
         const SizedBox(height: AppSpacing.sm),
-        Text(reading.timestamp.toString(), style: theme.textTheme.bodyMedium),
+        Text(_formatTimestamp(reading.timestamp), style: theme.textTheme.bodyMedium),
         const SizedBox(height: AppSpacing.lg),
         if (reading.pulse != null) _DetailRow(label: 'Pulse', value: '${reading.pulse} bpm'),
-        if (reading.measurementContext != null)
-          _DetailRow(label: 'Context', value: reading.measurementContext!.label),
+        if (reading.bodyPosition != null)
+          _DetailRow(label: 'Body position', value: reading.bodyPosition!.label),
+        if (reading.cuffArm != null) _DetailRow(label: 'Cuff arm', value: reading.cuffArm!.label),
+        if (reading.measurementContexts.isNotEmpty)
+          _DetailRow(
+            label: 'Context',
+            value: reading.measurementContexts.map((c) => c.label).join(', '),
+          ),
         if (reading.notes != null && reading.notes!.isNotEmpty)
           _DetailRow(label: 'Notes', value: reading.notes!),
+        if (comparison.length > 1) ...[
+          const SizedBox(height: AppSpacing.md),
+          _SameTimeOfDayCard(readings: comparison, highlightId: reading.id),
+        ],
       ],
     );
   }
 }
+
+/// Systolic values for the last few readings sharing this reading's
+/// morning/evening bucket — purely a visual comparison of the user's own
+/// past entries, no interpretation (PROJECT_SPEC.md §12-14).
+class _SameTimeOfDayCard extends StatelessWidget {
+  const _SameTimeOfDayCard({required this.readings, required this.highlightId});
+
+  final List<BloodPressureReading> readings;
+  final int highlightId;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isMorning = readings.last.timestamp.hour < 12 ||
+        readings.last.measurementContexts.contains(MeasurementContext.morning);
+    final maxSystolic = readings.map((r) => r.systolic).reduce((a, b) => a > b ? a : b);
+
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        border: Border.all(color: theme.colorScheme.outlineVariant),
+        borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('SAME TIME OF DAY, LAST ${readings.length}', style: theme.textTheme.labelMedium),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              for (final r in readings) ...[
+                Expanded(
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: 48,
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: FractionallySizedBox(
+                            heightFactor: r.systolic / maxSystolic,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: r.id == highlightId
+                                    ? theme.colorScheme.primary
+                                    : theme.colorScheme.primaryContainer,
+                                borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      Text('${r.timestamp.month}/${r.timestamp.day}', style: theme.textTheme.labelSmall),
+                    ],
+                  ),
+                ),
+                if (r != readings.last) const SizedBox(width: AppSpacing.xs),
+              ],
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Systolic values, ${isMorning ? 'morning' : 'evening'} readings only.',
+            style: theme.textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String _formatTimestamp(DateTime ts) =>
+    '${ts.year}-${ts.month.toString().padLeft(2, '0')}-${ts.day.toString().padLeft(2, '0')} '
+    '${ts.hour.toString().padLeft(2, '0')}:${ts.minute.toString().padLeft(2, '0')}';
 
 class _DetailRow extends StatelessWidget {
   const _DetailRow({required this.label, required this.value});

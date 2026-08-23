@@ -20,6 +20,12 @@ class OnboardingWelcomeScreen extends StatelessWidget {
         children: [
           Icon(Icons.favorite_outline, size: 48, color: theme.colorScheme.primary),
           const SizedBox(height: AppSpacing.lg),
+          Text(
+            'VITALY',
+            textAlign: TextAlign.center,
+            style: theme.textTheme.labelMedium?.copyWith(color: theme.colorScheme.primary),
+          ),
+          const SizedBox(height: AppSpacing.xs),
           Text('Welcome to Vitaly', style: theme.textTheme.headlineMedium),
           const SizedBox(height: AppSpacing.md),
           Text(

@@ -83,6 +83,39 @@ class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
         type: DriftSqlType.string,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _measurementContextsMeta =
+      const VerificationMeta('measurementContexts');
+  @override
+  late final GeneratedColumn<String> measurementContexts =
+      GeneratedColumn<String>(
+        'measurement_contexts',
+        aliasedName,
+        true,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _bodyPositionMeta = const VerificationMeta(
+    'bodyPosition',
+  );
+  @override
+  late final GeneratedColumn<String> bodyPosition = GeneratedColumn<String>(
+    'body_position',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cuffArmMeta = const VerificationMeta(
+    'cuffArm',
+  );
+  @override
+  late final GeneratedColumn<String> cuffArm = GeneratedColumn<String>(
+    'cuff_arm',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -136,6 +169,9 @@ class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
     timestamp,
     notes,
     measurementContext,
+    measurementContexts,
+    bodyPosition,
+    cuffArm,
     createdAt,
     updatedAt,
     remoteId,
@@ -199,6 +235,30 @@ class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
           data['measurement_context']!,
           _measurementContextMeta,
         ),
+      );
+    }
+    if (data.containsKey('measurement_contexts')) {
+      context.handle(
+        _measurementContextsMeta,
+        measurementContexts.isAcceptableOrUnknown(
+          data['measurement_contexts']!,
+          _measurementContextsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('body_position')) {
+      context.handle(
+        _bodyPositionMeta,
+        bodyPosition.isAcceptableOrUnknown(
+          data['body_position']!,
+          _bodyPositionMeta,
+        ),
+      );
+    }
+    if (data.containsKey('cuff_arm')) {
+      context.handle(
+        _cuffArmMeta,
+        cuffArm.isAcceptableOrUnknown(data['cuff_arm']!, _cuffArmMeta),
       );
     }
     if (data.containsKey('created_at')) {
@@ -266,6 +326,18 @@ class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
         DriftSqlType.string,
         data['${effectivePrefix}measurement_context'],
       ),
+      measurementContexts: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}measurement_contexts'],
+      ),
+      bodyPosition: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}body_position'],
+      ),
+      cuffArm: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cuff_arm'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -298,7 +370,17 @@ class Reading extends DataClass implements Insertable<Reading> {
   final int? pulse;
   final DateTime timestamp;
   final String? notes;
+
+  /// Deprecated single-value column, kept only so v3 data survives the
+  /// migration to [measurementContexts] below — no longer written to.
   final String? measurementContext;
+
+  /// Comma-separated [MeasurementContext] names — same lightweight
+  /// approach as [Reminders.daysOfWeek] rather than a join table, since
+  /// this is just a small set of tags.
+  final String? measurementContexts;
+  final String? bodyPosition;
+  final String? cuffArm;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -319,6 +401,9 @@ class Reading extends DataClass implements Insertable<Reading> {
     required this.timestamp,
     this.notes,
     this.measurementContext,
+    this.measurementContexts,
+    this.bodyPosition,
+    this.cuffArm,
     required this.createdAt,
     required this.updatedAt,
     this.remoteId,
@@ -339,6 +424,15 @@ class Reading extends DataClass implements Insertable<Reading> {
     }
     if (!nullToAbsent || measurementContext != null) {
       map['measurement_context'] = Variable<String>(measurementContext);
+    }
+    if (!nullToAbsent || measurementContexts != null) {
+      map['measurement_contexts'] = Variable<String>(measurementContexts);
+    }
+    if (!nullToAbsent || bodyPosition != null) {
+      map['body_position'] = Variable<String>(bodyPosition);
+    }
+    if (!nullToAbsent || cuffArm != null) {
+      map['cuff_arm'] = Variable<String>(cuffArm);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -366,6 +460,15 @@ class Reading extends DataClass implements Insertable<Reading> {
       measurementContext: measurementContext == null && nullToAbsent
           ? const Value.absent()
           : Value(measurementContext),
+      measurementContexts: measurementContexts == null && nullToAbsent
+          ? const Value.absent()
+          : Value(measurementContexts),
+      bodyPosition: bodyPosition == null && nullToAbsent
+          ? const Value.absent()
+          : Value(bodyPosition),
+      cuffArm: cuffArm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cuffArm),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       remoteId: remoteId == null && nullToAbsent
@@ -392,6 +495,11 @@ class Reading extends DataClass implements Insertable<Reading> {
       measurementContext: serializer.fromJson<String?>(
         json['measurementContext'],
       ),
+      measurementContexts: serializer.fromJson<String?>(
+        json['measurementContexts'],
+      ),
+      bodyPosition: serializer.fromJson<String?>(json['bodyPosition']),
+      cuffArm: serializer.fromJson<String?>(json['cuffArm']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       remoteId: serializer.fromJson<String?>(json['remoteId']),
@@ -409,6 +517,9 @@ class Reading extends DataClass implements Insertable<Reading> {
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'notes': serializer.toJson<String?>(notes),
       'measurementContext': serializer.toJson<String?>(measurementContext),
+      'measurementContexts': serializer.toJson<String?>(measurementContexts),
+      'bodyPosition': serializer.toJson<String?>(bodyPosition),
+      'cuffArm': serializer.toJson<String?>(cuffArm),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'remoteId': serializer.toJson<String?>(remoteId),
@@ -424,6 +535,9 @@ class Reading extends DataClass implements Insertable<Reading> {
     DateTime? timestamp,
     Value<String?> notes = const Value.absent(),
     Value<String?> measurementContext = const Value.absent(),
+    Value<String?> measurementContexts = const Value.absent(),
+    Value<String?> bodyPosition = const Value.absent(),
+    Value<String?> cuffArm = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<String?> remoteId = const Value.absent(),
@@ -438,6 +552,11 @@ class Reading extends DataClass implements Insertable<Reading> {
     measurementContext: measurementContext.present
         ? measurementContext.value
         : this.measurementContext,
+    measurementContexts: measurementContexts.present
+        ? measurementContexts.value
+        : this.measurementContexts,
+    bodyPosition: bodyPosition.present ? bodyPosition.value : this.bodyPosition,
+    cuffArm: cuffArm.present ? cuffArm.value : this.cuffArm,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     remoteId: remoteId.present ? remoteId.value : this.remoteId,
@@ -454,6 +573,13 @@ class Reading extends DataClass implements Insertable<Reading> {
       measurementContext: data.measurementContext.present
           ? data.measurementContext.value
           : this.measurementContext,
+      measurementContexts: data.measurementContexts.present
+          ? data.measurementContexts.value
+          : this.measurementContexts,
+      bodyPosition: data.bodyPosition.present
+          ? data.bodyPosition.value
+          : this.bodyPosition,
+      cuffArm: data.cuffArm.present ? data.cuffArm.value : this.cuffArm,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
@@ -471,6 +597,9 @@ class Reading extends DataClass implements Insertable<Reading> {
           ..write('timestamp: $timestamp, ')
           ..write('notes: $notes, ')
           ..write('measurementContext: $measurementContext, ')
+          ..write('measurementContexts: $measurementContexts, ')
+          ..write('bodyPosition: $bodyPosition, ')
+          ..write('cuffArm: $cuffArm, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('remoteId: $remoteId, ')
@@ -488,6 +617,9 @@ class Reading extends DataClass implements Insertable<Reading> {
     timestamp,
     notes,
     measurementContext,
+    measurementContexts,
+    bodyPosition,
+    cuffArm,
     createdAt,
     updatedAt,
     remoteId,
@@ -504,6 +636,9 @@ class Reading extends DataClass implements Insertable<Reading> {
           other.timestamp == this.timestamp &&
           other.notes == this.notes &&
           other.measurementContext == this.measurementContext &&
+          other.measurementContexts == this.measurementContexts &&
+          other.bodyPosition == this.bodyPosition &&
+          other.cuffArm == this.cuffArm &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.remoteId == this.remoteId &&
@@ -518,6 +653,9 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
   final Value<DateTime> timestamp;
   final Value<String?> notes;
   final Value<String?> measurementContext;
+  final Value<String?> measurementContexts;
+  final Value<String?> bodyPosition;
+  final Value<String?> cuffArm;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<String?> remoteId;
@@ -530,6 +668,9 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     this.timestamp = const Value.absent(),
     this.notes = const Value.absent(),
     this.measurementContext = const Value.absent(),
+    this.measurementContexts = const Value.absent(),
+    this.bodyPosition = const Value.absent(),
+    this.cuffArm = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.remoteId = const Value.absent(),
@@ -543,6 +684,9 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     required DateTime timestamp,
     this.notes = const Value.absent(),
     this.measurementContext = const Value.absent(),
+    this.measurementContexts = const Value.absent(),
+    this.bodyPosition = const Value.absent(),
+    this.cuffArm = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.remoteId = const Value.absent(),
@@ -560,6 +704,9 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     Expression<DateTime>? timestamp,
     Expression<String>? notes,
     Expression<String>? measurementContext,
+    Expression<String>? measurementContexts,
+    Expression<String>? bodyPosition,
+    Expression<String>? cuffArm,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? remoteId,
@@ -573,6 +720,10 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
       if (timestamp != null) 'timestamp': timestamp,
       if (notes != null) 'notes': notes,
       if (measurementContext != null) 'measurement_context': measurementContext,
+      if (measurementContexts != null)
+        'measurement_contexts': measurementContexts,
+      if (bodyPosition != null) 'body_position': bodyPosition,
+      if (cuffArm != null) 'cuff_arm': cuffArm,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (remoteId != null) 'remote_id': remoteId,
@@ -588,6 +739,9 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     Value<DateTime>? timestamp,
     Value<String?>? notes,
     Value<String?>? measurementContext,
+    Value<String?>? measurementContexts,
+    Value<String?>? bodyPosition,
+    Value<String?>? cuffArm,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<String?>? remoteId,
@@ -601,6 +755,9 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
       timestamp: timestamp ?? this.timestamp,
       notes: notes ?? this.notes,
       measurementContext: measurementContext ?? this.measurementContext,
+      measurementContexts: measurementContexts ?? this.measurementContexts,
+      bodyPosition: bodyPosition ?? this.bodyPosition,
+      cuffArm: cuffArm ?? this.cuffArm,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       remoteId: remoteId ?? this.remoteId,
@@ -632,6 +789,15 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     if (measurementContext.present) {
       map['measurement_context'] = Variable<String>(measurementContext.value);
     }
+    if (measurementContexts.present) {
+      map['measurement_contexts'] = Variable<String>(measurementContexts.value);
+    }
+    if (bodyPosition.present) {
+      map['body_position'] = Variable<String>(bodyPosition.value);
+    }
+    if (cuffArm.present) {
+      map['cuff_arm'] = Variable<String>(cuffArm.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -657,6 +823,9 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
           ..write('timestamp: $timestamp, ')
           ..write('notes: $notes, ')
           ..write('measurementContext: $measurementContext, ')
+          ..write('measurementContexts: $measurementContexts, ')
+          ..write('bodyPosition: $bodyPosition, ')
+          ..write('cuffArm: $cuffArm, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('remoteId: $remoteId, ')
@@ -738,6 +907,26 @@ class $RemindersTable extends Reminders
     ),
     defaultValue: const Constant(true),
   );
+  static const VerificationMeta _quietHoursStartMinutesMeta =
+      const VerificationMeta('quietHoursStartMinutes');
+  @override
+  late final GeneratedColumn<int> quietHoursStartMinutes = GeneratedColumn<int>(
+    'quiet_hours_start_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _quietHoursEndMinutesMeta =
+      const VerificationMeta('quietHoursEndMinutes');
+  @override
+  late final GeneratedColumn<int> quietHoursEndMinutes = GeneratedColumn<int>(
+    'quiet_hours_end_minutes',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -790,6 +979,8 @@ class $RemindersTable extends Reminders
     minute,
     daysOfWeek,
     enabled,
+    quietHoursStartMinutes,
+    quietHoursEndMinutes,
     createdAt,
     updatedAt,
     remoteId,
@@ -849,6 +1040,24 @@ class $RemindersTable extends Reminders
       context.handle(
         _enabledMeta,
         enabled.isAcceptableOrUnknown(data['enabled']!, _enabledMeta),
+      );
+    }
+    if (data.containsKey('quiet_hours_start_minutes')) {
+      context.handle(
+        _quietHoursStartMinutesMeta,
+        quietHoursStartMinutes.isAcceptableOrUnknown(
+          data['quiet_hours_start_minutes']!,
+          _quietHoursStartMinutesMeta,
+        ),
+      );
+    }
+    if (data.containsKey('quiet_hours_end_minutes')) {
+      context.handle(
+        _quietHoursEndMinutesMeta,
+        quietHoursEndMinutes.isAcceptableOrUnknown(
+          data['quiet_hours_end_minutes']!,
+          _quietHoursEndMinutesMeta,
+        ),
       );
     }
     if (data.containsKey('created_at')) {
@@ -912,6 +1121,14 @@ class $RemindersTable extends Reminders
         DriftSqlType.bool,
         data['${effectivePrefix}enabled'],
       )!,
+      quietHoursStartMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}quiet_hours_start_minutes'],
+      ),
+      quietHoursEndMinutes: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}quiet_hours_end_minutes'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -944,6 +1161,12 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
   final int minute;
   final String daysOfWeek;
   final bool enabled;
+
+  /// Optional silence window (minutes since midnight, 0-1439). When a
+  /// reminder's fixed fire time falls inside this window, it's delivered
+  /// silently (no sound/vibration) instead of not firing at all.
+  final int? quietHoursStartMinutes;
+  final int? quietHoursEndMinutes;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -963,6 +1186,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     required this.minute,
     required this.daysOfWeek,
     required this.enabled,
+    this.quietHoursStartMinutes,
+    this.quietHoursEndMinutes,
     required this.createdAt,
     required this.updatedAt,
     this.remoteId,
@@ -977,6 +1202,12 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     map['minute'] = Variable<int>(minute);
     map['days_of_week'] = Variable<String>(daysOfWeek);
     map['enabled'] = Variable<bool>(enabled);
+    if (!nullToAbsent || quietHoursStartMinutes != null) {
+      map['quiet_hours_start_minutes'] = Variable<int>(quietHoursStartMinutes);
+    }
+    if (!nullToAbsent || quietHoursEndMinutes != null) {
+      map['quiet_hours_end_minutes'] = Variable<int>(quietHoursEndMinutes);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     if (!nullToAbsent || remoteId != null) {
@@ -996,6 +1227,12 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       minute: Value(minute),
       daysOfWeek: Value(daysOfWeek),
       enabled: Value(enabled),
+      quietHoursStartMinutes: quietHoursStartMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quietHoursStartMinutes),
+      quietHoursEndMinutes: quietHoursEndMinutes == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quietHoursEndMinutes),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       remoteId: remoteId == null && nullToAbsent
@@ -1019,6 +1256,12 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       minute: serializer.fromJson<int>(json['minute']),
       daysOfWeek: serializer.fromJson<String>(json['daysOfWeek']),
       enabled: serializer.fromJson<bool>(json['enabled']),
+      quietHoursStartMinutes: serializer.fromJson<int?>(
+        json['quietHoursStartMinutes'],
+      ),
+      quietHoursEndMinutes: serializer.fromJson<int?>(
+        json['quietHoursEndMinutes'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       remoteId: serializer.fromJson<String?>(json['remoteId']),
@@ -1035,6 +1278,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
       'minute': serializer.toJson<int>(minute),
       'daysOfWeek': serializer.toJson<String>(daysOfWeek),
       'enabled': serializer.toJson<bool>(enabled),
+      'quietHoursStartMinutes': serializer.toJson<int?>(quietHoursStartMinutes),
+      'quietHoursEndMinutes': serializer.toJson<int?>(quietHoursEndMinutes),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'remoteId': serializer.toJson<String?>(remoteId),
@@ -1049,6 +1294,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     int? minute,
     String? daysOfWeek,
     bool? enabled,
+    Value<int?> quietHoursStartMinutes = const Value.absent(),
+    Value<int?> quietHoursEndMinutes = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<String?> remoteId = const Value.absent(),
@@ -1060,6 +1307,12 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     minute: minute ?? this.minute,
     daysOfWeek: daysOfWeek ?? this.daysOfWeek,
     enabled: enabled ?? this.enabled,
+    quietHoursStartMinutes: quietHoursStartMinutes.present
+        ? quietHoursStartMinutes.value
+        : this.quietHoursStartMinutes,
+    quietHoursEndMinutes: quietHoursEndMinutes.present
+        ? quietHoursEndMinutes.value
+        : this.quietHoursEndMinutes,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     remoteId: remoteId.present ? remoteId.value : this.remoteId,
@@ -1075,6 +1328,12 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           ? data.daysOfWeek.value
           : this.daysOfWeek,
       enabled: data.enabled.present ? data.enabled.value : this.enabled,
+      quietHoursStartMinutes: data.quietHoursStartMinutes.present
+          ? data.quietHoursStartMinutes.value
+          : this.quietHoursStartMinutes,
+      quietHoursEndMinutes: data.quietHoursEndMinutes.present
+          ? data.quietHoursEndMinutes.value
+          : this.quietHoursEndMinutes,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
@@ -1091,6 +1350,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           ..write('minute: $minute, ')
           ..write('daysOfWeek: $daysOfWeek, ')
           ..write('enabled: $enabled, ')
+          ..write('quietHoursStartMinutes: $quietHoursStartMinutes, ')
+          ..write('quietHoursEndMinutes: $quietHoursEndMinutes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('remoteId: $remoteId, ')
@@ -1107,6 +1368,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
     minute,
     daysOfWeek,
     enabled,
+    quietHoursStartMinutes,
+    quietHoursEndMinutes,
     createdAt,
     updatedAt,
     remoteId,
@@ -1122,6 +1385,8 @@ class ReminderRow extends DataClass implements Insertable<ReminderRow> {
           other.minute == this.minute &&
           other.daysOfWeek == this.daysOfWeek &&
           other.enabled == this.enabled &&
+          other.quietHoursStartMinutes == this.quietHoursStartMinutes &&
+          other.quietHoursEndMinutes == this.quietHoursEndMinutes &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.remoteId == this.remoteId &&
@@ -1135,6 +1400,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
   final Value<int> minute;
   final Value<String> daysOfWeek;
   final Value<bool> enabled;
+  final Value<int?> quietHoursStartMinutes;
+  final Value<int?> quietHoursEndMinutes;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<String?> remoteId;
@@ -1146,6 +1413,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     this.minute = const Value.absent(),
     this.daysOfWeek = const Value.absent(),
     this.enabled = const Value.absent(),
+    this.quietHoursStartMinutes = const Value.absent(),
+    this.quietHoursEndMinutes = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.remoteId = const Value.absent(),
@@ -1158,6 +1427,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     required int minute,
     required String daysOfWeek,
     this.enabled = const Value.absent(),
+    this.quietHoursStartMinutes = const Value.absent(),
+    this.quietHoursEndMinutes = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.remoteId = const Value.absent(),
@@ -1175,6 +1446,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     Expression<int>? minute,
     Expression<String>? daysOfWeek,
     Expression<bool>? enabled,
+    Expression<int>? quietHoursStartMinutes,
+    Expression<int>? quietHoursEndMinutes,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? remoteId,
@@ -1187,6 +1460,10 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
       if (minute != null) 'minute': minute,
       if (daysOfWeek != null) 'days_of_week': daysOfWeek,
       if (enabled != null) 'enabled': enabled,
+      if (quietHoursStartMinutes != null)
+        'quiet_hours_start_minutes': quietHoursStartMinutes,
+      if (quietHoursEndMinutes != null)
+        'quiet_hours_end_minutes': quietHoursEndMinutes,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (remoteId != null) 'remote_id': remoteId,
@@ -1201,6 +1478,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     Value<int>? minute,
     Value<String>? daysOfWeek,
     Value<bool>? enabled,
+    Value<int?>? quietHoursStartMinutes,
+    Value<int?>? quietHoursEndMinutes,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<String?>? remoteId,
@@ -1213,6 +1492,9 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
       minute: minute ?? this.minute,
       daysOfWeek: daysOfWeek ?? this.daysOfWeek,
       enabled: enabled ?? this.enabled,
+      quietHoursStartMinutes:
+          quietHoursStartMinutes ?? this.quietHoursStartMinutes,
+      quietHoursEndMinutes: quietHoursEndMinutes ?? this.quietHoursEndMinutes,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       remoteId: remoteId ?? this.remoteId,
@@ -1241,6 +1523,16 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
     if (enabled.present) {
       map['enabled'] = Variable<bool>(enabled.value);
     }
+    if (quietHoursStartMinutes.present) {
+      map['quiet_hours_start_minutes'] = Variable<int>(
+        quietHoursStartMinutes.value,
+      );
+    }
+    if (quietHoursEndMinutes.present) {
+      map['quiet_hours_end_minutes'] = Variable<int>(
+        quietHoursEndMinutes.value,
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1265,6 +1557,8 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
           ..write('minute: $minute, ')
           ..write('daysOfWeek: $daysOfWeek, ')
           ..write('enabled: $enabled, ')
+          ..write('quietHoursStartMinutes: $quietHoursStartMinutes, ')
+          ..write('quietHoursEndMinutes: $quietHoursEndMinutes, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('remoteId: $remoteId, ')
@@ -1294,6 +1588,9 @@ typedef $$ReadingsTableCreateCompanionBuilder = ReadingsCompanion Function({
   required DateTime timestamp,
   Value<String?> notes,
   Value<String?> measurementContext,
+  Value<String?> measurementContexts,
+  Value<String?> bodyPosition,
+  Value<String?> cuffArm,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<String?> remoteId,
@@ -1307,6 +1604,9 @@ typedef $$ReadingsTableUpdateCompanionBuilder = ReadingsCompanion Function({
   Value<DateTime> timestamp,
   Value<String?> notes,
   Value<String?> measurementContext,
+  Value<String?> measurementContexts,
+  Value<String?> bodyPosition,
+  Value<String?> cuffArm,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<String?> remoteId,
@@ -1354,6 +1654,21 @@ class $$ReadingsTableFilterComposer
 
   ColumnFilters<String> get measurementContext => $composableBuilder(
     column: $table.measurementContext,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get measurementContexts => $composableBuilder(
+    column: $table.measurementContexts,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get bodyPosition => $composableBuilder(
+    column: $table.bodyPosition,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get cuffArm => $composableBuilder(
+    column: $table.cuffArm,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1422,6 +1737,21 @@ class $$ReadingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get measurementContexts => $composableBuilder(
+    column: $table.measurementContexts,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get bodyPosition => $composableBuilder(
+    column: $table.bodyPosition,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get cuffArm => $composableBuilder(
+    column: $table.cuffArm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -1475,6 +1805,19 @@ class $$ReadingsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get measurementContexts => $composableBuilder(
+    column: $table.measurementContexts,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get bodyPosition => $composableBuilder(
+    column: $table.bodyPosition,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get cuffArm =>
+      $composableBuilder(column: $table.cuffArm, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -1523,6 +1866,9 @@ class $$ReadingsTableTableManager
                 Value<DateTime> timestamp = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
                 Value<String?> measurementContext = const Value.absent(),
+                Value<String?> measurementContexts = const Value.absent(),
+                Value<String?> bodyPosition = const Value.absent(),
+                Value<String?> cuffArm = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<String?> remoteId = const Value.absent(),
@@ -1535,6 +1881,9 @@ class $$ReadingsTableTableManager
                 timestamp: timestamp,
                 notes: notes,
                 measurementContext: measurementContext,
+                measurementContexts: measurementContexts,
+                bodyPosition: bodyPosition,
+                cuffArm: cuffArm,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 remoteId: remoteId,
@@ -1549,6 +1898,9 @@ class $$ReadingsTableTableManager
                 required DateTime timestamp,
                 Value<String?> notes = const Value.absent(),
                 Value<String?> measurementContext = const Value.absent(),
+                Value<String?> measurementContexts = const Value.absent(),
+                Value<String?> bodyPosition = const Value.absent(),
+                Value<String?> cuffArm = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<String?> remoteId = const Value.absent(),
@@ -1561,6 +1913,9 @@ class $$ReadingsTableTableManager
                 timestamp: timestamp,
                 notes: notes,
                 measurementContext: measurementContext,
+                measurementContexts: measurementContexts,
+                bodyPosition: bodyPosition,
+                cuffArm: cuffArm,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 remoteId: remoteId,
@@ -1595,6 +1950,8 @@ typedef $$RemindersTableCreateCompanionBuilder = RemindersCompanion Function({
   required int minute,
   required String daysOfWeek,
   Value<bool> enabled,
+  Value<int?> quietHoursStartMinutes,
+  Value<int?> quietHoursEndMinutes,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<String?> remoteId,
@@ -1607,6 +1964,8 @@ typedef $$RemindersTableUpdateCompanionBuilder = RemindersCompanion Function({
   Value<int> minute,
   Value<String> daysOfWeek,
   Value<bool> enabled,
+  Value<int?> quietHoursStartMinutes,
+  Value<int?> quietHoursEndMinutes,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<String?> remoteId,
@@ -1649,6 +2008,16 @@ class $$RemindersTableFilterComposer
 
   ColumnFilters<bool> get enabled => $composableBuilder(
     column: $table.enabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get quietHoursStartMinutes => $composableBuilder(
+    column: $table.quietHoursStartMinutes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get quietHoursEndMinutes => $composableBuilder(
+    column: $table.quietHoursEndMinutes,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1712,6 +2081,16 @@ class $$RemindersTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get quietHoursStartMinutes => $composableBuilder(
+    column: $table.quietHoursStartMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get quietHoursEndMinutes => $composableBuilder(
+    column: $table.quietHoursEndMinutes,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -1761,6 +2140,16 @@ class $$RemindersTableAnnotationComposer
 
   GeneratedColumn<bool> get enabled =>
       $composableBuilder(column: $table.enabled, builder: (column) => column);
+
+  GeneratedColumn<int> get quietHoursStartMinutes => $composableBuilder(
+    column: $table.quietHoursStartMinutes,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get quietHoursEndMinutes => $composableBuilder(
+    column: $table.quietHoursEndMinutes,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -1812,6 +2201,8 @@ class $$RemindersTableTableManager
                 Value<int> minute = const Value.absent(),
                 Value<String> daysOfWeek = const Value.absent(),
                 Value<bool> enabled = const Value.absent(),
+                Value<int?> quietHoursStartMinutes = const Value.absent(),
+                Value<int?> quietHoursEndMinutes = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<String?> remoteId = const Value.absent(),
@@ -1823,6 +2214,8 @@ class $$RemindersTableTableManager
                 minute: minute,
                 daysOfWeek: daysOfWeek,
                 enabled: enabled,
+                quietHoursStartMinutes: quietHoursStartMinutes,
+                quietHoursEndMinutes: quietHoursEndMinutes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 remoteId: remoteId,
@@ -1836,6 +2229,8 @@ class $$RemindersTableTableManager
                 required int minute,
                 required String daysOfWeek,
                 Value<bool> enabled = const Value.absent(),
+                Value<int?> quietHoursStartMinutes = const Value.absent(),
+                Value<int?> quietHoursEndMinutes = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<String?> remoteId = const Value.absent(),
@@ -1847,6 +2242,8 @@ class $$RemindersTableTableManager
                 minute: minute,
                 daysOfWeek: daysOfWeek,
                 enabled: enabled,
+                quietHoursStartMinutes: quietHoursStartMinutes,
+                quietHoursEndMinutes: quietHoursEndMinutes,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 remoteId: remoteId,

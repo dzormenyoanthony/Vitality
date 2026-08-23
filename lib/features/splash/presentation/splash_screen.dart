@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/router/auth_gate_provider.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../onboarding/data/user_profile_providers.dart';
 
@@ -18,7 +19,6 @@ class SplashScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final gate = ref.watch(authGateProvider);
-    final theme = Theme.of(context);
 
     if (gate case AuthGateError(:final uid, :final message)) {
       return Scaffold(
@@ -29,30 +29,81 @@ class SplashScreen extends ConsumerWidget {
       );
     }
 
+    final brightness = Theme.of(context).brightness;
+    final fill = brightness == Brightness.dark ? AppColors.heroFillDark : AppColors.heroFill;
+
     return Scaffold(
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                Icons.favorite_outline,
-                size: 48,
-                color: theme.colorScheme.primary,
-              ),
-              const SizedBox(height: 16),
-              Text('Vitaly', style: theme.textTheme.headlineMedium),
-              const SizedBox(height: 8),
-              Text(
-                'Your health and wellness companion',
-                style: theme.textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-            ],
+      backgroundColor: fill,
+      body: Stack(
+        children: [
+          Positioned(
+            top: -80,
+            right: -60,
+            child: _Blob(diameter: 260, color: Colors.white.withValues(alpha: 0.08)),
           ),
-        ),
+          Positioned(
+            top: 120,
+            left: -80,
+            child: _Blob(diameter: 180, color: Colors.white.withValues(alpha: 0.05)),
+          ),
+          Positioned(
+            bottom: -60,
+            left: -40,
+            child: _Blob(diameter: 220, color: Colors.white.withValues(alpha: 0.06)),
+          ),
+          Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 88,
+                    height: 88,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Icon(Icons.favorite_outline, size: 40, color: fill),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'VITALY',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: 4,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Your health and wellness companion',
+                    style: TextStyle(color: Colors.white70, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
+    );
+  }
+}
+
+class _Blob extends StatelessWidget {
+  const _Blob({required this.diameter, required this.color});
+
+  final double diameter;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: diameter,
+      height: diameter,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
   }
 }

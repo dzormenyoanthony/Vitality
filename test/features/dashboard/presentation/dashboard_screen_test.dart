@@ -38,7 +38,7 @@ void main() {
     await tester.pump();
 
     expect(find.textContaining("haven't recorded"), findsOneWidget);
-    expect(find.text('Learn'), findsOneWidget);
+    expect(find.text('LEARN'), findsOneWidget);
 
     await db.close();
   });
@@ -78,11 +78,11 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Latest reading'), findsOneWidget);
+    expect(find.text('LATEST READING'), findsOneWidget);
     expect(find.text('120/80 mmHg'), findsOneWidget);
-    expect(find.text('Last 7 days'), findsOneWidget);
+    expect(find.text('LAST 7 DAYS'), findsOneWidget);
     expect(find.textContaining('Average: 120/80 mmHg'), findsOneWidget);
-    expect(find.text('Learn'), findsOneWidget);
+    expect(find.text('LEARN'), findsOneWidget);
     expect(find.text('Browse all articles'), findsOneWidget);
 
     await db.close();

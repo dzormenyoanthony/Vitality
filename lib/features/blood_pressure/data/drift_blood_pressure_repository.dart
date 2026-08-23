@@ -22,6 +22,14 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
   final FirebaseFirestore? firestore;
   final String? Function()? currentUid;
 
+  List<MeasurementContext> _parseContexts(String? csv) =>
+      csv == null || csv.isEmpty
+      ? const []
+      : csv.split(',').map(MeasurementContext.values.byName).toList();
+
+  String? _formatContexts(List<MeasurementContext> contexts) =>
+      contexts.isEmpty ? null : contexts.map((c) => c.name).join(',');
+
   BloodPressureReading _toDomain(Reading row) {
     return BloodPressureReading(
       id: row.id,
@@ -30,9 +38,11 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
       pulse: row.pulse,
       timestamp: row.timestamp,
       notes: row.notes,
-      measurementContext: row.measurementContext == null
+      measurementContexts: _parseContexts(row.measurementContexts),
+      bodyPosition: row.bodyPosition == null
           ? null
-          : MeasurementContext.values.byName(row.measurementContext!),
+          : BodyPosition.values.byName(row.bodyPosition!),
+      cuffArm: row.cuffArm == null ? null : CuffArm.values.byName(row.cuffArm!),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -62,7 +72,9 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
     int? pulse,
     required DateTime timestamp,
     String? notes,
-    MeasurementContext? measurementContext,
+    List<MeasurementContext> measurementContexts = const [],
+    BodyPosition? bodyPosition,
+    CuffArm? cuffArm,
   }) async {
     final now = DateTime.now();
     final id = await _db
@@ -74,7 +86,9 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
             pulse: Value(pulse),
             timestamp: timestamp,
             notes: Value(notes),
-            measurementContext: Value(measurementContext?.name),
+            measurementContexts: Value(_formatContexts(measurementContexts)),
+            bodyPosition: Value(bodyPosition?.name),
+            cuffArm: Value(cuffArm?.name),
             createdAt: now,
             updatedAt: now,
           ),
@@ -91,7 +105,9 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
     int? pulse,
     required DateTime timestamp,
     String? notes,
-    MeasurementContext? measurementContext,
+    List<MeasurementContext> measurementContexts = const [],
+    BodyPosition? bodyPosition,
+    CuffArm? cuffArm,
   }) async {
     await (_db.update(_db.readings)..where((r) => r.id.equals(id))).write(
       ReadingsCompanion(
@@ -100,7 +116,9 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
         pulse: Value(pulse),
         timestamp: Value(timestamp),
         notes: Value(notes),
-        measurementContext: Value(measurementContext?.name),
+        measurementContexts: Value(_formatContexts(measurementContexts)),
+        bodyPosition: Value(bodyPosition?.name),
+        cuffArm: Value(cuffArm?.name),
         updatedAt: Value(DateTime.now()),
       ),
     );
@@ -153,7 +171,9 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
         'pulse': row.pulse,
         'timestamp': Timestamp.fromDate(row.timestamp),
         'notes': row.notes,
-        'measurementContext': row.measurementContext,
+        'measurementContexts': row.measurementContexts,
+        'bodyPosition': row.bodyPosition,
+        'cuffArm': row.cuffArm,
         'createdAt': Timestamp.fromDate(row.createdAt),
         'updatedAt': Timestamp.fromDate(row.updatedAt),
       }, SetOptions(merge: true));

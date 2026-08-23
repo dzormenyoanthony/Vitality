@@ -55,4 +55,70 @@ void main() {
 
     await db.close();
   });
+
+  testWidgets('the Morning filter hides an evening-only reading', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = DriftBloodPressureRepository(db);
+    await repository.addReading(
+      systolic: 120,
+      diastolic: 80,
+      timestamp: DateTime(2026, 1, 1, 8), // morning
+    );
+    await repository.addReading(
+      systolic: 130,
+      diastolic: 85,
+      timestamp: DateTime(2026, 1, 1, 21), // evening
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: HistoryScreen()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('120/80 mmHg'), findsOneWidget);
+    expect(find.text('130/85 mmHg'), findsOneWidget);
+
+    await tester.tap(find.widgetWithText(FilterChip, 'Morning'));
+    await tester.pump();
+
+    expect(find.text('120/80 mmHg'), findsOneWidget);
+    expect(find.text('130/85 mmHg'), findsNothing);
+
+    await db.close();
+  });
+
+  testWidgets('swiping a row right shows the delete confirmation dialog', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await DriftBloodPressureRepository(db).addReading(
+      systolic: 120,
+      diastolic: 80,
+      timestamp: DateTime(2026, 1, 1, 8),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: HistoryScreen()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    await tester.drag(find.text('120/80 mmHg'), const Offset(-500, 0));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Delete this reading?'), findsOneWidget);
+
+    // Cancel so the row survives and Drift's stream can tear down cleanly.
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+
+    await db.close();
+  });
 }

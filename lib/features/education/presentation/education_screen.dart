@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/widgets/tag_chip.dart';
 import '../data/article.dart';
 import 'education_providers.dart';
 
@@ -70,8 +72,18 @@ class _ArticleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
+    final pairs = accents.accents;
+    final (background, foreground) = pairs[article.category.index % pairs.length];
+
     return ListTile(
       onTap: () => context.push(AppRoutes.educationArticlePath(article.id)),
+      leading: TagChip(
+        label: article.readTimeMinutes.toString(),
+        background: background,
+        foreground: foreground,
+      ),
       title: Text(article.title),
       subtitle: Text('${article.summary} · ${article.readTimeMinutes} min'),
       trailing: const Icon(Icons.chevron_right),

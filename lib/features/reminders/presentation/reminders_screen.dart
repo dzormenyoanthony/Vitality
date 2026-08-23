@@ -24,6 +24,10 @@ class RemindersScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Reminders')),
       floatingActionButton: FloatingActionButton(
+        // Unique per screen: the bottom-nav shell keeps every tab (and any
+        // route pushed on top) mounted simultaneously, so default hero
+        // tags collide across FABs on different screens.
+        heroTag: 'reminders-fab',
         onPressed: () => context.push(AppRoutes.reminderForm),
         tooltip: 'Add reminder',
         child: const Icon(Icons.add),
@@ -86,7 +90,12 @@ class _ReminderTile extends ConsumerWidget {
       onTap: () => context.push(AppRoutes.reminderForm, extra: reminder),
       title: Text(reminder.label),
       subtitle: Text(
-        '${formatTimeOfDay(reminder.hour, reminder.minute)} · ${daysSummary(reminder.daysOfWeek)}',
+        [
+          '${formatTimeOfDay(reminder.hour, reminder.minute)} · ${daysSummary(reminder.daysOfWeek)}',
+          if (reminder.quietHoursStart != null && reminder.quietHoursEnd != null)
+            'silenced ${formatTimeOfDay(reminder.quietHoursStart!.$1, reminder.quietHoursStart!.$2)}'
+                '–${formatTimeOfDay(reminder.quietHoursEnd!.$1, reminder.quietHoursEnd!.$2)}',
+        ].join(' · '),
       ),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,

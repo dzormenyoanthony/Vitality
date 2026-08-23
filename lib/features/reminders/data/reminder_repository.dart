@@ -17,6 +17,8 @@ abstract interface class ReminderRepository {
     required int minute,
     required Set<int> daysOfWeek,
     required bool enabled,
+    (int hour, int minute)? quietHoursStart,
+    (int hour, int minute)? quietHoursEnd,
   });
 
   Future<void> updateReminder({
@@ -25,6 +27,8 @@ abstract interface class ReminderRepository {
     required int hour,
     required int minute,
     required Set<int> daysOfWeek,
+    (int hour, int minute)? quietHoursStart,
+    (int hour, int minute)? quietHoursEnd,
   });
 
   Future<void> setEnabled(int id, bool enabled);

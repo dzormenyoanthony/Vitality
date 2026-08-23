@@ -20,6 +20,7 @@ import '../../features/reminders/presentation/reminders_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 import '../constants/app_routes.dart';
+import '../widgets/main_shell.dart';
 import 'auth_gate_provider.dart';
 
 /// Bridges Riverpod's [authGateProvider] to go_router's `refreshListenable`
@@ -92,15 +93,47 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.onboarding,
         builder: (context, state) => const OnboardingScreen(),
       ),
-      GoRoute(
-        path: AppRoutes.dashboard,
-        name: AppRoutes.dashboard,
-        builder: (context, state) => const DashboardScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.history,
-        name: AppRoutes.history,
-        builder: (context, state) => const HistoryScreen(),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            MainShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.dashboard,
+                name: AppRoutes.dashboard,
+                builder: (context, state) => const DashboardScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.history,
+                name: AppRoutes.history,
+                builder: (context, state) => const HistoryScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.trends,
+                name: AppRoutes.trends,
+                builder: (context, state) => const TrendsScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppRoutes.education,
+                name: AppRoutes.education,
+                builder: (context, state) => const EducationScreen(),
+              ),
+            ],
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.recordBp,
@@ -115,11 +148,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => ReadingDetailScreen(
           readingId: int.parse(state.pathParameters['id']!),
         ),
-      ),
-      GoRoute(
-        path: AppRoutes.trends,
-        name: AppRoutes.trends,
-        builder: (context, state) => const TrendsScreen(),
       ),
       GoRoute(
         path: AppRoutes.reminders,
@@ -137,11 +165,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.settings,
         name: AppRoutes.settings,
         builder: (context, state) => const SettingsScreen(),
-      ),
-      GoRoute(
-        path: AppRoutes.education,
-        name: AppRoutes.education,
-        builder: (context, state) => const EducationScreen(),
       ),
       GoRoute(
         path: AppRoutes.educationArticle,

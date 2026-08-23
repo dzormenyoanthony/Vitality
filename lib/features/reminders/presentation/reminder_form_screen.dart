@@ -24,6 +24,8 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
   late final TextEditingController _labelController;
   late TimeOfDay _time;
   late Set<int> _selectedDays;
+  TimeOfDay? _quietHoursStart;
+  TimeOfDay? _quietHoursEnd;
 
   bool get _isEditing => widget.existingReminder != null;
 
@@ -36,6 +38,12 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
         ? TimeOfDay.now()
         : TimeOfDay(hour: existing.hour, minute: existing.minute);
     _selectedDays = existing?.daysOfWeek.toSet() ?? {};
+    _quietHoursStart = existing?.quietHoursStart == null
+        ? null
+        : TimeOfDay(hour: existing!.quietHoursStart!.$1, minute: existing.quietHoursStart!.$2);
+    _quietHoursEnd = existing?.quietHoursEnd == null
+        ? null
+        : TimeOfDay(hour: existing!.quietHoursEnd!.$1, minute: existing.quietHoursEnd!.$2);
   }
 
   @override
@@ -48,6 +56,24 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
     final picked = await showTimePicker(context: context, initialTime: _time);
     if (picked == null) return;
     setState(() => _time = picked);
+  }
+
+  Future<void> _pickQuietHoursStart() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _quietHoursStart ?? const TimeOfDay(hour: 22, minute: 0),
+    );
+    if (picked == null) return;
+    setState(() => _quietHoursStart = picked);
+  }
+
+  Future<void> _pickQuietHoursEnd() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: _quietHoursEnd ?? const TimeOfDay(hour: 7, minute: 0),
+    );
+    if (picked == null) return;
+    setState(() => _quietHoursEnd = picked);
   }
 
   Future<void> _submit() async {
@@ -65,6 +91,12 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
           hour: _time.hour,
           minute: _time.minute,
           daysOfWeek: _selectedDays,
+          quietHoursStart: _quietHoursStart == null
+              ? null
+              : (_quietHoursStart!.hour, _quietHoursStart!.minute),
+          quietHoursEnd: _quietHoursEnd == null
+              ? null
+              : (_quietHoursEnd!.hour, _quietHoursEnd!.minute),
         );
 
     final state = ref.read(reminderControllerProvider);
@@ -134,6 +166,56 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
                     child: const Text('Every day'),
                   ),
                 ),
+                const SizedBox(height: AppSpacing.md),
+                Text('Quiet hours (optional)', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  "If this reminder's time falls in this window, it's delivered "
+                  'silently instead of not at all.',
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('From'),
+                        subtitle: Text(
+                          _quietHoursStart == null
+                              ? 'Not set'
+                              : formatTimeOfDay(_quietHoursStart!.hour, _quietHoursStart!.minute),
+                        ),
+                        onTap: isSaving ? null : _pickQuietHoursStart,
+                      ),
+                    ),
+                    Expanded(
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: const Text('Until'),
+                        subtitle: Text(
+                          _quietHoursEnd == null
+                              ? 'Not set'
+                              : formatTimeOfDay(_quietHoursEnd!.hour, _quietHoursEnd!.minute),
+                        ),
+                        onTap: isSaving ? null : _pickQuietHoursEnd,
+                      ),
+                    ),
+                  ],
+                ),
+                if (_quietHoursStart != null || _quietHoursEnd != null)
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: TextButton(
+                      onPressed: isSaving
+                          ? null
+                          : () => setState(() {
+                              _quietHoursStart = null;
+                              _quietHoursEnd = null;
+                            }),
+                      child: const Text('Clear quiet hours'),
+                    ),
+                  ),
                 if (showDaysError) ...[
                   Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.sm),

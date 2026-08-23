@@ -80,7 +80,7 @@ void main() {
 
     expect(find.text('No readings in this period yet.'), findsOneWidget);
 
-    await tester.tap(find.text('90 days'));
+    await tester.tap(find.text('90d'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
@@ -114,6 +114,46 @@ void main() {
     expect(semantics.label, isNotEmpty);
 
     handle.dispose();
+    await db.close();
+  });
+
+  testWidgets('offers a 1-year period alongside 7/30/90/all', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: TrendsScreen()),
+      ),
+    );
+    await tester.pump();
+
+    expect(find.text('1y'), findsOneWidget);
+
+    await db.close();
+  });
+
+  testWidgets('shows an export-summary button once there are readings', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await DriftBloodPressureRepository(db).addReading(
+      systolic: 120,
+      diastolic: 80,
+      timestamp: DateTime.now(),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: TrendsScreen()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.widgetWithText(OutlinedButton, 'Export summary (PDF)'), findsOneWidget);
+
     await db.close();
   });
 }

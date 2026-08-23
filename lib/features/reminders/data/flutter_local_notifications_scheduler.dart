@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 
+import '../domain/quiet_hours.dart';
 import 'notification_scheduler.dart';
 import 'reminder.dart';
 
@@ -70,13 +71,20 @@ class FlutterLocalNotificationsScheduler implements NotificationScheduler {
     await cancelReminder(reminder.id);
     if (!reminder.enabled) return;
 
-    const details = NotificationDetails(
+    // A reminder's fixed fire time may fall inside its own quiet-hours
+    // window (computed once here, not re-checked at fire time) — deliver
+    // silently instead of not firing at all.
+    final silent = isWithinQuietHours(reminder);
+    final details = NotificationDetails(
       android: AndroidNotificationDetails(
         _channelId,
         _channelName,
         channelDescription: _channelDescription,
+        playSound: !silent,
+        enableVibration: !silent,
+        silent: silent,
       ),
-      iOS: DarwinNotificationDetails(),
+      iOS: DarwinNotificationDetails(presentSound: !silent),
     );
 
     for (final weekday in reminder.daysOfWeek) {

@@ -27,6 +27,12 @@ class DriftReminderRepository implements ReminderRepository {
 
   String _formatDays(Set<int> days) => (days.toList()..sort()).join(',');
 
+  (int, int)? _minutesToPair(int? minutes) =>
+      minutes == null ? null : (minutes ~/ 60, minutes % 60);
+
+  int? _pairToMinutes((int hour, int minute)? pair) =>
+      pair == null ? null : pair.$1 * 60 + pair.$2;
+
   Reminder _toDomain(ReminderRow row) {
     return Reminder(
       id: row.id,
@@ -35,6 +41,8 @@ class DriftReminderRepository implements ReminderRepository {
       minute: row.minute,
       daysOfWeek: _parseDays(row.daysOfWeek),
       enabled: row.enabled,
+      quietHoursStart: _minutesToPair(row.quietHoursStartMinutes),
+      quietHoursEnd: _minutesToPair(row.quietHoursEndMinutes),
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -70,6 +78,8 @@ class DriftReminderRepository implements ReminderRepository {
     required int minute,
     required Set<int> daysOfWeek,
     required bool enabled,
+    (int hour, int minute)? quietHoursStart,
+    (int hour, int minute)? quietHoursEnd,
   }) async {
     final now = DateTime.now();
     final id = await _db
@@ -81,6 +91,8 @@ class DriftReminderRepository implements ReminderRepository {
             minute: minute,
             daysOfWeek: _formatDays(daysOfWeek),
             enabled: Value(enabled),
+            quietHoursStartMinutes: Value(_pairToMinutes(quietHoursStart)),
+            quietHoursEndMinutes: Value(_pairToMinutes(quietHoursEnd)),
             createdAt: now,
             updatedAt: now,
           ),
@@ -96,6 +108,8 @@ class DriftReminderRepository implements ReminderRepository {
     required int hour,
     required int minute,
     required Set<int> daysOfWeek,
+    (int hour, int minute)? quietHoursStart,
+    (int hour, int minute)? quietHoursEnd,
   }) async {
     await (_db.update(_db.reminders)..where((r) => r.id.equals(id))).write(
       RemindersCompanion(
@@ -103,6 +117,8 @@ class DriftReminderRepository implements ReminderRepository {
         hour: Value(hour),
         minute: Value(minute),
         daysOfWeek: Value(_formatDays(daysOfWeek)),
+        quietHoursStartMinutes: Value(_pairToMinutes(quietHoursStart)),
+        quietHoursEndMinutes: Value(_pairToMinutes(quietHoursEnd)),
         updatedAt: Value(DateTime.now()),
       ),
     );
@@ -163,6 +179,8 @@ class DriftReminderRepository implements ReminderRepository {
         'minute': row.minute,
         'daysOfWeek': row.daysOfWeek,
         'enabled': row.enabled,
+        'quietHoursStartMinutes': row.quietHoursStartMinutes,
+        'quietHoursEndMinutes': row.quietHoursEndMinutes,
         'createdAt': Timestamp.fromDate(row.createdAt),
         'updatedAt': Timestamp.fromDate(row.updatedAt),
       }, SetOptions(merge: true));

@@ -21,6 +21,8 @@ class ReminderController extends AsyncNotifier<void> {
     required int hour,
     required int minute,
     required Set<int> daysOfWeek,
+    (int hour, int minute)? quietHoursStart,
+    (int hour, int minute)? quietHoursEnd,
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -34,6 +36,8 @@ class ReminderController extends AsyncNotifier<void> {
           minute: minute,
           daysOfWeek: daysOfWeek,
           enabled: true,
+          quietHoursStart: quietHoursStart,
+          quietHoursEnd: quietHoursEnd,
         );
         final granted = await scheduler.requestPermission();
         if (granted) {
@@ -47,6 +51,8 @@ class ReminderController extends AsyncNotifier<void> {
           hour: hour,
           minute: minute,
           daysOfWeek: daysOfWeek,
+          quietHoursStart: quietHoursStart,
+          quietHoursEnd: quietHoursEnd,
         );
         final reminder = await repository.watchById(existingId).first;
         if (reminder != null && reminder.enabled) {

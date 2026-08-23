@@ -5,6 +5,7 @@ enum TrendPeriod {
   sevenDays(7),
   thirtyDays(30),
   ninetyDays(90),
+  oneYear(365),
   all(null);
 
   const TrendPeriod(this.days);
@@ -16,6 +17,17 @@ enum TrendPeriod {
     TrendPeriod.sevenDays => '7 days',
     TrendPeriod.thirtyDays => '30 days',
     TrendPeriod.ninetyDays => '90 days',
+    TrendPeriod.oneYear => '1 year',
+    TrendPeriod.all => 'All',
+  };
+
+  /// Compact form for the 5-way period selector, where the full [label]
+  /// wraps awkwardly ("7 da / ys").
+  String get shortLabel => switch (this) {
+    TrendPeriod.sevenDays => '7d',
+    TrendPeriod.thirtyDays => '30d',
+    TrendPeriod.ninetyDays => '90d',
+    TrendPeriod.oneYear => '1y',
     TrendPeriod.all => 'All',
   };
 }

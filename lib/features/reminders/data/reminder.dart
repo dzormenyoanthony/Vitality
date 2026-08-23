@@ -10,6 +10,8 @@ final class Reminder {
     required this.minute,
     required this.daysOfWeek,
     required this.enabled,
+    this.quietHoursStart,
+    this.quietHoursEnd,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -27,6 +29,14 @@ final class Reminder {
   final Set<int> daysOfWeek;
 
   final bool enabled;
+
+  /// Optional silence window: when this reminder's fixed fire time
+  /// ([hour], [minute]) falls inside [quietHoursStart]..[quietHoursEnd],
+  /// it's delivered silently instead of not firing at all. Both null or
+  /// both non-null.
+  final (int hour, int minute)? quietHoursStart;
+  final (int hour, int minute)? quietHoursEnd;
+
   final DateTime createdAt;
   final DateTime updatedAt;
 }

@@ -1,4 +1,5 @@
-/// Optional predefined context for a reading (PROJECT_SPEC.md §5).
+/// Optional predefined context for a reading (PROJECT_SPEC.md §5). A reading
+/// may carry more than one — e.g. both "Morning" and "Before medication".
 enum MeasurementContext {
   morning,
   evening,
@@ -8,6 +9,12 @@ enum MeasurementContext {
   afterMeal,
   other,
 }
+
+/// Optional body position at time of measurement.
+enum BodyPosition { sitting, standing, lying }
+
+/// Optional arm the cuff was worn on.
+enum CuffArm { left, right }
 
 /// A single blood-pressure measurement (PROJECT_SPEC.md §5).
 ///
@@ -22,7 +29,9 @@ final class BloodPressureReading {
     this.pulse,
     required this.timestamp,
     this.notes,
-    this.measurementContext,
+    this.measurementContexts = const [],
+    this.bodyPosition,
+    this.cuffArm,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -44,7 +53,9 @@ final class BloodPressureReading {
   /// Optional free-text notes (e.g. "felt stressed").
   final String? notes;
 
-  final MeasurementContext? measurementContext;
+  final List<MeasurementContext> measurementContexts;
+  final BodyPosition? bodyPosition;
+  final CuffArm? cuffArm;
   final DateTime createdAt;
   final DateTime updatedAt;
 }

@@ -5,12 +5,20 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:vitality/features/blood_pressure/data/app_database.dart';
 import 'package:vitality/features/blood_pressure/data/blood_pressure_providers.dart';
+import 'package:vitality/features/blood_pressure/data/blood_pressure_reading.dart';
 import 'package:vitality/features/blood_pressure/presentation/record_bp_screen.dart';
 
 void main() {
   testWidgets('shows validation errors when required fields are empty', (
     tester,
   ) async {
+    // The form is taller than the default test viewport now that it has
+    // body-position/cuff-arm fields and context chips; enlarge it so the
+    // Save button is actually hit-testable without scrolling.
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -31,6 +39,10 @@ void main() {
   testWidgets('shows a range error for an out-of-range systolic value', (
     tester,
   ) async {
+    tester.view.physicalSize = const Size(800, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -89,5 +101,71 @@ void main() {
         .data!;
     expect(subtitle, isNot(contains('.'))); // no raw millisecond fraction
     expect(subtitle, matches(RegExp(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$')));
+  });
+
+  testWidgets('multiple context chips can be selected at once', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: RecordBpScreen()),
+      ),
+    );
+
+    await tester.tap(find.widgetWithText(FilterChip, 'Morning'));
+    await tester.pump();
+    await tester.tap(find.widgetWithText(FilterChip, 'Before medication'));
+    await tester.pump();
+
+    expect(
+      tester.widget<FilterChip>(find.widgetWithText(FilterChip, 'Morning')).selected,
+      isTrue,
+    );
+    expect(
+      tester.widget<FilterChip>(find.widgetWithText(FilterChip, 'Before medication')).selected,
+      isTrue,
+    );
+    expect(
+      tester.widget<FilterChip>(find.widgetWithText(FilterChip, 'After exercise')).selected,
+      isFalse,
+    );
+  });
+
+  testWidgets('body position and cuff arm fields are present and selectable', (tester) async {
+    tester.view.physicalSize = const Size(800, 1600);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.reset);
+
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(home: RecordBpScreen()),
+      ),
+    );
+
+    expect(
+      find.widgetWithText(DropdownButtonFormField<BodyPosition?>, 'Body position (optional)'),
+      findsOneWidget,
+    );
+    expect(
+      find.widgetWithText(DropdownButtonFormField<CuffArm?>, 'Cuff arm (optional)'),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.widgetWithText(DropdownButtonFormField<BodyPosition?>, 'None').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Sitting').last);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Sitting'), findsOneWidget);
   });
 }

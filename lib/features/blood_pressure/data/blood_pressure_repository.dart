@@ -15,7 +15,9 @@ abstract interface class BloodPressureRepository {
     int? pulse,
     required DateTime timestamp,
     String? notes,
-    MeasurementContext? measurementContext,
+    List<MeasurementContext> measurementContexts = const [],
+    BodyPosition? bodyPosition,
+    CuffArm? cuffArm,
   });
 
   Future<void> updateReading({
@@ -25,7 +27,9 @@ abstract interface class BloodPressureRepository {
     int? pulse,
     required DateTime timestamp,
     String? notes,
-    MeasurementContext? measurementContext,
+    List<MeasurementContext> measurementContexts = const [],
+    BodyPosition? bodyPosition,
+    CuffArm? cuffArm,
   });
 
   Future<void> deleteReading(int id);

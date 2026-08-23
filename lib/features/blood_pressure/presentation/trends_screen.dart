@@ -1,15 +1,19 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:printing/printing.dart';
 
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
 import '../domain/trend_calculator.dart';
+import '../domain/trend_summary_lines.dart';
+import 'trend_pdf_export.dart';
 
 /// Blood-pressure trend visualization (PROJECT_SPEC.md §11).
 ///
@@ -39,7 +43,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
             padding: const EdgeInsets.all(AppSpacing.md),
             child: SegmentedButton<TrendPeriod>(
               segments: TrendPeriod.values
-                  .map((p) => ButtonSegment(value: p, label: Text(p.label)))
+                  .map((p) => ButtonSegment(value: p, label: Text(p.shortLabel)))
                   .toList(),
               selected: {_period},
               onSelectionChanged: (selected) => setState(() => _period = selected.first),
@@ -289,46 +293,53 @@ class _StatsCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final lines = <String>[
-      if (stats.avgSystolic != null)
-        'Your average systolic reading over the last ${_periodDescription(stats.period)} '
-            'was ${stats.avgSystolic!.round()} mmHg.',
-      if (stats.avgDiastolic != null)
-        'Your average diastolic reading over the last ${_periodDescription(stats.period)} '
-            'was ${stats.avgDiastolic!.round()} mmHg.',
-      if (stats.avgPulse != null)
-        'Your average pulse over the last ${_periodDescription(stats.period)} '
-            'was ${stats.avgPulse!.round()} bpm.',
-      'You recorded ${stats.readingCount} reading${stats.readingCount == 1 ? '' : 's'} '
-          'during this period.',
-      if (stats.previousPeriodReadingCount != null)
-        _frequencyComparison(stats.readingCount, stats.previousPeriodReadingCount!),
+    final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
+    final lines = trendSummaryLines(stats);
+    final tileColors = [
+      (accents.mintBackground, accents.mintForeground),
+      (accents.coralBackground, accents.coralForeground),
+      (accents.purpleBackground, accents.purpleForeground),
+      (accents.blueBackground, accents.blueForeground),
     ];
 
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.md),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
           children: [
-            for (final line in lines)
-              Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                child: Text(line, style: theme.textTheme.bodyLarge),
+            for (var i = 0; i < lines.length; i++)
+              SizedBox(
+                width:
+                    (MediaQuery.sizeOf(context).width - AppSpacing.md * 2 - AppSpacing.sm) / 2,
+                child: Container(
+                  padding: const EdgeInsets.all(AppSpacing.md),
+                  decoration: BoxDecoration(
+                    color: tileColors[i % tileColors.length].$1,
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                  ),
+                  child: Text(
+                    lines[i],
+                    style: TextStyle(color: tileColors[i % tileColors.length].$2),
+                  ),
+                ),
               ),
           ],
         ),
-      ),
+        const SizedBox(height: AppSpacing.md),
+        OutlinedButton.icon(
+          onPressed: () => _exportPdf(context),
+          icon: const Icon(Icons.download_outlined),
+          label: const Text('Export summary (PDF)'),
+        ),
+      ],
     );
   }
 
-  String _periodDescription(TrendPeriod period) =>
-      period == TrendPeriod.all ? 'available history' : period.label;
-
-  String _frequencyComparison(int current, int previous) {
-    if (current == previous) return 'You recorded the same number of readings as last period.';
-    return current < previous
-        ? 'You recorded fewer readings this period than last.'
-        : 'You recorded more readings this period than last.';
+  Future<void> _exportPdf(BuildContext context) async {
+    final bytes = await buildTrendSummaryPdf(stats);
+    if (!context.mounted) return;
+    await Printing.sharePdf(bytes: bytes, filename: 'vitaly-trend-summary.pdf');
   }
 }

@@ -31,7 +31,7 @@ void main() {
       pulse: 68,
       timestamp: DateTime(2026, 1, 5, 7, 15),
       notes: 'Before breakfast',
-      measurementContext: MeasurementContext.morning,
+      measurementContexts: [MeasurementContext.morning],
     );
 
     await tester.pumpWidget(

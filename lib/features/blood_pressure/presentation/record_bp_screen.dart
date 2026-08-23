@@ -27,7 +27,9 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
   late final TextEditingController _pulseController;
   late final TextEditingController _notesController;
   late DateTime _timestamp;
-  MeasurementContext? _context;
+  late Set<MeasurementContext> _contexts;
+  BodyPosition? _bodyPosition;
+  CuffArm? _cuffArm;
 
   bool get _isEditing => widget.existingReading != null;
 
@@ -46,7 +48,9 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
     );
     _notesController = TextEditingController(text: existing?.notes ?? '');
     _timestamp = existing?.timestamp ?? DateTime.now();
-    _context = existing?.measurementContext;
+    _contexts = existing?.measurementContexts.toSet() ?? {};
+    _bodyPosition = existing?.bodyPosition;
+    _cuffArm = existing?.cuffArm;
   }
 
   @override
@@ -90,7 +94,9 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
           pulse: pulseText.isEmpty ? null : int.parse(pulseText),
           timestamp: _timestamp,
           notes: notes.isEmpty ? null : notes,
-          measurementContext: _context,
+          measurementContexts: _contexts.toList(),
+          bodyPosition: _bodyPosition,
+          cuffArm: _cuffArm,
         );
 
     final state = ref.read(recordBpControllerProvider);
@@ -163,16 +169,61 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                   onTap: isSaving ? null : _pickTimestamp,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                DropdownButtonFormField<MeasurementContext?>(
-                  initialValue: _context,
-                  decoration: const InputDecoration(labelText: 'Context (optional)'),
-                  items: [
-                    const DropdownMenuItem(value: null, child: Text('None')),
-                    ...MeasurementContext.values.map(
-                      (c) => DropdownMenuItem(value: c, child: Text(c.label)),
+                Row(
+                  children: [
+                    Expanded(
+                      child: DropdownButtonFormField<BodyPosition?>(
+                        initialValue: _bodyPosition,
+                        decoration: const InputDecoration(labelText: 'Body position (optional)'),
+                        items: [
+                          const DropdownMenuItem(value: null, child: Text('None')),
+                          ...BodyPosition.values.map(
+                            (p) => DropdownMenuItem(value: p, child: Text(p.label)),
+                          ),
+                        ],
+                        onChanged: isSaving
+                            ? null
+                            : (value) => setState(() => _bodyPosition = value),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.md),
+                    Expanded(
+                      child: DropdownButtonFormField<CuffArm?>(
+                        initialValue: _cuffArm,
+                        decoration: const InputDecoration(labelText: 'Cuff arm (optional)'),
+                        items: [
+                          const DropdownMenuItem(value: null, child: Text('None')),
+                          ...CuffArm.values.map(
+                            (a) => DropdownMenuItem(value: a, child: Text(a.label)),
+                          ),
+                        ],
+                        onChanged: isSaving ? null : (value) => setState(() => _cuffArm = value),
+                      ),
                     ),
                   ],
-                  onChanged: isSaving ? null : (value) => setState(() => _context = value),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text('Context (optional)', style: Theme.of(context).textTheme.labelMedium),
+                const SizedBox(height: AppSpacing.sm),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.xs,
+                  children: [
+                    for (final c in MeasurementContext.values)
+                      FilterChip(
+                        label: Text(c.label),
+                        selected: _contexts.contains(c),
+                        onSelected: isSaving
+                            ? null
+                            : (selected) => setState(() {
+                                if (selected) {
+                                  _contexts.add(c);
+                                } else {
+                                  _contexts.remove(c);
+                                }
+                              }),
+                      ),
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextFormField(

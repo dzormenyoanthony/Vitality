@@ -47,7 +47,7 @@ void main() {
       pulse: 70,
       timestamp: DateTime(2026, 1, 1, 8),
       notes: 'Felt fine',
-      measurementContext: MeasurementContext.morning,
+      measurementContexts: [MeasurementContext.morning],
     );
 
     final readings = await repository.watchAll().first;
@@ -58,7 +58,7 @@ void main() {
     expect(readings.single.diastolic, 80);
     expect(readings.single.pulse, 70);
     expect(readings.single.notes, 'Felt fine');
-    expect(readings.single.measurementContext, MeasurementContext.morning);
+    expect(readings.single.measurementContexts, [MeasurementContext.morning]);
   });
 
   test('watchAll orders readings newest first', () async {
@@ -96,7 +96,7 @@ void main() {
       diastolic: 76,
       pulse: 65,
       timestamp: DateTime(2026, 1, 1),
-      measurementContext: MeasurementContext.evening,
+      measurementContexts: [MeasurementContext.evening],
     );
 
     final updated = await repository.watchById(id).first;
@@ -106,7 +106,39 @@ void main() {
     expect(updated.systolic, 118);
     expect(updated.diastolic, 76);
     expect(updated.pulse, 65);
-    expect(updated.measurementContext, MeasurementContext.evening);
+    expect(updated.measurementContexts, [MeasurementContext.evening]);
+  });
+
+  test('round-trips multiple contexts, body position, and cuff arm', () async {
+    final id = await repository.addReading(
+      systolic: 120,
+      diastolic: 80,
+      timestamp: DateTime(2026, 1, 1),
+      measurementContexts: [MeasurementContext.morning, MeasurementContext.beforeMedication],
+      bodyPosition: BodyPosition.sitting,
+      cuffArm: CuffArm.left,
+    );
+
+    final reading = await repository.watchById(id).first;
+
+    expect(reading!.measurementContexts, [
+      MeasurementContext.morning,
+      MeasurementContext.beforeMedication,
+    ]);
+    expect(reading.bodyPosition, BodyPosition.sitting);
+    expect(reading.cuffArm, CuffArm.left);
+  });
+
+  test('an empty context list round-trips as empty, not a stray entry', () async {
+    final id = await repository.addReading(
+      systolic: 120,
+      diastolic: 80,
+      timestamp: DateTime(2026, 1, 1),
+    );
+
+    final reading = await repository.watchById(id).first;
+
+    expect(reading!.measurementContexts, isEmpty);
   });
 
   test('deleteReading removes it from watchAll and watchById', () async {

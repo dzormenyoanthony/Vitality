@@ -16,7 +16,17 @@ class Readings extends Table {
   IntColumn get pulse => integer().nullable()();
   DateTimeColumn get timestamp => dateTime()();
   TextColumn get notes => text().nullable()();
+
+  /// Deprecated single-value column, kept only so v3 data survives the
+  /// migration to [measurementContexts] below — no longer written to.
   TextColumn get measurementContext => text().nullable()();
+
+  /// Comma-separated [MeasurementContext] names — same lightweight
+  /// approach as [Reminders.daysOfWeek] rather than a join table, since
+  /// this is just a small set of tags.
+  TextColumn get measurementContexts => text().nullable()();
+  TextColumn get bodyPosition => text().nullable()();
+  TextColumn get cuffArm => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -49,6 +59,12 @@ class Reminders extends Table {
   IntColumn get minute => integer()();
   TextColumn get daysOfWeek => text()();
   BoolColumn get enabled => boolean().withDefault(const Constant(true))();
+
+  /// Optional silence window (minutes since midnight, 0-1439). When a
+  /// reminder's fixed fire time falls inside this window, it's delivered
+  /// silently (no sound/vibration) instead of not firing at all.
+  IntColumn get quietHoursStartMinutes => integer().nullable()();
+  IntColumn get quietHoursEndMinutes => integer().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -68,7 +84,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -82,6 +98,20 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(readings, readings.deletedAt);
         await m.addColumn(reminders, reminders.remoteId);
         await m.addColumn(reminders, reminders.deletedAt);
+      }
+      if (from < 4) {
+        await m.addColumn(readings, readings.measurementContexts);
+        await m.addColumn(readings, readings.bodyPosition);
+        await m.addColumn(readings, readings.cuffArm);
+        await m.addColumn(reminders, reminders.quietHoursStartMinutes);
+        await m.addColumn(reminders, reminders.quietHoursEndMinutes);
+        // Carry the old single-value column forward into the new
+        // multi-value one so v3 data isn't silently dropped.
+        await m.database
+            .customStatement(
+              'UPDATE readings SET measurement_contexts = measurement_context '
+              'WHERE measurement_context IS NOT NULL',
+            );
       }
     },
   );

@@ -13,3 +13,18 @@ extension MeasurementContextLabel on MeasurementContext {
     MeasurementContext.other => 'Other',
   };
 }
+
+extension BodyPositionLabel on BodyPosition {
+  String get label => switch (this) {
+    BodyPosition.sitting => 'Sitting',
+    BodyPosition.standing => 'Standing',
+    BodyPosition.lying => 'Lying down',
+  };
+}
+
+extension CuffArmLabel on CuffArm {
+  String get label => switch (this) {
+    CuffArm.left => 'Left arm',
+    CuffArm.right => 'Right arm',
+  };
+}
