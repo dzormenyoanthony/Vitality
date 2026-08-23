@@ -39,6 +39,12 @@ abstract final class AppColors {
   /// Onboarding carousel colors, sampled directly from
   /// `design_references/Onboarding 1 of 3.png` — independent of
   /// light/dark theme, matching the other fixed pre-auth brand screens.
+  ///
+  /// [onboardingPageBg] must be set explicitly as each onboarding screen's
+  /// own Scaffold background — these screens' text colors are tuned for a
+  /// fixed light page, so leaving the Scaffold to inherit the app theme's
+  /// background (near-black in dark mode) makes that text unreadable.
+  static const Color onboardingPageBg = Color(0xFFF2F7F5);
   static const Color onboardingIllustrationBg = Color(0xFFD7EFE9);
   static const Color onboardingIllustrationCircleBright = Color(0xFFC3E3DD);
   static const Color onboardingIllustrationCircleMuted = Color(0xFFDBDED5);
@@ -52,6 +58,7 @@ abstract final class AppColors {
   /// Onboarding 2-of-3 colors, sampled from
   /// `design_references/Onboarding 2 of 3.png` — a separate warm/coral
   /// palette from screen 1's mint/teal one.
+  static const Color onboardingPageBg2 = Color(0xFFFFF6F2);
   static const Color onboardingIllustrationBg2 = Color(0xFFFFE0D6);
   static const Color onboardingIllustrationCircleBright2 = Color(0xFFF9D0C4);
   static const Color onboardingIllustrationCircleMuted2 = Color(0xFFE2D4CA);
@@ -63,6 +70,7 @@ abstract final class AppColors {
   /// Onboarding 3-of-3 colors, sampled from
   /// `design_references/Onboarding 3 of 3.png` — a separate
   /// indigo/lavender palette from screens 1-2.
+  static const Color onboardingPageBg3 = Color(0xFFF6F4FF);
   static const Color onboardingIllustrationBg3 = Color(0xFFE3DEFF);
   static const Color onboardingIllustrationCircleBright3 = Color(0xFFD2CCFB);
   static const Color onboardingIllustrationCircleMuted3 = Color(0xFFC9D2EE);
