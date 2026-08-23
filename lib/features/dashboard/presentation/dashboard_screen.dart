@@ -11,16 +11,16 @@ import '../../authentication/data/auth_providers.dart';
 import '../../blood_pressure/data/blood_pressure_providers.dart';
 import '../../blood_pressure/data/blood_pressure_reading.dart';
 import '../../blood_pressure/domain/trend_calculator.dart';
+import '../../education/data/article.dart';
+import '../../education/presentation/education_providers.dart';
 import '../../onboarding/data/user_profile_providers.dart';
 import '../../reminders/data/reminder.dart';
 import '../../reminders/data/reminder_providers.dart';
 import '../../reminders/domain/next_reminder.dart';
 
 /// Vitaly's home dashboard (PROJECT_SPEC.md §10): a greeting, the latest
-/// reading, recent readings, a simple 7-day summary, and the next
-/// reminder. The "educational content" slot §10 also lists stays
-/// omitted — no sourced educational content exists yet (see memory:
-/// project-deferred-dashboard-slots).
+/// reading, recent readings, a simple 7-day summary, the next reminder, and
+/// a featured educational article.
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
@@ -32,6 +32,7 @@ class DashboardScreen extends ConsumerWidget {
     // Reminders degrade gracefully if unavailable — the rest of the
     // dashboard shouldn't block on a secondary summary card.
     final reminders = ref.watch(remindersStreamProvider).value ?? [];
+    final articles = ref.watch(articlesProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -59,6 +60,7 @@ class DashboardScreen extends ConsumerWidget {
           displayName: profile?.displayName,
           readings: readings,
           reminders: reminders,
+          articles: articles,
         ),
       ),
     );
@@ -70,11 +72,13 @@ class _DashboardBody extends StatelessWidget {
     required this.displayName,
     required this.readings,
     required this.reminders,
+    required this.articles,
   });
 
   final String? displayName;
   final List<BloodPressureReading> readings;
   final List<Reminder> reminders;
+  final List<Article> articles;
 
   @override
   Widget build(BuildContext context) {
@@ -103,6 +107,10 @@ class _DashboardBody extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.lg),
           _NextReminderCard(occurrence: nextReminder),
+          if (articles.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.lg),
+            _EducationCard(article: articles.first),
+          ],
         ],
       );
     }
@@ -144,6 +152,10 @@ class _DashboardBody extends StatelessWidget {
         _WeeklySummaryCard(stats: weekly),
         const SizedBox(height: AppSpacing.lg),
         _NextReminderCard(occurrence: nextReminder),
+        if (articles.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.lg),
+          _EducationCard(article: articles.first),
+        ],
       ],
     );
   }
@@ -204,6 +216,55 @@ class _NextReminderCard extends StatelessWidget {
     final period = when.hour < 12 ? 'AM' : 'PM';
     final minute = when.minute.toString().padLeft(2, '0');
     return '${weekdayNames[when.weekday]} at $hour:$minute $period';
+  }
+}
+
+class _EducationCard extends StatelessWidget {
+  const _EducationCard({required this.article});
+
+  final Article article;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Card(
+      child: InkWell(
+        onTap: () => context.push(AppRoutes.educationArticlePath(article.id)),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.md),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.menu_book_outlined, color: theme.colorScheme.primary),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Learn', style: theme.textTheme.labelMedium),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(article.title, style: theme.textTheme.bodyLarge),
+                      ],
+                    ),
+                  ),
+                  const Icon(Icons.chevron_right),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton(
+                  onPressed: () => context.push(AppRoutes.education),
+                  child: const Text('Browse all articles'),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

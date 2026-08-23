@@ -11,6 +11,8 @@ import '../../features/blood_pressure/presentation/reading_detail_screen.dart';
 import '../../features/blood_pressure/presentation/record_bp_screen.dart';
 import '../../features/blood_pressure/presentation/trends_screen.dart';
 import '../../features/dashboard/presentation/dashboard_screen.dart';
+import '../../features/education/presentation/article_detail_screen.dart';
+import '../../features/education/presentation/education_screen.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/reminders/data/reminder.dart';
 import '../../features/reminders/presentation/reminder_form_screen.dart';
@@ -135,6 +137,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.settings,
         name: AppRoutes.settings,
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.education,
+        name: AppRoutes.education,
+        builder: (context, state) => const EducationScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.educationArticle,
+        name: AppRoutes.educationArticle,
+        builder: (context, state) => ArticleDetailScreen(
+          articleId: state.pathParameters['id']!,
+        ),
       ),
     ],
   );
