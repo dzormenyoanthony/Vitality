@@ -658,6 +658,977 @@ The main application should provide access to:
 
 The existing GoRouter foundation should continue to be used unless there is an explicitly approved technical reason to change it.
 
+# VITALY — FEATURE SPECIFICATION
+## BP REPORT SCANNING + BP READING STATUS CLASSIFICATION
+
+> This specification covers ONLY these two features:
+>
+> 1. Scan BP Report & Saved Reports
+> 2. BP Reading Status & Range Classification
+>
+> Do not modify or implement unrelated features while working on this specification.
+>
+> Implementation order:
+>
+> PHASE 1 → Scan BP Report & Saved Reports
+> PHASE 2 → BP Reading Status & Range Classification
+
+---
+
+# PHASE 1 — SCAN BP REPORT & SAVED REPORTS
+
+## 1. Feature Objective
+
+Vitaly must allow users to scan a physical blood-pressure report or import an existing report/document from their device.
+
+Vitaly should preserve the original report and, where possible, use OCR to identify relevant information such as blood-pressure readings.
+
+The workflow must be:
+
+SCAN / IMPORT
+→ OCR / EXTRACTION
+→ REVIEW
+→ USER EDITS / CONFIRMS
+→ SAVE ORIGINAL REPORT
+→ OPTIONAL: ADD CONFIRMED BP READINGS TO BP HISTORY
+
+OCR must never automatically create health records.
+
+---
+
+## 2. Entry Point
+
+Provide a clear:
+
+> Scan BP Report
+
+action.
+
+The action should be accessible from appropriate locations such as:
+
+- Dashboard
+- Saved Reports
+- Reports
+
+The user must also be able to import an existing image or supported document from their device.
+
+---
+
+## 3. Scanning & Import
+
+Support:
+
+- Camera-based document scanning.
+- Importing images.
+- Importing PDFs where supported.
+- Multiple-page reports.
+- Preview before saving.
+- Retaking a scan.
+- Removing unwanted pages.
+- Reordering pages where practical.
+
+The original document must always be preserved.
+
+A report must still be saveable even if OCR fails.
+
+---
+
+## 4. OCR & Data Extraction
+
+After scanning/importing, Vitaly may process the document using OCR.
+
+Potentially extract:
+
+- Systolic BP.
+- Diastolic BP.
+- Pulse.
+- Date.
+- Weight.
+- Other clearly identifiable numerical measurements.
+- Relevant text from the report.
+
+OCR results are UNCONFIRMED until reviewed by the user.
+
+Do not assume OCR output is accurate.
+
+---
+
+## 5. Review Extracted Information
+
+After extraction, display a dedicated:
+
+> Review Extracted Information
+
+screen.
+
+Example:
+
+    Blood Pressure
+
+    Systolic
+    136 mmHg
+
+    Diastolic
+    84 mmHg
+
+    Pulse
+    72 bpm
+
+    Date
+    22 Aug 2026
+
+The user MUST be able to:
+
+- Edit an extracted value.
+- Delete an incorrect value.
+- Add a missing value.
+- Correct the date.
+- Correct other extracted information where appropriate.
+- Confirm the information.
+- Cancel the extraction.
+
+Clearly indicate that the information was extracted from the report until the user confirms it.
+
+---
+
+## 6. Mandatory User Confirmation
+
+Vitaly must require explicit user confirmation before extracted BP values can be added to BP History.
+
+Correct flow:
+
+OCR RESULT
+→ USER REVIEWS
+→ USER EDITS IF NECESSARY
+→ USER CONFIRMS
+→ VALUE BECOMES ELIGIBLE FOR BP HISTORY
+
+Never implement:
+
+OCR
+→ AUTOMATIC BP HISTORY ENTRY
+
+Never implement:
+
+OCR
+→ AUTOMATIC CLASSIFICATION
+
+---
+
+## 7. Multiple BP Readings
+
+A single report may contain multiple BP readings.
+
+Vitaly must allow the user to review each detected reading individually.
+
+Example:
+
+    Detected readings:
+
+    22 Aug — 08:00
+    136 / 84
+
+    22 Aug — 14:00
+    129 / 81
+
+    22 Aug — 20:00
+    142 / 90
+
+The user must be able to:
+
+- Confirm individual readings.
+- Edit individual readings.
+- Delete incorrect readings.
+- Select which confirmed readings should be added to BP History.
+
+Do not assume every number detected by OCR is a blood-pressure measurement.
+
+---
+
+## 8. Save Original Report
+
+After the review process, Vitaly must save the original scanned/imported document.
+
+The original document must remain available even when:
+
+- OCR fails.
+- OCR produces incorrect values.
+- The user rejects extracted values.
+- No BP value is detected.
+
+The original document must NOT be replaced by OCR text.
+
+OCR/extracted information must remain separate from the original document.
+
+---
+
+## 9. Saved Report Data
+
+Each saved report must contain, at minimum:
+
+- reportId
+- userId
+- documentReference
+- documentType
+- title
+- createdAt
+- updatedAt
+- reportDate, if available
+- pageCount
+- ocrStatus
+- extractedData
+- confirmedData
+- source
+
+Conceptual structure:
+
+    SavedReport
+    ├── reportId
+    ├── userId
+    ├── documentReference
+    ├── documentType
+    ├── title
+    ├── reportDate
+    ├── pageCount
+    ├── ocrStatus
+    ├── extractedData
+    ├── confirmedData
+    ├── source
+    ├── createdAt
+    └── updatedAt
+
+Follow the existing Vitaly architecture and database conventions when implementing the actual model.
+
+---
+
+## 10. Saved Reports Screen
+
+Create a dedicated:
+
+> Saved Reports
+
+screen.
+
+Only reports belonging to the authenticated user may be displayed.
+
+Each report card should provide information such as:
+
+    BP Review Report
+    22 Aug 2026
+    2 pages
+
+    View Report >
+
+Users must be able to:
+
+- View a report.
+- Rename a report.
+- View report details.
+- Delete a report.
+- Share/export where supported.
+
+---
+
+## 11. Report Viewer
+
+Create a report viewer for the original document.
+
+Where technically supported, provide:
+
+- Multi-page viewing.
+- Zoom.
+- Scrolling.
+- Page navigation.
+- Full-screen viewing.
+
+The original document must remain available.
+
+Extracted information should be displayed separately from the original document.
+
+---
+
+## 12. Linking Confirmed Readings to BP History
+
+After reviewing extracted information, provide an action such as:
+
+> Add confirmed readings to BP History
+
+Only user-confirmed readings may be added.
+
+Imported readings must retain their source.
+
+Example:
+
+    Source: Imported Report
+
+This must remain distinguishable from:
+
+    Source: Manual Entry
+
+Once confirmed and added to BP History, the imported reading must use the same BP data model and classification engine as manually entered readings.
+
+---
+
+## 13. OCR Failure
+
+If Vitaly cannot reliably extract information, display:
+
+> We couldn't reliably read this report.
+
+Provide options to:
+
+- Retry.
+- Scan again.
+- Import another image/document.
+- Save the original report without extracted information.
+
+OCR failure must never prevent the user from saving the original report.
+
+---
+
+## 14. OCR Confidence
+
+If the OCR system provides confidence information, low-confidence medical values should be clearly identified for review.
+
+Example:
+
+    Systolic
+    136 mmHg
+    Needs review
+
+If confidence information is unavailable, treat all extracted health values as unconfirmed by default.
+
+---
+
+## 15. Medical Safety Requirements
+
+The scanning feature is an information extraction and document organization feature.
+
+It is NOT a diagnostic system.
+
+Vitaly must NOT:
+
+- Diagnose hypertension.
+- Diagnose any disease.
+- Interpret a doctor's diagnosis as Vitaly's own diagnosis.
+- Recommend treatment.
+- Recommend medication changes.
+- Recommend medication dosage.
+- Recommend starting medication.
+- Recommend stopping medication.
+- Recommend increasing medication.
+- Determine whether the user is medically safe.
+- Determine whether the user is medically unsafe.
+- Automatically create a treatment plan.
+
+If the scanned report contains text such as:
+
+    Hypertension
+
+Vitaly may preserve or display that text as part of the original report.
+
+Vitaly must NOT convert it into:
+
+    You have hypertension.
+
+---
+
+## 16. Privacy & Security
+
+Saved reports may contain sensitive health information.
+
+Requirements:
+
+- Every report must belong to an authenticated user.
+- Users must only access their own reports.
+- Firebase/database security rules must enforce user-level authorization.
+- Private document references must not be publicly accessible.
+- Report contents must not be sent to analytics.
+- OCR-extracted health information must not be unnecessarily logged.
+- Users must be able to delete reports.
+- Account deletion must appropriately handle saved reports.
+- Caregiver access must not automatically expose reports unless explicitly permitted by Vitaly's existing permission model.
+
+If an external OCR service is used, its privacy, security, data-processing, and regulatory implications must be reviewed before implementation.
+
+---
+
+# PHASE 2 — BP READING STATUS & RANGE CLASSIFICATION
+
+## 17. Feature Objective
+
+Vitaly must provide simple visual feedback when displaying an individual BP reading or calculated BP average.
+
+The purpose is to help users understand where their recorded measurement falls relative to the blood-pressure reference ranges selected for Vitaly.
+
+The system describes the RECORDED READING.
+
+It does NOT diagnose the USER.
+
+---
+
+## 18. Central Classification Engine
+
+Create one centralized service:
+
+    BPClassificationService
+
+All BP classification throughout Vitaly must use this service.
+
+Do NOT create separate classification logic for:
+
+- Dashboard.
+- BP History.
+- Trends.
+- Reports.
+- Scanned readings.
+
+The service should receive:
+
+    systolic
+    diastolic
+
+and return a classification object containing:
+
+- Category.
+- Display label.
+- Description.
+- Visual status.
+- Reference range.
+- Category severity/order.
+
+---
+
+## 19. Reference Ranges
+
+The initial implementation should use the clinically reviewed blood-pressure reference framework selected for Vitaly.
+
+Proposed initial categories:
+
+### NORMAL
+
+Systolic:
+
+    < 120
+
+AND
+
+Diastolic:
+
+    < 80
+
+Display:
+
+> Looks good
+
+---
+
+### ELEVATED
+
+Systolic:
+
+    120–129
+
+AND
+
+Diastolic:
+
+    < 80
+
+Display:
+
+> Worth keeping an eye on
+
+---
+
+### HIGHER CATEGORY
+
+Systolic:
+
+    130–139
+
+OR
+
+Diastolic:
+
+    80–89
+
+Display:
+
+> Higher than the usual range
+
+---
+
+### HIGH CATEGORY
+
+Systolic:
+
+    ≥ 140
+
+OR
+
+Diastolic:
+
+    ≥ 90
+
+Display:
+
+> This reading is high
+
+The exact reference framework and user-facing wording MUST be clinically reviewed before production launch.
+
+Do not present the reference ranges as a diagnosis.
+
+---
+
+## 20. Mixed Systolic & Diastolic Categories
+
+Evaluate systolic and diastolic independently.
+
+If the two values fall into different categories, use the higher applicable category.
+
+Example:
+
+    128 / 86
+
+The systolic value falls into the elevated range while the diastolic value falls into the higher category.
+
+Therefore the overall displayed classification should use the higher applicable category.
+
+Never average systolic and diastolic values together for classification.
+
+---
+
+## 21. Visual Status System
+
+Use:
+
+    NORMAL
+    Green
+    "Looks good"
+
+    ELEVATED
+    Yellow
+    "Worth keeping an eye on"
+
+    HIGHER CATEGORY
+    Orange
+    "Higher than the usual range"
+
+    HIGH CATEGORY
+    Red
+    "This reading is high"
+
+Color must NEVER be the only method of communicating status.
+
+Always combine:
+
+- Color.
+- Text.
+- Optional icon.
+
+The interface must remain understandable for users with color-vision deficiencies.
+
+---
+
+## 22. Individual Reading Display
+
+Example:
+
+    Latest Reading
+
+    136 / 84 mmHg
+
+    🟠 Higher than the usual range
+
+    Recorded 8:42 AM
+
+The numerical BP reading must remain prominent.
+
+The status should provide context without visually replacing the actual measurement.
+
+---
+
+## 23. Average Reading Display
+
+The classification engine must also support calculated averages.
+
+Example:
+
+    30-Day Average
+
+    136 / 84 mmHg
+
+    🟠 Higher than the usual range
+
+    Average of 20 recorded readings
+
+Clearly identify the value as an average.
+
+Do not present an average as a newly measured BP reading.
+
+Use wording such as:
+
+> Average of 20 recorded readings
+
+instead of:
+
+> Your blood pressure is 136/84.
+
+---
+
+## 24. "Why Am I Seeing This?"
+
+Users should be able to select:
+
+> Why am I seeing this?
+
+Vitaly should explain the classification using the actual recorded values.
+
+Example:
+
+    Why am I seeing this?
+
+    Your recorded blood pressure was
+    136/84 mmHg.
+
+    The systolic value falls within the
+    130–139 range and the diastolic
+    value falls within the 80–89 range.
+
+    This classification describes this
+    recorded reading. It is not a diagnosis.
+
+The explanation must be generated from the classification data rather than duplicated separately across screens.
+
+---
+
+## 25. Dashboard Integration
+
+The Dashboard should display the classification for the latest confirmed BP reading.
+
+Example:
+
+    Latest Reading
+
+    136 / 84
+
+    🟠 Higher than the usual range
+
+Do not display diagnostic statements.
+
+---
+
+## 26. BP History Integration
+
+Every applicable BP history record should display its classification.
+
+Example:
+
+    136 / 84
+    🟠 Higher than the usual range
+
+    22 Aug 2026 · 8:42 AM
+
+The same BPClassificationService must be used.
+
+---
+
+## 27. Trends Integration
+
+Vitaly may show category changes in calculated averages.
+
+Example:
+
+    Last month
+    🟠 Higher than the usual range
+
+    This month
+    🟡 Worth keeping an eye on
+
+Use descriptive language:
+
+> Your average recorded reading moved from the higher category to the elevated category.
+
+Do NOT say:
+
+> Your hypertension improved.
+
+Category movement must not be treated as a medical diagnosis.
+
+---
+
+## 28. Reports Integration
+
+Generated BP reports may display:
+
+- Individual readings.
+- Calculated averages.
+- Classification.
+- The reference category used.
+
+The report must clearly distinguish between:
+
+- Measured values.
+- Calculated averages.
+- Classification.
+
+Do not generate diagnostic conclusions.
+
+---
+
+## 29. Approved User-Facing Language
+
+Preferred:
+
+> Looks good
+
+> Worth keeping an eye on
+
+> Higher than the usual range
+
+> This reading is high
+
+Avoid:
+
+> You have hypertension.
+
+> You are unhealthy.
+
+> You are in danger.
+
+> Your hypertension is getting worse.
+
+> You need medication.
+
+> You need to increase your medication.
+
+> You should stop your medication.
+
+> You are medically safe.
+
+> You are cured.
+
+The system describes the measurement, not the user's medical condition.
+
+---
+
+## 30. No Automatic Emergency Decisions
+
+The classification engine must NOT independently determine that the user is experiencing a medical emergency.
+
+Do not introduce emergency instructions solely from arbitrary thresholds.
+
+If Vitaly later introduces emergency or urgent-care guidance, the exact clinical thresholds, logic, wording, and user experience must undergo appropriate clinical and regulatory review before implementation.
+
+---
+
+## 31. Centralized Reference Configuration
+
+Do NOT scatter numerical thresholds throughout the codebase.
+
+Create a centralized configuration such as:
+
+    BPReferenceRanges
+
+The BPClassificationService must read its thresholds from this configuration.
+
+The reference framework must be versioned so that future clinical updates can be implemented without rewriting the application.
+
+Do not hard-code thresholds independently inside UI components.
+
+---
+
+## 32. Testing Requirements
+
+Create unit tests for BPClassificationService.
+
+Test:
+
+- Normal readings.
+- Elevated readings.
+- Higher-category readings.
+- High readings.
+- Systolic-only category changes.
+- Diastolic-only category changes.
+- Mixed-category readings.
+- Boundary values.
+- Average readings.
+- Missing optional pulse values.
+
+Explicitly test:
+
+    119 / 79
+    120 / 79
+    129 / 79
+    130 / 79
+    130 / 80
+    139 / 89
+    140 / 89
+    139 / 90
+
+Classification must be deterministic.
+
+---
+
+# 33. INTEGRATION BETWEEN THE TWO FEATURES
+
+The two features must connect through this exact workflow:
+
+    USER SCANS REPORT
+            ↓
+    OCR EXTRACTS POSSIBLE BP VALUES
+            ↓
+    USER REVIEWS VALUES
+            ↓
+    USER EDITS / DELETES / CORRECTS
+            ↓
+    USER CONFIRMS
+            ↓
+    ORIGINAL REPORT IS SAVED
+            ↓
+    USER OPTIONALLY ADDS CONFIRMED BP VALUES
+            ↓
+    VALUES ENTER BP HISTORY
+            ↓
+    BPClassificationService EVALUATES CONFIRMED VALUES
+            ↓
+    VITALY DISPLAYS BP STATUS
+
+IMPORTANT:
+
+OCR output alone must NEVER:
+
+- Enter BP History.
+- Trigger BP classification.
+- Generate a diagnosis.
+- Generate treatment recommendations.
+
+Only user-confirmed BP values may enter the BP classification workflow.
+
+---
+
+# 34. Overall Regulatory/Product Boundary
+
+These two features are intended to:
+
+- Record information.
+- Extract information.
+- Organize information.
+- Calculate averages.
+- Classify recorded measurements according to a selected reference framework.
+- Display understandable status information.
+
+They must NOT independently:
+
+- Diagnose diseases.
+- Prescribe medication.
+- Recommend medication changes.
+- Create treatment plans.
+- Determine that a user has hypertension.
+- Determine that a user is medically safe.
+- Make autonomous clinical decisions.
+
+If implementation of either feature requires functionality beyond these boundaries, STOP implementation of that part and flag it for product, clinical, and regulatory review.
+
+---
+
+# 35. Combined Definition of Done
+
+## Scan BP Report
+
+The feature is complete when the user can:
+
+1. Tap "Scan BP Report".
+2. Scan or import a report.
+3. Preview the document.
+4. Process the document using OCR where supported.
+5. Review extracted information.
+6. Edit incorrect values.
+7. Delete incorrect values.
+8. Add missing information.
+9. Confirm extracted information.
+10. Save the original document.
+11. View the document later in Saved Reports.
+12. Rename the report.
+13. Delete the report.
+14. Save the original report even if OCR fails.
+15. Optionally add confirmed BP readings to BP History.
+16. See that imported readings have the source "Imported Report".
+
+## BP Reading Status
+
+The feature is complete when the user can:
+
+1. See a status for an individual BP reading.
+2. See a status for calculated BP averages.
+3. Understand why the status was assigned.
+4. See the status consistently across Dashboard, BP History, Trends, and Reports.
+5. See accessible text and visual indicators.
+6. Receive descriptive feedback without receiving a diagnosis.
+7. Have all classifications generated by the centralized BPClassificationService.
+
+## Combined Requirement
+
+A confirmed BP value extracted from a scanned report must behave exactly like a manually entered BP value after confirmation, while retaining:
+
+    Source: Imported Report
+
+No unconfirmed OCR result may enter BP History or trigger BP classification.
+
+---
+
+# 36. IMPLEMENTATION ORDER
+
+Claude must implement these features in the following order.
+
+## PHASE 1
+
+Implement:
+
+> Scan BP Report & Saved Reports
+
+Complete the entire feature, including:
+
+- Scanning/import.
+- OCR.
+- Review.
+- Editing.
+- Deleting incorrect extracted values.
+- User confirmation.
+- Original document storage.
+- Saved Reports.
+- Report viewer.
+- Report deletion.
+- OCR failure handling.
+- Security/privacy requirements.
+- Optional linking of confirmed readings to BP History.
+
+Run tests and fix issues before moving to Phase 2.
+
+## PHASE 2
+
+Implement:
+
+> BP Reading Status & Range Classification
+
+Complete:
+
+- Central BPClassificationService.
+- Reference range configuration.
+- Classification logic.
+- Green/yellow/orange/red status system.
+- User-facing wording.
+- Dashboard integration.
+- BP History integration.
+- Trends integration.
+- Average classification.
+- Explanation/"Why am I seeing this?" functionality.
+- Unit tests and boundary tests.
+
+Then integrate Phase 2 with the confirmed readings produced by Phase 1.
+
+Do NOT implement unrelated features as part of this specification.
 ---
 
 # 31. Technical Stack and Architecture
