@@ -83,15 +83,23 @@ void main() {
       await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
       await _settle(tester);
 
-      // Authenticated but not onboarded -> onboarding welcome step.
-      expect(find.text('Welcome to Vitaly'), findsOneWidget);
+      // Authenticated but not onboarded -> onboarding carousel, step 1.
+      expect(find.text('Two numbers, five seconds.'), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Next'));
       await _settle(tester);
-      expect(find.text('What should we call you?'), findsOneWidget);
+      expect(find.text('Watch the line, not the number.'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Next'));
+      await _settle(tester);
+      expect(find.text('Reminders that fit your day.'), findsOneWidget);
+
+      await tester.tap(find.widgetWithText(FilledButton, 'Get started'));
+      await _settle(tester);
+      expect(find.text('WHAT SHOULD WE CALL YOU?'), findsOneWidget);
 
       await tester.enterText(find.byType(TextFormField), 'Alex');
-      await tester.tap(find.widgetWithText(FilledButton, 'Get started'));
+      await tester.tap(find.widgetWithText(FilledButton, 'Continue'));
       // Deliberately minimal, bounded pumping here — just enough for the
       // save's Future to resolve, not enough to carry the subsequent
       // auth-gate-driven redirect all the way to a fully settled Dashboard

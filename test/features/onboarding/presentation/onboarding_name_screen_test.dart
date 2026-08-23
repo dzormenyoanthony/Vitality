@@ -18,14 +18,14 @@ void main() {
       ),
     );
 
-    await tester.tap(find.text('Get started'));
+    await tester.tap(find.text('Continue'));
     await tester.pump();
 
     expect(find.text('Enter a preferred name.'), findsOneWidget);
     expect(submittedName, isEmpty);
 
     await tester.enterText(find.byType(TextFormField), 'Alex');
-    await tester.tap(find.text('Get started'));
+    await tester.tap(find.text('Continue'));
     await tester.pump();
 
     expect(submittedName, 'Alex');

@@ -35,6 +35,47 @@ abstract final class AppColors {
   /// sampled from the reference, distinct from [actionAccent].
   static const Color splashAccent = Color(0xFFF2765C);
   static const Color splashProgressTrack = Color(0xFF3D726E);
+
+  /// Onboarding carousel colors, sampled directly from
+  /// `design_references/Onboarding 1 of 3.png` — independent of
+  /// light/dark theme, matching the other fixed pre-auth brand screens.
+  static const Color onboardingIllustrationBg = Color(0xFFD7EFE9);
+  static const Color onboardingIllustrationCircleBright = Color(0xFFC3E3DD);
+  static const Color onboardingIllustrationCircleMuted = Color(0xFFDBDED5);
+  static const Color onboardingAccent = Color(0xFF0F7A72);
+  static const Color onboardingHeadline = Color(0xFF0E2724);
+  static const Color onboardingBody = Color(0xFF475B58);
+  static const Color onboardingCoral = Color(0xFFC2452C);
+  static const Color onboardingChipUnselected = Color(0xFFEDF5F3);
+  static const Color onboardingDotInactive = Color(0xFFC9D1CF);
+
+  /// Onboarding 2-of-3 colors, sampled from
+  /// `design_references/Onboarding 2 of 3.png` — a separate warm/coral
+  /// palette from screen 1's mint/teal one.
+  static const Color onboardingIllustrationBg2 = Color(0xFFFFE0D6);
+  static const Color onboardingIllustrationCircleBright2 = Color(0xFFF9D0C4);
+  static const Color onboardingIllustrationCircleMuted2 = Color(0xFFE2D4CA);
+  static const Color onboardingHeadline2 = Color(0xFF3A140C);
+  static const Color onboardingBody2 = Color(0xFF6B4D46);
+  static const Color onboardingChartFill = Color(0xFFE7F1F1);
+  static const Color onboardingDiastolicLine = Color(0xFFF2765C);
+
+  /// Onboarding 3-of-3 colors, sampled from
+  /// `design_references/Onboarding 3 of 3.png` — a separate
+  /// indigo/lavender palette from screens 1-2.
+  static const Color onboardingIllustrationBg3 = Color(0xFFE3DEFF);
+  static const Color onboardingIllustrationCircleBright3 = Color(0xFFD2CCFB);
+  static const Color onboardingIllustrationCircleMuted3 = Color(0xFFC9D2EE);
+  static const Color onboardingAccent3 = Color(0xFF5B4BE0);
+  static const Color onboardingHeadline3 = Color(0xFF221A57);
+  static const Color onboardingBody3 = Color(0xFF575081);
+
+  /// Onboarding name-entry screen — sampled from
+  /// `design_references/Onboarding-name only.png`. The wordmark,
+  /// headline accent, and button all reuse [onboardingAccent] and
+  /// [onboardingHeadline]/[onboardingBody] exactly (same teal/dark-teal
+  /// palette as Onboarding 1 of 3); only the field border is new.
+  static const Color onboardingFieldBorder = Color(0xFF566A65);
 }
 
 /// Four decorative (background, foreground) accent pairs used for
