@@ -67,6 +67,23 @@ class FlutterLocalNotificationsScheduler implements NotificationScheduler {
   }
 
   @override
+  Future<bool> areNotificationsEnabled() async {
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    if (androidPlugin != null) {
+      return await androidPlugin.areNotificationsEnabled() ?? true;
+    }
+    return true;
+  }
+
+  @override
+  Future<void> openNotificationSettings() async {
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    await androidPlugin?.openAppNotificationSettings();
+  }
+
+  @override
   Future<void> scheduleReminder(Reminder reminder) async {
     await cancelReminder(reminder.id);
     if (!reminder.enabled) return;

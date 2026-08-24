@@ -10,12 +10,34 @@ abstract final class AppColors {
 
   /// Solid fill for the Dashboard's "latest reading" hero card — a
   /// deliberate one-off dark-teal treatment, not part of the M3 seed ramp.
-  static const Color heroFill = Color(0xFF123D33);
+  /// Sampled from `design_references/Dashboard.png`.
+  static const Color heroFill = Color(0xFF0C4F4A);
   static const Color heroFillDark = Color(0xFF16443A);
 
   /// Warm CTA accent (FAB, primary "add" actions) — distinct from the
   /// brand teal so calls to action stand out.
   static const Color actionAccent = Color(0xFFD8654A);
+
+  /// Dashboard-specific accents, sampled from
+  /// `design_references/Dashboard.png` — the trend chart's systolic/
+  /// diastolic lines, the "Add reading" FAB, and the greeting badge
+  /// reuse the same teal/coral/mint family as the onboarding screens'
+  /// reference art, but are kept as their own constants since this is a
+  /// themed in-app screen rather than a fixed pre-auth brand moment.
+  static const Color dashboardAccentTeal = Color(0xFF0F7A72);
+  static const Color dashboardAccentCoral = Color(0xFFC2452C);
+  static const Color dashboardBadgeBackground = Color(0xFFD7EFE9);
+
+  /// Reminders-specific colors, sampled from
+  /// `design_references/Reminders.png` — the small delivery-status dot
+  /// next to each reminder row and the system-notifications-off warning
+  /// banner. These describe notification *delivery* only, never a
+  /// reading's severity (PROJECT_SPEC.md §9, §14 — see the Reminders
+  /// screen's own footer copy, which says this explicitly).
+  static const Color remindersDeliveringDot = Color(0xFF2E6B4F);
+  static const Color remindersSilencedDot = Color(0xFF8A5300);
+  static const Color remindersWarningBackground = Color(0xFFFBEEEC);
+  static const Color remindersWarningDot = Color(0xFF9B2C20);
 
   /// Splash screen colors, sampled directly from
   /// `design_references/Splash.png` — independent of light/dark theme,

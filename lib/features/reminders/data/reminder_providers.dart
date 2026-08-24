@@ -29,3 +29,11 @@ final reminderStreamProvider = StreamProvider.family<Reminder?, int>(
 final notificationSchedulerProvider = Provider<NotificationScheduler>((ref) {
   return FlutterLocalNotificationsScheduler(FlutterLocalNotificationsPlugin());
 });
+
+/// Whether the OS currently allows Vitaly to show notifications — powers
+/// the Reminders screen's "system notifications are switched off"
+/// warning. Re-check by invalidating this provider (e.g. after the user
+/// returns from the OS settings screen).
+final notificationsEnabledProvider = FutureProvider<bool>((ref) {
+  return ref.watch(notificationSchedulerProvider).areNotificationsEnabled();
+});

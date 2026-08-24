@@ -38,15 +38,15 @@ void main() {
     await tester.pump();
 
     expect(find.textContaining("haven't recorded"), findsOneWidget);
-    expect(find.text('LEARN'), findsOneWidget);
+    expect(find.text('NEXT REMINDER'), findsOneWidget);
 
     await db.close();
   });
 
   testWidgets('shows the latest reading and a 7-day summary once data exists', (tester) async {
     // The populated dashboard is taller than the default test viewport;
-    // enlarge it so the education card near the bottom is laid out without
-    // needing to scroll.
+    // enlarge it so the trend chart card near the bottom is laid out
+    // without needing to scroll.
     tester.view.physicalSize = const Size(800, 2400);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
@@ -55,8 +55,8 @@ void main() {
     addTearDown(db.close);
     final repository = DriftBloodPressureRepository(db);
     await repository.addReading(
-      systolic: 120,
-      diastolic: 80,
+      systolic: 118,
+      diastolic: 76,
       pulse: 70,
       timestamp: DateTime.now(),
     );
@@ -79,11 +79,11 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('LATEST READING'), findsOneWidget);
-    expect(find.text('120/80 mmHg'), findsOneWidget);
-    expect(find.text('LAST 7 DAYS'), findsOneWidget);
-    expect(find.textContaining('Average: 120/80 mmHg'), findsOneWidget);
-    expect(find.text('LEARN'), findsOneWidget);
-    expect(find.text('Browse all articles'), findsOneWidget);
+    expect(find.text('118'), findsOneWidget);
+    expect(find.text('76'), findsOneWidget);
+    expect(find.textContaining('LAST 7 DAYS'), findsOneWidget);
+    expect(find.text('7-DAY AVERAGE'), findsOneWidget);
+    expect(find.text('30-DAY AVERAGE'), findsOneWidget);
 
     await db.close();
   });

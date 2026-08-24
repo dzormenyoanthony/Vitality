@@ -9,10 +9,20 @@ class FakeNotificationScheduler implements NotificationScheduler {
   final _tapController = StreamController<void>.broadcast();
 
   bool permissionGranted = true;
+  bool notificationsEnabled = true;
+  int openNotificationSettingsCallCount = 0;
   final Set<int> scheduledReminderIds = {};
 
   @override
   Future<bool> requestPermission() async => permissionGranted;
+
+  @override
+  Future<bool> areNotificationsEnabled() async => notificationsEnabled;
+
+  @override
+  Future<void> openNotificationSettings() async {
+    openNotificationSettingsCallCount++;
+  }
 
   @override
   Future<void> scheduleReminder(Reminder reminder) async {

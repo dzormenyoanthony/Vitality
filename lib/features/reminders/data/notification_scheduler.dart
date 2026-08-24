@@ -9,6 +9,17 @@ abstract interface class NotificationScheduler {
   /// start. Returns whether permission is granted.
   Future<bool> requestPermission();
 
+  /// Checks (without prompting) whether notifications are currently
+  /// enabled for this app at the OS level — powers the Reminders screen's
+  /// "system notifications are switched off" warning. Defaults to `true`
+  /// on platforms without a check-only API (this app's primary target is
+  /// Android, where the check is real).
+  Future<bool> areNotificationsEnabled();
+
+  /// Opens the OS notification settings screen for this app, if the
+  /// platform supports it.
+  Future<void> openNotificationSettings();
+
   /// Schedules one recurring notification per selected weekday in
   /// [Reminder.daysOfWeek]. Safe to call again for the same reminder (e.g.
   /// after editing) — replaces any existing schedule for it.

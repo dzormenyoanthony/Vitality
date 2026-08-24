@@ -28,7 +28,7 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('No reminders yet. Tap + to add one.'), findsOneWidget);
+    expect(find.text('No reminders yet.'), findsOneWidget);
 
     await db.close();
   });
@@ -58,13 +58,13 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Morning reading'), findsOneWidget);
-    expect(find.text('8:00 AM · Every day'), findsOneWidget);
+    expect(find.text('08:00'), findsOneWidget);
+    expect(find.text('Every day · Morning · delivering'), findsOneWidget);
 
     await db.close();
   });
 
-  testWidgets('cancelling the delete dialog keeps the reminder', (tester) async {
+  testWidgets('cancelling the delete swipe keeps the reminder', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     await DriftReminderRepository(db).addReminder(
@@ -89,14 +89,15 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    await tester.tap(find.byIcon(Icons.delete_outline));
-    await tester.pump();
+    await tester.drag(find.byType(Dismissible), const Offset(-500, 0));
+    await tester.pumpAndSettle();
     expect(find.text('Delete this reminder?'), findsOneWidget);
 
     await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Morning reading'), findsOneWidget);
+    expect(find.text('08:00'), findsOneWidget);
+    expect(find.text('Mon · Morning · delivering'), findsOneWidget);
 
     await db.close();
   });

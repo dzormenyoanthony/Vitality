@@ -11,11 +11,11 @@ const weekdayShortLabels = {
 };
 
 /// Human-readable summary of a reminder's selected days, e.g. "Every day",
-/// "Weekdays", or "Mon, Wed, Fri".
+/// "Mon – Fri", or "Mon, Wed, Fri".
 String daysSummary(Set<int> daysOfWeek) {
   if (daysOfWeek.length == 7) return 'Every day';
   if (daysOfWeek.length == 5 && !daysOfWeek.contains(6) && !daysOfWeek.contains(7)) {
-    return 'Weekdays';
+    return 'Mon – Fri';
   }
   final sorted = daysOfWeek.toList()..sort();
   return sorted.map((d) => weekdayShortLabels[d]).join(', ');
