@@ -62,306 +62,287 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       // directly on this color instead of showing the hero tint behind them.
       backgroundColor: theme.colorScheme.surface,
       body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final width = constraints.maxWidth;
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const _HeroBanner(),
-                Expanded(
-                  child: Stack(
-                    // Clip.none: the decorative blob below deliberately pokes
-                    // above this sheet's top edge, into the hero card's rounded
-                    // bottom-left corner — matching the reference, where the
-                    // card visibly sits on top of it.
-                    clipBehavior: Clip.none,
-                    children: [
-                      ColoredBox(
-                        // The hero card has its own rounded bottom corners (see
-                        // _HeroBanner) and sits on top of this same plain white
-                        // page — unlike Create Account, there's no separate
-                        // rounded "sheet" here.
-                        color: theme.colorScheme.surface,
-                        child: SingleChildScrollView(
-                          padding: const EdgeInsets.fromLTRB(
-                            AppSpacing.lg,
-                            AppSpacing.xl,
-                            AppSpacing.lg,
-                            AppSpacing.lg,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const _HeroBanner(),
+            Expanded(
+              child: ColoredBox(
+                // The hero card has its own rounded bottom corners (see
+                // _HeroBanner) and sits on top of this same plain white
+                // page — unlike Create Account, there's no separate rounded
+                // "sheet" here.
+                color: theme.colorScheme.surface,
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.xl,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                  ),
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Text(
+                          'Welcome back',
+                          style: theme.textTheme.headlineMedium,
+                        ),
+                        const SizedBox(height: AppSpacing.sm),
+                        Text(
+                          'Sign in to continue tracking your blood pressure.',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant,
                           ),
-                          child: Form(
-                            key: _formKey,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: [
-                                Text(
-                                  'Welcome back',
-                                  style: theme.textTheme.headlineMedium
-                                      ?.copyWith(fontWeight: FontWeight.w800),
-                                ),
-                                const SizedBox(height: AppSpacing.sm),
-                                Text(
-                                  'Sign in to continue tracking your blood pressure.',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                        OutlinedButton.icon(
+                          onPressed: isLoading
+                              ? null
+                              : () => ref
+                                    .read(
+                                      googleSignInControllerProvider.notifier,
+                                    )
+                                    .signInWithGoogle(),
+                          style: OutlinedButton.styleFrom(
+                            shape: const StadiumBorder(),
+                            side: BorderSide(
+                              color: theme.colorScheme.outline,
+                              width: 1.5,
+                            ),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.md,
+                            ),
+                            foregroundColor: theme.colorScheme.onSurface,
+                            // Solid white, not the sheet's tint: the bundled
+                            // Google mark asset has its own opaque white
+                            // square background, which otherwise shows up
+                            // as a visible box against a tinted surface.
+                            backgroundColor: Colors.white,
+                          ),
+                          icon: googleState.isLoading
+                              ? const SizedBox(
+                                  width: 32,
+                                  height: 32,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
                                   ),
-                                ),
-                                const SizedBox(height: AppSpacing.lg),
-                                OutlinedButton.icon(
-                                  onPressed: isLoading
-                                      ? null
-                                      : () => ref
-                                            .read(
-                                              googleSignInControllerProvider
-                                                  .notifier,
-                                            )
-                                            .signInWithGoogle(),
-                                  style: OutlinedButton.styleFrom(
-                                    shape: const StadiumBorder(),
-                                    side: BorderSide(
-                                      color: theme.colorScheme.outline,
-                                      width: 1.5,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: AppSpacing.md,
-                                    ),
-                                    foregroundColor:
-                                        theme.colorScheme.onSurface,
-                                    // Solid white, not the sheet's tint: the bundled
-                                    // Google mark asset has its own opaque white
-                                    // square background, which otherwise shows up
-                                    // as a visible box against a tinted surface.
-                                    backgroundColor: Colors.white,
-                                  ),
-                                  icon: googleState.isLoading
-                                      ? const SizedBox(
-                                          width: 32,
-                                          height: 32,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : const _GoogleLogo(),
-                                  label: Text(
-                                    'Continue with Google',
-                                    style: theme.textTheme.titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.w700),
-                                  ),
-                                ),
-                                if (googleState.hasError) ...[
-                                  const SizedBox(height: AppSpacing.sm),
-                                  Text(
-                                    friendlyMessage(googleState.error!),
-                                    style: TextStyle(
-                                      color: theme.colorScheme.error,
-                                    ),
-                                  ),
-                                ],
-                                const SizedBox(height: AppSpacing.lg),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Divider(
-                                        color: theme.colorScheme.outlineVariant,
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: AppSpacing.sm,
-                                      ),
-                                      child: Text(
-                                        'OR',
-                                        style: theme.textTheme.labelMedium
-                                            ?.copyWith(
-                                              color: theme
-                                                  .colorScheme
-                                                  .onSurfaceVariant,
-                                            ),
-                                      ),
-                                    ),
-                                    Expanded(
-                                      child: Divider(
-                                        color: theme.colorScheme.outlineVariant,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: AppSpacing.lg),
-                                TextFormField(
-                                  controller: _emailController,
-                                  enabled: !isLoading,
-                                  keyboardType: TextInputType.emailAddress,
-                                  autofillHints: const [AutofillHints.email],
-                                  decoration: InputDecoration(
-                                    labelText: 'EMAIL',
-                                    floatingLabelBehavior:
-                                        FloatingLabelBehavior.always,
-                                    filled: true,
-                                    fillColor:
-                                        AppColors.onboardingChipUnselected,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        AppSpacing.radiusMd,
-                                      ),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        AppSpacing.radiusMd,
-                                      ),
-                                      borderSide: BorderSide.none,
-                                    ),
-                                    prefixIcon: const Icon(Icons.mail_outline),
-                                  ),
-                                  validator: CredentialsValidator.validateEmail,
-                                ),
-                                const SizedBox(height: AppSpacing.md),
-                                TextFormField(
-                                  controller: _passwordController,
-                                  enabled: !isLoading,
-                                  obscureText: _obscurePassword,
-                                  autofillHints: const [AutofillHints.password],
-                                  decoration: InputDecoration(
-                                    labelText: 'PASSWORD',
-                                    floatingLabelBehavior:
-                                        FloatingLabelBehavior.always,
-                                    prefixIcon: const Icon(Icons.lock_outline),
-                                    suffixIcon: IconButton(
-                                      tooltip: _obscurePassword
-                                          ? 'Show password'
-                                          : 'Hide password',
-                                      icon: Icon(
-                                        _obscurePassword
-                                            ? Icons.visibility_outlined
-                                            : Icons.visibility_off_outlined,
-                                      ),
-                                      onPressed: () => setState(
-                                        () => _obscurePassword =
-                                            !_obscurePassword,
-                                      ),
-                                    ),
-                                  ),
-                                  validator:
-                                      CredentialsValidator.validatePassword,
-                                  onFieldSubmitted: (_) => _submit(),
-                                ),
-                                Row(
-                                  children: [
-                                    Checkbox(
-                                      value: keepSignedIn,
-                                      onChanged: isLoading
-                                          ? null
-                                          : (value) => ref
-                                                .read(
-                                                  keepSignedInProvider.notifier,
-                                                )
-                                                .setKeepSignedIn(value ?? true),
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        'Keep me signed in',
-                                        style: theme.textTheme.bodyMedium,
-                                      ),
-                                    ),
-                                    TextButton(
-                                      onPressed: isLoading
-                                          ? null
-                                          : () => context.go(
-                                              AppRoutes.forgotPassword,
-                                            ),
-                                      child: const Text('Forgot?'),
-                                    ),
-                                  ],
-                                ),
-                                if (signInState.hasError) ...[
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      bottom: AppSpacing.sm,
-                                    ),
-                                    child: Text(
-                                      friendlyMessage(signInState.error!),
-                                      style: TextStyle(
-                                        color: theme.colorScheme.error,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                                const SizedBox(height: AppSpacing.sm),
-                                FilledButton.icon(
-                                  onPressed: isLoading ? null : _submit,
-                                  iconAlignment: IconAlignment.end,
-                                  style: FilledButton.styleFrom(
-                                    shape: const StadiumBorder(),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: AppSpacing.md,
-                                    ),
-                                    textStyle: theme.textTheme.titleMedium
-                                        ?.copyWith(fontWeight: FontWeight.w700),
-                                  ),
-                                  icon: signInState.isLoading
-                                      ? const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                            color: Colors.white,
-                                          ),
-                                        )
-                                      : const Icon(Icons.arrow_forward),
-                                  label: const Text('Sign in'),
-                                ),
-                                const SizedBox(height: AppSpacing.md),
-                                Center(
-                                  child: TextButton(
-                                    onPressed: isLoading
-                                        ? null
-                                        : () => context.go(AppRoutes.signUp),
-                                    child: Text.rich(
-                                      TextSpan(
-                                        style: theme.textTheme.bodyLarge
-                                            ?.copyWith(
-                                              color: theme
-                                                  .colorScheme
-                                                  .onSurfaceVariant,
-                                            ),
-                                        children: [
-                                          const TextSpan(text: 'New here? '),
-                                          TextSpan(
-                                            text: 'Create an account',
-                                            style: TextStyle(
-                                              color:
-                                                  AppColors.dashboardAccentTeal,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                )
+                              : const _GoogleLogo(),
+                          label: Text(
+                            'Continue with Google',
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),
-                      ),
-                      // Straddles the seam between the hero card and this sheet,
-                      // matching the reference's peach blob peeking out from
-                      // under the card's rounded bottom-left corner.
-                      Positioned(
-                        top: -width * 0.1,
-                        left: -width * 0.14,
-                        child: _Circle(
-                          diameter: width * 0.26,
-                          color: AppColors.signInAccentTan,
+                        if (googleState.hasError) ...[
+                          const SizedBox(height: AppSpacing.sm),
+                          Text(
+                            friendlyMessage(googleState.error!),
+                            style: TextStyle(color: theme.colorScheme.error),
+                          ),
+                        ],
+                        const SizedBox(height: AppSpacing.lg),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Divider(
+                                color: theme.colorScheme.outlineVariant,
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                              ),
+                              child: Text(
+                                'OR',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              child: Divider(
+                                color: theme.colorScheme.outlineVariant,
+                              ),
+                            ),
+                          ],
                         ),
-                      ),
-                    ],
+                        const SizedBox(height: AppSpacing.lg),
+                        TextFormField(
+                          controller: _emailController,
+                          enabled: !isLoading,
+                          keyboardType: TextInputType.emailAddress,
+                          autofillHints: const [AutofillHints.email],
+                          decoration: InputDecoration(
+                            labelText: 'EMAIL',
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                            filled: true,
+                            fillColor: AppColors.onboardingChipUnselected,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMd,
+                              ),
+                              borderSide: BorderSide.none,
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMd,
+                              ),
+                              borderSide: BorderSide.none,
+                            ),
+                            prefixIcon: const Icon(Icons.mail_outline),
+                          ),
+                          validator: CredentialsValidator.validateEmail,
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        TextFormField(
+                          controller: _passwordController,
+                          enabled: !isLoading,
+                          obscureText: _obscurePassword,
+                          autofillHints: const [AutofillHints.password],
+                          decoration: InputDecoration(
+                            labelText: 'PASSWORD',
+                            floatingLabelBehavior: FloatingLabelBehavior.always,
+                            labelStyle: const TextStyle(
+                              color: AppColors.dashboardAccentTeal,
+                            ),
+                            floatingLabelStyle: const TextStyle(
+                              color: AppColors.dashboardAccentTeal,
+                            ),
+                            prefixIconColor: AppColors.dashboardAccentTeal,
+                            suffixIconColor: AppColors.dashboardAccentTeal,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMd,
+                              ),
+                              borderSide: const BorderSide(
+                                color: AppColors.dashboardAccentTeal,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMd,
+                              ),
+                              borderSide: const BorderSide(
+                                color: AppColors.dashboardAccentTeal,
+                              ),
+                            ),
+                            prefixIcon: const Icon(Icons.lock_outline),
+                            suffixIcon: IconButton(
+                              tooltip: _obscurePassword
+                                  ? 'Show password'
+                                  : 'Hide password',
+                              icon: Icon(
+                                _obscurePassword
+                                    ? Icons.visibility_outlined
+                                    : Icons.visibility_off_outlined,
+                              ),
+                              onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword,
+                              ),
+                            ),
+                          ),
+                          validator: CredentialsValidator.validatePassword,
+                          onFieldSubmitted: (_) => _submit(),
+                        ),
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: keepSignedIn,
+                              onChanged: isLoading
+                                  ? null
+                                  : (value) => ref
+                                        .read(keepSignedInProvider.notifier)
+                                        .setKeepSignedIn(value ?? true),
+                            ),
+                            Expanded(
+                              child: Text(
+                                'Keep me signed in',
+                                style: theme.textTheme.bodyMedium,
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: isLoading
+                                  ? null
+                                  : () => context.go(AppRoutes.forgotPassword),
+                              child: const Text(
+                                'Forgot?',
+                                style: TextStyle(fontWeight: FontWeight.w700),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (signInState.hasError) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              bottom: AppSpacing.sm,
+                            ),
+                            child: Text(
+                              friendlyMessage(signInState.error!),
+                              style: TextStyle(color: theme.colorScheme.error),
+                            ),
+                          ),
+                        ],
+                        const SizedBox(height: AppSpacing.sm),
+                        FilledButton.icon(
+                          onPressed: isLoading ? null : _submit,
+                          iconAlignment: IconAlignment.end,
+                          style: FilledButton.styleFrom(
+                            shape: const StadiumBorder(),
+                            padding: const EdgeInsets.symmetric(
+                              vertical: AppSpacing.md,
+                            ),
+                            textStyle: theme.textTheme.titleMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          icon: signInState.isLoading
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(Icons.arrow_forward),
+                          label: const Text('Sign in'),
+                        ),
+                        const SizedBox(height: AppSpacing.md),
+                        Center(
+                          child: TextButton(
+                            onPressed: isLoading
+                                ? null
+                                : () => context.go(AppRoutes.signUp),
+                            child: Text.rich(
+                              TextSpan(
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                ),
+                                children: [
+                                  const TextSpan(text: 'New here? '),
+                                  TextSpan(
+                                    text: 'Create an account',
+                                    style: TextStyle(
+                                      color: AppColors.dashboardAccentTeal,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ],
-            );
-          },
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -449,7 +430,7 @@ class _HeroBanner extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         const Expanded(child: _ReadingSummaryCard()),
-                        const SizedBox(width: AppSpacing.xl),
+                        const SizedBox(width: 40),
                         const Padding(
                           padding: EdgeInsets.only(top: AppSpacing.md),
                           child: _AvatarBadge(),

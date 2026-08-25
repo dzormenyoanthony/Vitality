@@ -78,11 +78,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   Container(
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surface,
-                      // Bigger than AppSpacing.radiusXl: the reference
-                      // shows a clearly curved seam at both corners here,
-                      // not just a subtly rounded one.
-                      borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(40),
+                      // Asymmetric, matching the reference: the seam is
+                      // almost flat at the top-left and clearly curved at
+                      // the top-right, not a uniform rounded rectangle.
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(16),
+                        topRight: Radius.circular(64),
                       ),
                     ),
                     child: SingleChildScrollView(

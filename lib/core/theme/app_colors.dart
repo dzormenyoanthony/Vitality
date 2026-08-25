@@ -114,11 +114,6 @@ abstract final class AppColors {
   /// Purely decorative/comparative, never severity-coded (PROJECT_SPEC.md
   /// §9, §14) — fixed across themes like the other chart accents above.
   static const Color readingBarFill = Color(0xFF9AD0C0);
-
-  /// Sign In screen's decorative blob, sampled from
-  /// `design_references/Sign In screen.png` — a warm sandy tan, distinct
-  /// from [onboardingIllustrationCircleBright2]'s pinker peach.
-  static const Color signInAccentTan = Color(0xFFEFC08D);
 }
 
 /// Four decorative (background, foreground) accent pairs used for
