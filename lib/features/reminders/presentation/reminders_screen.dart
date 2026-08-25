@@ -75,18 +75,26 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> with WidgetsB
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.md, AppSpacing.lg, AppSpacing.md),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                padding: const EdgeInsets.fromLTRB(AppSpacing.sm, AppSpacing.xs, AppSpacing.lg, 0),
+                child: Row(
                   children: [
-                    Text('Reminders', style: theme.textTheme.headlineMedium),
-                    const SizedBox(height: AppSpacing.xs),
-                    Text(
-                      'Reminders prompt you to measure. Vitaly never asks you to '
-                      'change medication or treatment.',
-                      style: theme.textTheme.bodyLarge?.copyWith(color: AppColors.onboardingBody),
+                    IconButton(
+                      onPressed: () => context.pop(),
+                      icon: const Icon(Icons.arrow_back),
+                      tooltip: 'Back',
                     ),
+                    Text('Reminders', style: theme.textTheme.headlineMedium),
                   ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.md),
+                child: Text(
+                  'Reminders prompt you to measure. Vitaly never asks you to '
+                  'change medication or treatment.',
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
               const Divider(height: 1),
@@ -95,7 +103,9 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> with WidgetsB
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Text(
                     'No reminders yet.',
-                    style: theme.textTheme.bodyLarge?.copyWith(color: AppColors.onboardingBody),
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
                   ),
                 )
               else
@@ -140,7 +150,9 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> with WidgetsB
                   'Notifications are delivered by Android. Silent hours are '
                   'respected. Status colours describe delivery only, never '
                   'your readings.',
-                  style: theme.textTheme.bodySmall?.copyWith(color: AppColors.onboardingBody),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ),
             ],
@@ -157,10 +169,14 @@ class _NotificationsOffBanner extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    // The coral accent pair (not Material's saturated error/errorContainer)
+    // — attention-getting without reading as a harsh alarm, and already
+    // tuned for both light and dark mode elsewhere in the app.
+    final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        color: AppColors.remindersWarningBackground,
+        color: accents.coralBackground,
         borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
       ),
       child: Row(
@@ -171,17 +187,14 @@ class _NotificationsOffBanner extends ConsumerWidget {
             child: Container(
               width: 8,
               height: 8,
-              decoration: const BoxDecoration(
-                color: AppColors.remindersWarningDot,
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: accents.coralForeground, shape: BoxShape.circle),
             ),
           ),
           const SizedBox(width: AppSpacing.sm),
           Expanded(
             child: Text.rich(
               TextSpan(
-                style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.onboardingBody),
+                style: theme.textTheme.bodyMedium?.copyWith(color: accents.coralForeground),
                 children: [
                   const TextSpan(text: 'System notifications for Vitaly are switched off. '),
                   TextSpan(
@@ -280,7 +293,9 @@ class _ReminderRow extends ConsumerWidget {
                     Text(
                       _twoDigitTime(reminder.hour, reminder.minute),
                       style: theme.textTheme.headlineMedium?.copyWith(
-                        color: enabled ? AppColors.onboardingHeadline : AppColors.onboardingFieldBorder,
+                        color: enabled
+                            ? theme.colorScheme.onSurface
+                            : theme.colorScheme.onSurfaceVariant,
                         fontWeight: FontWeight.w700,
                         fontFeatures: const [FontFeature.tabularFigures()],
                       ),
@@ -299,7 +314,9 @@ class _ReminderRow extends ConsumerWidget {
                         Flexible(
                           child: Text(
                             statusText,
-                            style: theme.textTheme.bodyMedium?.copyWith(color: AppColors.onboardingBody),
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
                           ),
                         ),
                       ],
@@ -374,7 +391,7 @@ class _NewReminderCardState extends ConsumerState<_NewReminderCard> {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
-        border: Border.all(color: AppColors.onboardingFieldBorder.withValues(alpha: 0.35)),
+        border: Border.all(color: theme.colorScheme.outlineVariant),
         borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
       ),
       child: Column(
@@ -402,7 +419,7 @@ class _NewReminderCardState extends ConsumerState<_NewReminderCard> {
                     '${_time.minute.toString().padLeft(2, '0')}',
                     style: theme.textTheme.headlineMedium?.copyWith(
                       fontWeight: FontWeight.w700,
-                      color: AppColors.onboardingHeadline,
+                      color: theme.colorScheme.onSurface,
                       fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
@@ -489,6 +506,8 @@ class _PeriodPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     return InkWell(
       borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
       onTap: onTap,
@@ -497,13 +516,18 @@ class _PeriodPill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: selected ? AppColors.dashboardBadgeBackground : null,
+          color: selected ? accents.mintBackground : null,
           border: Border.all(
-            color: selected ? AppColors.dashboardAccentTeal : AppColors.onboardingFieldBorder,
+            color: selected ? AppColors.dashboardAccentTeal : theme.colorScheme.outlineVariant,
           ),
           borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
         ),
-        child: Text(label, style: TextStyle(color: AppColors.onboardingHeadline)),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? accents.mintForeground : theme.colorScheme.onSurface,
+          ),
+        ),
       ),
     );
   }
@@ -518,6 +542,7 @@ class _DayCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return InkWell(
       customBorder: const CircleBorder(),
       onTap: onTap,
@@ -528,12 +553,12 @@ class _DayCircle extends StatelessWidget {
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           color: selected ? AppColors.dashboardAccentTeal : null,
-          border: selected ? null : Border.all(color: AppColors.onboardingFieldBorder),
+          border: selected ? null : Border.all(color: theme.colorScheme.outlineVariant),
         ),
         child: Text(
           label,
           style: TextStyle(
-            color: selected ? Colors.white : AppColors.onboardingBody,
+            color: selected ? Colors.white : theme.colorScheme.onSurfaceVariant,
             fontWeight: FontWeight.w600,
           ),
         ),

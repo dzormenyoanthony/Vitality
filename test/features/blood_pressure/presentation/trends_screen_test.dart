@@ -49,11 +49,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(
-      find.textContaining('Your average systolic reading over the last 7 days was 125 mmHg.'),
-      findsOneWidget,
-    );
-    expect(find.textContaining('You recorded 2 readings during this period.'), findsOneWidget);
+    expect(find.textContaining('125 / 85'), findsOneWidget);
+    expect(find.textContaining('on 2 of 7 days'), findsOneWidget);
 
     await db.close();
   });
@@ -80,14 +77,11 @@ void main() {
 
     expect(find.text('No readings in this period yet.'), findsOneWidget);
 
-    await tester.tap(find.text('90d'));
+    await tester.tap(find.text('90 d'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(
-      find.textContaining('Your average systolic reading over the last 90 days was 140 mmHg.'),
-      findsOneWidget,
-    );
+    expect(find.textContaining('140 / 95'), findsOneWidget);
 
     await db.close();
   });
@@ -117,7 +111,7 @@ void main() {
     await db.close();
   });
 
-  testWidgets('offers a 1-year period alongside 7/30/90/all', (tester) async {
+  testWidgets('offers 7/30/90-day and 1-year period chips', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
 
@@ -129,12 +123,23 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('1y'), findsOneWidget);
+    expect(find.text('7 d'), findsOneWidget);
+    expect(find.text('30 d'), findsOneWidget);
+    expect(find.text('90 d'), findsOneWidget);
+    expect(find.text('1 y'), findsOneWidget);
 
     await db.close();
   });
 
   testWidgets('shows an export-summary button once there are readings', (tester) async {
+    // The stat grid + disclaimer pushed the export button below the default
+    // 600px test-surface height, so it wouldn't be built by the (lazy)
+    // ListView without this taller viewport.
+    tester.view.physicalSize = const Size(400, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     await DriftBloodPressureRepository(db).addReading(
@@ -152,7 +157,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.widgetWithText(OutlinedButton, 'Export summary (PDF)'), findsOneWidget);
+    expect(find.widgetWithText(OutlinedButton, 'Export 7-day summary (PDF)'), findsOneWidget);
 
     await db.close();
   });

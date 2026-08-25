@@ -12,15 +12,31 @@ import '../../../core/widgets/loading_indicator.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
 import '../domain/trend_calculator.dart';
-import '../domain/trend_summary_lines.dart';
 import 'trend_pdf_export.dart';
+
+const _monthNames = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+]; // ignore: prefer_const_declarations
+
+/// The four period filters offered on Trends, matching
+/// `design_references/Trends.png` — [TrendPeriod.all] remains available in
+/// the domain layer for other callers, but isn't one of this screen's
+/// filter chips.
+const _chipPeriods = [
+  TrendPeriod.sevenDays,
+  TrendPeriod.thirtyDays,
+  TrendPeriod.ninetyDays,
+  TrendPeriod.oneYear,
+];
 
 /// Blood-pressure trend visualization (PROJECT_SPEC.md §11).
 ///
-/// All copy here must stay within the non-diagnostic phrasing §12
-/// explicitly approves — averages, counts, and reading-frequency
-/// comparisons only. No reference bands, thresholds, or color-coded zones
-/// are drawn on the charts (§14 classification remains deferred).
+/// Visual design matches `design_references/Trends.png`. All copy here must
+/// stay within the non-diagnostic phrasing §12 explicitly approves —
+/// averages, counts, ranges, and reading-frequency comparisons only. No
+/// reference bands, thresholds, or color-coded zones are drawn on the
+/// charts (§14 classification remains deferred).
 class TrendsScreen extends ConsumerStatefulWidget {
   const TrendsScreen({super.key});
 
@@ -33,42 +49,119 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final readingsState = ref.watch(readingsStreamProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Trends')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: SegmentedButton<TrendPeriod>(
-              segments: TrendPeriod.values
-                  .map((p) => ButtonSegment(value: p, label: Text(p.shortLabel)))
-                  .toList(),
-              selected: {_period},
-              onSelectionChanged: (selected) => setState(() => _period = selected.first),
-            ),
-          ),
-          Expanded(
-            child: readingsState.when(
-              loading: () => const LoadingIndicator(),
-              error: (error, _) => ErrorView(
-                message: friendlyMessage(error),
-                onRetry: () => ref.invalidate(readingsStreamProvider),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.md,
               ),
-              data: (readings) {
-                final stats = TrendCalculator.compute(readings, _period, DateTime.now());
-                if (stats.readingCount == 0) {
-                  return const EmptyView(
-                    message: 'No readings in this period yet.',
-                    icon: Icons.show_chart,
-                  );
-                }
-                return _TrendBody(stats: stats);
-              },
+              child: Text('Trends', style: theme.textTheme.headlineMedium),
+            ),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+              child: Row(
+                children: [
+                  for (final p in _chipPeriods)
+                    Padding(
+                      padding: const EdgeInsets.only(right: AppSpacing.sm),
+                      child: _PeriodChip(
+                        label: _chipLabel(p),
+                        selected: p == _period,
+                        onTap: () => setState(() => _period = p),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            Expanded(
+              child: readingsState.when(
+                loading: () => const LoadingIndicator(),
+                error: (error, _) => ErrorView(
+                  message: friendlyMessage(error),
+                  onRetry: () => ref.invalidate(readingsStreamProvider),
+                ),
+                data: (readings) {
+                  final stats = TrendCalculator.compute(readings, _period, DateTime.now());
+                  if (stats.readingCount == 0) {
+                    return const EmptyView(
+                      message: 'No readings in this period yet.',
+                      icon: Icons.show_chart,
+                    );
+                  }
+                  return _TrendBody(stats: stats);
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String _chipLabel(TrendPeriod period) => switch (period) {
+  TrendPeriod.sevenDays => '7 d',
+  TrendPeriod.thirtyDays => '30 d',
+  TrendPeriod.ninetyDays => '90 d',
+  TrendPeriod.oneYear => '1 y',
+  TrendPeriod.all => 'All',
+};
+
+String _exportPeriodLabel(TrendPeriod period) => switch (period) {
+  TrendPeriod.sevenDays => '7-day',
+  TrendPeriod.thirtyDays => '30-day',
+  TrendPeriod.ninetyDays => '90-day',
+  TrendPeriod.oneYear => '1-year',
+  TrendPeriod.all => 'all-time',
+};
+
+class _PeriodChip extends StatelessWidget {
+  const _PeriodChip({required this.label, required this.selected, required this.onTap});
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected ? accents.mintBackground : theme.colorScheme.surface,
+        shape: StadiumBorder(
+          side: BorderSide(
+            color: selected ? AppColors.dashboardAccentTeal : theme.colorScheme.outlineVariant,
+          ),
+        ),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+            child: Text(
+              label,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: selected ? accents.mintForeground : theme.colorScheme.onSurface,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              ),
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -82,22 +175,74 @@ class _TrendBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView(
-      padding: const EdgeInsets.all(AppSpacing.md),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.xxl),
       children: [
-        _BpChart(readings: stats.readings),
+        _ChartCard(stats: stats),
         const SizedBox(height: AppSpacing.md),
-        const _Legend(),
+        _StatsGrid(stats: stats),
+        const SizedBox(height: AppSpacing.md),
+        const _DisclaimerCard(),
+        const SizedBox(height: AppSpacing.md),
+        _ExportButton(stats: stats),
         if (stats.hasPulseData) ...[
           const SizedBox(height: AppSpacing.lg),
           Text('Pulse', style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppSpacing.sm),
           _PulseChart(readings: stats.readings),
         ],
-        const SizedBox(height: AppSpacing.lg),
-        _StatsCard(stats: stats),
       ],
     );
   }
+}
+
+class _ChartCard extends StatelessWidget {
+  const _ChartCard({required this.stats});
+
+  final TrendStats stats;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.md, AppSpacing.md, AppSpacing.sm),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'SYSTOLIC / DIASTOLIC · mmHg',
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: AppColors.dashboardAccentTeal,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Text(
+                  _dateRangeLabel(stats.readings),
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.md),
+            _BpChart(readings: stats.readings),
+            const SizedBox(height: AppSpacing.sm),
+            const _Legend(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String _dateRangeLabel(List<BloodPressureReading> readings) {
+  String fmt(DateTime d) => '${d.day} ${_monthNames[d.month - 1]}';
+  return '${fmt(readings.first.timestamp)} – ${fmt(readings.last.timestamp)}';
 }
 
 class _Legend extends StatelessWidget {
@@ -107,15 +252,14 @@ class _Legend extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Container(width: 16, height: 3, color: theme.colorScheme.primary),
+        Container(width: 16, height: 3, color: AppColors.dashboardAccentTeal),
         const SizedBox(width: AppSpacing.xs),
-        const Text('Systolic'),
+        Text('Systolic', style: theme.textTheme.bodySmall),
         const SizedBox(width: AppSpacing.lg),
-        _DashedSwatch(color: theme.colorScheme.secondary),
+        _DashedSwatch(color: AppColors.dashboardAccentCoral),
         const SizedBox(width: AppSpacing.xs),
-        const Text('Diastolic (dashed)'),
+        Text('Diastolic', style: theme.textTheme.bodySmall),
       ],
     );
   }
@@ -158,6 +302,9 @@ class _BpChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final axisStyle = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
     final systolicSpots = <FlSpot>[];
     final diastolicSpots = <FlSpot>[];
     for (var i = 0; i < readings.length; i++) {
@@ -165,35 +312,105 @@ class _BpChart extends StatelessWidget {
       diastolicSpots.add(FlSpot(i.toDouble(), readings[i].diastolic.toDouble()));
     }
 
+    // Fit the Y axis to the actual data (with padding) instead of a fixed
+    // range, so out-of-range readings never draw past the chart's bounds.
+    final allValues = [
+      for (final r in readings) r.systolic.toDouble(),
+      for (final r in readings) r.diastolic.toDouble(),
+    ];
+    final dataMin = allValues.reduce((a, b) => a < b ? a : b);
+    final dataMax = allValues.reduce((a, b) => a > b ? a : b);
+    final chartMinY = ((dataMin - 10) / 10).floor() * 10.0;
+    final chartMaxY = ((dataMax + 10) / 10).ceil() * 10.0;
+    final interval = ((chartMaxY - chartMinY) / 4 / 10).ceil() * 10.0;
+
+    final lastIndex = readings.length - 1;
+    final midIndex = lastIndex ~/ 2;
+    String labelFor(double x) {
+      final index = x.round();
+      if (index != 0 && index != midIndex && index != lastIndex) return '';
+      if (index < 0 || index > lastIndex) return '';
+      final ts = readings[index].timestamp;
+      return '${ts.day} ${_monthNames[ts.month - 1]}';
+    }
+
+    bool isLastSpot(FlSpot spot, LineChartBarData barData) => spot.x == barData.spots.last.x;
+
     return Semantics(
       label:
           'Blood pressure trend chart. See the summary below for averages '
           'and reading count.',
       child: ExcludeSemantics(
         child: SizedBox(
-          height: 220,
+          height: 240,
           child: LineChart(
             LineChartData(
-              titlesData: _dateTitlesData(readings, theme),
-              gridData: const FlGridData(drawVerticalLine: false),
+              minY: chartMinY,
+              maxY: chartMaxY,
+              titlesData: FlTitlesData(
+                topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 36,
+                    interval: interval,
+                    getTitlesWidget: (value, meta) =>
+                        Text(value.round().toString(), style: axisStyle),
+                  ),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 24,
+                    interval: 1,
+                    getTitlesWidget: (value, meta) => Padding(
+                      padding: const EdgeInsets.only(top: 4),
+                      child: Text(labelFor(value), style: axisStyle),
+                    ),
+                  ),
+                ),
+              ),
+              gridData: FlGridData(
+                drawVerticalLine: false,
+                horizontalInterval: interval,
+                getDrawingHorizontalLine: (value) => FlLine(color: theme.dividerColor, strokeWidth: 1),
+              ),
               borderData: FlBorderData(show: false),
               lineTouchData: const LineTouchData(enabled: false),
               lineBarsData: [
                 LineChartBarData(
                   spots: systolicSpots,
-                  color: theme.colorScheme.primary,
+                  color: AppColors.dashboardAccentTeal,
                   barWidth: 2.5,
-                  // A line needs 2+ points to be visible; show a dot
-                  // instead so a single reading isn't rendered as an
-                  // empty chart.
-                  dotData: FlDotData(show: systolicSpots.length < 2),
+                  isCurved: false,
+                  dotData: FlDotData(
+                    show: true,
+                    checkToShowDot: (spot, barData) =>
+                        systolicSpots.length < 2 || isLastSpot(spot, barData),
+                    getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                      radius: 4,
+                      color: AppColors.dashboardAccentTeal,
+                      strokeWidth: 0,
+                    ),
+                  ),
                 ),
                 LineChartBarData(
                   spots: diastolicSpots,
-                  color: theme.colorScheme.secondary,
+                  color: AppColors.dashboardAccentCoral,
                   barWidth: 2.5,
+                  isCurved: false,
                   dashArray: const [6, 4],
-                  dotData: FlDotData(show: diastolicSpots.length < 2),
+                  dotData: FlDotData(
+                    show: true,
+                    checkToShowDot: (spot, barData) =>
+                        diastolicSpots.length < 2 || isLastSpot(spot, barData),
+                    getDotPainter: (spot, percent, barData, index) => FlDotCirclePainter(
+                      radius: 4,
+                      color: AppColors.dashboardAccentCoral,
+                      strokeWidth: 0,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -212,31 +429,55 @@ class _PulseChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final axisStyle = theme.textTheme.bodySmall?.copyWith(
+      color: theme.colorScheme.onSurfaceVariant,
+    );
     final spots = <FlSpot>[];
     for (var i = 0; i < readings.length; i++) {
       final pulse = readings[i].pulse;
       if (pulse != null) spots.add(FlSpot(i.toDouble(), pulse.toDouble()));
     }
 
-    return Semantics(
-      label: 'Pulse trend chart. See the summary below for averages.',
-      child: ExcludeSemantics(
-        child: SizedBox(
-          height: 160,
-          child: LineChart(
-            LineChartData(
-              titlesData: _dateTitlesData(readings, theme),
-              gridData: const FlGridData(drawVerticalLine: false),
-              borderData: FlBorderData(show: false),
-              lineTouchData: const LineTouchData(enabled: false),
-              lineBarsData: [
-                LineChartBarData(
-                  spots: spots,
-                  color: theme.colorScheme.tertiary,
-                  barWidth: 2.5,
-                  dotData: FlDotData(show: spots.length < 2),
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(AppSpacing.sm, AppSpacing.md, AppSpacing.md, AppSpacing.sm),
+        child: Semantics(
+          label: 'Pulse trend chart. See the summary below for averages.',
+          child: ExcludeSemantics(
+            child: SizedBox(
+              height: 160,
+              child: LineChart(
+                LineChartData(
+                  titlesData: FlTitlesData(
+                    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    bottomTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 32,
+                        getTitlesWidget: (value, meta) =>
+                            Text(value.round().toString(), style: axisStyle),
+                      ),
+                    ),
+                  ),
+                  gridData: FlGridData(
+                    drawVerticalLine: false,
+                    getDrawingHorizontalLine: (value) => FlLine(color: theme.dividerColor, strokeWidth: 1),
+                  ),
+                  borderData: FlBorderData(show: false),
+                  lineTouchData: const LineTouchData(enabled: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: spots,
+                      color: theme.colorScheme.tertiary,
+                      barWidth: 2.5,
+                      isCurved: false,
+                      dotData: FlDotData(show: spots.length < 2),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -245,48 +486,8 @@ class _PulseChart extends StatelessWidget {
   }
 }
 
-FlTitlesData _dateTitlesData(List<BloodPressureReading> readings, ThemeData theme) {
-  // Explicit theme-aware color so axis labels stay readable in dark mode
-  // instead of falling back to fl_chart's non-theme-aware default style
-  // (PROJECT_SPEC.md §35: "chart labels" need sufficient contrast).
-  final axisStyle = theme.textTheme.bodySmall?.copyWith(
-    color: theme.colorScheme.onSurfaceVariant,
-  );
-
-  String labelFor(double x) {
-    final index = x.round();
-    if (index < 0 || index >= readings.length) return '';
-    final ts = readings[index].timestamp;
-    return '${ts.month}/${ts.day}';
-  }
-
-  return FlTitlesData(
-    topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-    rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-    leftTitles: AxisTitles(
-      sideTitles: SideTitles(
-        showTitles: true,
-        reservedSize: 36,
-        getTitlesWidget: (value, meta) =>
-            Text(value.round().toString(), style: axisStyle),
-      ),
-    ),
-    bottomTitles: AxisTitles(
-      sideTitles: SideTitles(
-        showTitles: true,
-        reservedSize: 24,
-        interval: readings.length > 1 ? (readings.length - 1).toDouble() : 1,
-        getTitlesWidget: (value, meta) => Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(labelFor(value), style: axisStyle),
-        ),
-      ),
-    ),
-  );
-}
-
-class _StatsCard extends StatelessWidget {
-  const _StatsCard({required this.stats});
+class _StatsGrid extends StatelessWidget {
+  const _StatsGrid({required this.stats});
 
   final TrendStats stats;
 
@@ -294,46 +495,182 @@ class _StatsCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
-    final lines = trendSummaryLines(stats);
-    final tileColors = [
-      (accents.mintBackground, accents.mintForeground),
-      (accents.coralBackground, accents.coralForeground),
-      (accents.purpleBackground, accents.purpleForeground),
-      (accents.blueBackground, accents.blueForeground),
-    ];
+    final readings = stats.readings;
 
-    return Column(
+    final avgSystolic = stats.avgSystolic;
+    final avgDiastolic = stats.avgDiastolic;
+
+    final systolicValues = readings.map((r) => r.systolic);
+    final minSystolic = systolicValues.reduce((a, b) => a < b ? a : b);
+    final maxSystolic = systolicValues.reduce((a, b) => a > b ? a : b);
+
+    final distinctDays = readings
+        .map((r) => DateTime(r.timestamp.year, r.timestamp.month, r.timestamp.day))
+        .toSet()
+        .length;
+    final periodDays = stats.period.days ?? distinctDays;
+
+    final morningAvg = _averageSystolic(readings.where((r) => r.timestamp.hour < 12));
+    final eveningAvg = _averageSystolic(readings.where((r) => r.timestamp.hour >= 12));
+
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Wrap(
-          spacing: AppSpacing.sm,
-          runSpacing: AppSpacing.sm,
-          children: [
-            for (var i = 0; i < lines.length; i++)
-              SizedBox(
-                width:
-                    (MediaQuery.sizeOf(context).width - AppSpacing.md * 2 - AppSpacing.sm) / 2,
-                child: Container(
-                  padding: const EdgeInsets.all(AppSpacing.md),
-                  decoration: BoxDecoration(
-                    color: tileColors[i % tileColors.length].$1,
-                    borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
-                  ),
-                  child: Text(
-                    lines[i],
-                    style: TextStyle(color: tileColors[i % tileColors.length].$2),
-                  ),
-                ),
+        Expanded(
+          child: Column(
+            children: [
+              _StatTile(
+                background: accents.mintBackground,
+                foreground: accents.mintForeground,
+                label: 'AVERAGE',
+                value: avgSystolic != null && avgDiastolic != null
+                    ? '${avgSystolic.round()} / ${avgDiastolic.round()}'
+                    : '–',
+                subtitle: 'mmHg · ${stats.period.label}',
               ),
-          ],
+              const SizedBox(height: AppSpacing.sm),
+              _StatTile(
+                background: accents.purpleBackground,
+                foreground: accents.purpleForeground,
+                label: 'READINGS',
+                value: '${stats.readingCount}',
+                subtitle: 'on $distinctDays of $periodDays days',
+              ),
+            ],
+          ),
         ),
-        const SizedBox(height: AppSpacing.md),
-        OutlinedButton.icon(
-          onPressed: () => _exportPdf(context),
-          icon: const Icon(Icons.download_outlined),
-          label: const Text('Export summary (PDF)'),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Column(
+            children: [
+              _StatTile(
+                background: accents.coralBackground,
+                foreground: accents.coralForeground,
+                label: 'RANGE',
+                value: '$minSystolic–$maxSystolic',
+                subtitle: 'systolic, mmHg',
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              _StatTile(
+                background: accents.blueBackground,
+                foreground: accents.blueForeground,
+                label: 'MORNING VS EVENING',
+                value:
+                    '${morningAvg?.round() ?? '–'} / ${eveningAvg?.round() ?? '–'}',
+                subtitle: 'mean systolic',
+              ),
+            ],
+          ),
         ),
       ],
+    );
+  }
+}
+
+double? _averageSystolic(Iterable<BloodPressureReading> readings) {
+  final values = readings.map((r) => r.systolic).toList();
+  if (values.isEmpty) return null;
+  return values.reduce((a, b) => a + b) / values.length;
+}
+
+class _StatTile extends StatelessWidget {
+  const _StatTile({
+    required this.background,
+    required this.foreground,
+    required this.label,
+    required this.value,
+    required this.subtitle,
+  });
+
+  final Color background;
+  final Color foreground;
+  final String label;
+  final String value;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: background,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: theme.textTheme.labelMedium?.copyWith(color: foreground)),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            value,
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            subtitle,
+            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The non-diagnostic disclaimer under the stat grid — PROJECT_SPEC.md §12
+/// requires averages to be framed as records, never as an assessment.
+///
+/// Uses the theme-aware mint accent pair (not a fixed light color) so the
+/// text stays legible against its own background in dark mode too.
+class _DisclaimerCard extends StatelessWidget {
+  const _DisclaimerCard();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: BoxDecoration(
+        color: accents.mintBackground,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
+      ),
+      child: Text(
+        'Averages describe what you recorded. They are not an assessment of '
+        'your blood pressure — share them with your clinician.',
+        style: theme.textTheme.bodyMedium?.copyWith(color: accents.mintForeground),
+      ),
+    );
+  }
+}
+
+class _ExportButton extends StatelessWidget {
+  const _ExportButton({required this.stats});
+
+  final TrendStats stats;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () => _exportPdf(context),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: AppColors.dashboardAccentTeal,
+          side: const BorderSide(color: AppColors.dashboardAccentTeal),
+          shape: const StadiumBorder(),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+        ),
+        icon: const Icon(Icons.download_outlined),
+        label: Text('Export ${_exportPeriodLabel(stats.period)} summary (PDF)'),
+      ),
     );
   }
 
