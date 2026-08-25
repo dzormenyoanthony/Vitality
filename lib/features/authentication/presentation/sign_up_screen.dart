@@ -60,7 +60,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     final isLoading = signUpState.isLoading || googleState.isLoading;
 
     return Scaffold(
-      backgroundColor: AppColors.heroFill,
+      // White, not the hero's teal: SafeArea only insets the *content*, not
+      // this background paint, so the system status/gesture bars sit
+      // directly on this color. The reference keeps those areas clean —
+      // the teal is confined to the hero header's own bounds below the
+      // status bar, matching design_references/Create Account screen.png.
+      backgroundColor: theme.colorScheme.surface,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -110,8 +115,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               ),
                               icon: googleState.isLoading
                                   ? const SizedBox(
-                                      width: 18,
-                                      height: 18,
+                                      width: 32,
+                                      height: 32,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
                                       ),
@@ -187,20 +192,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 floatingLabelBehavior:
                                     FloatingLabelBehavior.always,
                                 filled: true,
-                                fillColor:
-                                    theme.colorScheme.surfaceContainerHighest,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    AppSpacing.radiusMd,
-                                  ),
-                                  borderSide: BorderSide.none,
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    AppSpacing.radiusMd,
-                                  ),
-                                  borderSide: BorderSide.none,
-                                ),
+                                fillColor: AppColors.dashboardBadgeBackground,
                                 prefixIcon: const Icon(Icons.lock_outline),
                                 suffixIcon: IconButton(
                                   tooltip: _obscurePassword
@@ -228,20 +220,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 floatingLabelBehavior:
                                     FloatingLabelBehavior.always,
                                 filled: true,
-                                fillColor:
-                                    theme.colorScheme.surfaceContainerHighest,
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    AppSpacing.radiusMd,
-                                  ),
-                                  borderSide: BorderSide.none,
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(
-                                    AppSpacing.radiusMd,
-                                  ),
-                                  borderSide: BorderSide.none,
-                                ),
+                                fillColor: AppColors.dashboardBadgeBackground,
                                 prefixIcon: const Icon(Icons.lock_outline),
                                 suffixIcon: IconButton(
                                   tooltip: _obscureConfirmPassword
@@ -341,6 +320,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                             ],
                             FilledButton.icon(
                               onPressed: isLoading ? null : _submit,
+                              iconAlignment: IconAlignment.end,
                               style: FilledButton.styleFrom(
                                 backgroundColor: AppColors.actionAccent,
                                 foregroundColor: Colors.black,
@@ -668,8 +648,8 @@ class _GoogleLogo extends StatelessWidget {
         'assets/logos/google_light.png',
         package: 'sign_in_button',
       ),
-      width: 20,
-      height: 20,
+      width: 32,
+      height: 32,
     );
   }
 }
