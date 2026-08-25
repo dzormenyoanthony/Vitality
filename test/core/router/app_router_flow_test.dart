@@ -68,8 +68,12 @@ void main() {
       // Unauthenticated -> sign-in.
       expect(find.text('Welcome back'), findsOneWidget);
 
+      await tester.ensureVisible(
+        find.widgetWithText(TextButton, 'New here? Create an account'),
+      );
+      await tester.pump();
       await tester.tap(
-        find.widgetWithText(TextButton, "Don't have an account? Create one"),
+        find.widgetWithText(TextButton, 'New here? Create an account'),
       );
       await _settle(tester);
       expect(find.text('Start your blood pressure story'), findsOneWidget);

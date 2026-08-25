@@ -41,17 +41,40 @@ void main() {
       );
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Email'),
+        find.widgetWithText(TextFormField, 'EMAIL'),
         'nobody@example.com',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Password'),
+        find.widgetWithText(TextFormField, 'PASSWORD'),
         'wrongpass',
       );
       await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
       await tester.pumpAndSettle();
 
       expect(find.text('Incorrect email or password.'), findsOneWidget);
+    });
+
+    testWidgets('signs in with Google via the Continue with Google button', (
+      tester,
+    ) async {
+      final authRepository = FakeAuthRepository();
+      addTearDown(authRepository.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
+          child: const MaterialApp(home: SignInScreen()),
+        ),
+      );
+
+      expect(authRepository.currentUser, isNull);
+
+      await tester.tap(
+        find.widgetWithText(OutlinedButton, 'Continue with Google'),
+      );
+      await tester.pumpAndSettle();
+
+      expect(authRepository.currentUser, isNotNull);
     });
   });
 

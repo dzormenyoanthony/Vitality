@@ -112,6 +112,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                   vertical: AppSpacing.md,
                                 ),
                                 foregroundColor: theme.colorScheme.onSurface,
+                                // Solid white, not the sheet's faint mint
+                                // tint: the bundled Google mark asset has
+                                // its own opaque white square background,
+                                // which otherwise shows up as a visible box
+                                // against the tinted surface.
+                                backgroundColor: Colors.white,
                               ),
                               icon: googleState.isLoading
                                   ? const SizedBox(
@@ -192,7 +198,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 floatingLabelBehavior:
                                     FloatingLabelBehavior.always,
                                 filled: true,
-                                fillColor: AppColors.dashboardBadgeBackground,
+                                fillColor: AppColors.onboardingChipUnselected,
                                 prefixIcon: const Icon(Icons.lock_outline),
                                 suffixIcon: IconButton(
                                   tooltip: _obscurePassword
@@ -220,7 +226,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 floatingLabelBehavior:
                                     FloatingLabelBehavior.always,
                                 filled: true,
-                                fillColor: AppColors.dashboardBadgeBackground,
+                                fillColor: AppColors.onboardingChipUnselected,
                                 prefixIcon: const Icon(Icons.lock_outline),
                                 suffixIcon: IconButton(
                                   tooltip: _obscureConfirmPassword
