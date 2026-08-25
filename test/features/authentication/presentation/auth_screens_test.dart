@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:vitality/core/services/shared_preferences_provider.dart';
 import 'package:vitality/features/authentication/data/auth_providers.dart';
 import 'package:vitality/features/authentication/data/fake_auth_repository.dart';
 import 'package:vitality/features/authentication/presentation/sign_in_screen.dart';
@@ -9,17 +11,30 @@ import 'package:vitality/features/authentication/presentation/sign_up_screen.dar
 
 void main() {
   group('SignInScreen', () {
+    // SignInScreen reads sharedPreferencesProvider for the "Keep me signed
+    // in" checkbox, so every test needs a mocked instance overridden in.
+    Future<SharedPreferences> mockPrefs() async {
+      SharedPreferences.setMockInitialValues({});
+      return SharedPreferences.getInstance();
+    }
+
     testWidgets('shows validation errors for empty fields', (tester) async {
       final authRepository = FakeAuthRepository();
       addTearDown(authRepository.dispose);
+      final prefs = await mockPrefs();
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
+          overrides: [
+            authRepositoryProvider.overrideWithValue(authRepository),
+            sharedPreferencesProvider.overrideWithValue(prefs),
+          ],
           child: const MaterialApp(home: SignInScreen()),
         ),
       );
 
+      await tester.ensureVisible(find.widgetWithText(FilledButton, 'Sign in'));
+      await tester.pump();
       await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
       await tester.pump();
 
@@ -32,10 +47,14 @@ void main() {
     ) async {
       final authRepository = FakeAuthRepository();
       addTearDown(authRepository.dispose);
+      final prefs = await mockPrefs();
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
+          overrides: [
+            authRepositoryProvider.overrideWithValue(authRepository),
+            sharedPreferencesProvider.overrideWithValue(prefs),
+          ],
           child: const MaterialApp(home: SignInScreen()),
         ),
       );
@@ -48,6 +67,8 @@ void main() {
         find.widgetWithText(TextFormField, 'PASSWORD'),
         'wrongpass',
       );
+      await tester.ensureVisible(find.widgetWithText(FilledButton, 'Sign in'));
+      await tester.pump();
       await tester.tap(find.widgetWithText(FilledButton, 'Sign in'));
       await tester.pumpAndSettle();
 
@@ -59,10 +80,14 @@ void main() {
     ) async {
       final authRepository = FakeAuthRepository();
       addTearDown(authRepository.dispose);
+      final prefs = await mockPrefs();
 
       await tester.pumpWidget(
         ProviderScope(
-          overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
+          overrides: [
+            authRepositoryProvider.overrideWithValue(authRepository),
+            sharedPreferencesProvider.overrideWithValue(prefs),
+          ],
           child: const MaterialApp(home: SignInScreen()),
         ),
       );
@@ -76,6 +101,34 @@ void main() {
 
       expect(authRepository.currentUser, isNotNull);
     });
+
+    testWidgets(
+      'unchecking "Keep me signed in" persists the preference as false',
+      (tester) async {
+        final authRepository = FakeAuthRepository();
+        addTearDown(authRepository.dispose);
+        final prefs = await mockPrefs();
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              authRepositoryProvider.overrideWithValue(authRepository),
+              sharedPreferencesProvider.overrideWithValue(prefs),
+            ],
+            child: const MaterialApp(home: SignInScreen()),
+          ),
+        );
+
+        expect(prefs.getBool('keep_signed_in'), isNull);
+
+        await tester.ensureVisible(find.byType(Checkbox));
+        await tester.pump();
+        await tester.tap(find.byType(Checkbox));
+        await tester.pump();
+
+        expect(prefs.getBool('keep_signed_in'), isFalse);
+      },
+    );
   });
 
   group('SignUpScreen', () {

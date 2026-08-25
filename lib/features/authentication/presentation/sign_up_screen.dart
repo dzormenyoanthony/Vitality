@@ -78,8 +78,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   Container(
                     decoration: BoxDecoration(
                       color: theme.colorScheme.surface,
+                      // Bigger than AppSpacing.radiusXl: the reference
+                      // shows a clearly curved seam at both corners here,
+                      // not just a subtly rounded one.
                       borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(AppSpacing.radiusXl),
+                        top: Radius.circular(40),
                       ),
                     ),
                     child: SingleChildScrollView(
@@ -107,6 +110,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 shape: const StadiumBorder(),
                                 side: BorderSide(
                                   color: theme.colorScheme.outline,
+                                  width: 1.5,
                                 ),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: AppSpacing.md,

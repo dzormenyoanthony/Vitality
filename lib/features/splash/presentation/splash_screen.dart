@@ -14,13 +14,14 @@ import '../../onboarding/data/user_profile_providers.dart';
 /// auth gate must never be allowed to hang silently on a loading spinner
 /// (CLAUDE.md §24).
 ///
-/// Visual design matches `design_references/Splash.png`: dark-teal hero
-/// background, three overlapping circles (one brighter, two darker/muted,
-/// each its own shade), a rounded-square icon badge with a pulse waveform,
-/// the "VITALY" wordmark with a coral accent dot, a tagline, and a bottom
-/// loading bar. Geometry and colors below are measured directly from that
-/// reference image, expressed as fractions of the screen so they hold up
-/// across device sizes.
+/// Visual design matches `design_references/Splash.png`: a radial dark-teal
+/// background, two overlapping translucent circles, faint concentric rings
+/// centered on the icon, a rounded-square icon badge with a pulse waveform,
+/// the "VITALY" wordmark with a coral accent dot, a floating coral dot and
+/// mint dot, a horizontal heartbeat trace, a tagline, a bottom loading bar,
+/// and a "NOT A MEDICAL DEVICE" caption. Geometry and colors below are
+/// measured directly from that reference image, expressed as fractions of
+/// the screen so they hold up across device sizes.
 class SplashScreen extends ConsumerWidget {
   const SplashScreen({super.key});
 
@@ -46,28 +47,92 @@ class SplashScreen extends ConsumerWidget {
           final width = constraints.maxWidth;
           final height = constraints.maxHeight;
           final iconSize = width * 0.241;
+          final iconCenter = Offset(width / 2, height * 0.475);
 
           return Stack(
             children: [
-              // Large, brighter circle — top-right, cut off by the top and
-              // right edges.
-              Positioned(
-                top: -height * 0.1105,
-                right: -width * 0.175,
-                child: _Blob(diameter: width * 0.705, color: AppColors.splashBlobBright),
+              // Radial glow behind the icon, fading to the flat background
+              // toward the edges.
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: Alignment.center,
+                      radius: 0.9,
+                      colors: [
+                        AppColors.splashBlobBright.withValues(alpha: 0.35),
+                        fill,
+                      ],
+                    ),
+                  ),
+                ),
               ),
-              // Small circle — left edge, upper-mid height.
+              // Large, brighter circle — top-left, cut off by the top and
+              // left edges.
               Positioned(
-                top: height * 0.185,
-                left: -width * 0.1006,
-                child: _Blob(diameter: width * 0.377, color: AppColors.splashBlobSmall),
+                top: -height * 0.09,
+                left: -width * 0.17,
+                child: _Blob(
+                  diameter: width * 0.63,
+                  color: AppColors.splashBlobBright.withValues(alpha: 0.55),
+                ),
               ),
-              // Large circle — bottom-left, mostly offscreen so only its
-              // top arc shows as a band near the bottom.
+              // Large, muted circle — bottom-right, cut off by the bottom
+              // and right edges.
               Positioned(
-                bottom: -height * 0.1285,
-                left: -width * 0.194,
-                child: _Blob(diameter: width * 0.717, color: AppColors.splashBlobBottom),
+                bottom: -height * 0.11,
+                right: -width * 0.2,
+                child: _Blob(
+                  diameter: width * 0.82,
+                  color: AppColors.splashBlobSmall.withValues(alpha: 0.4),
+                ),
+              ),
+              // Faint concentric rings centered on the icon, echoing a pulse
+              // rippling outward.
+              for (final scale in [1.0, 1.55, 2.15])
+                Positioned(
+                  left: iconCenter.dx - (iconSize * scale) / 2,
+                  top: iconCenter.dy - (iconSize * scale) / 2,
+                  child: Container(
+                    width: iconSize * scale,
+                    height: iconSize * scale,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.1),
+                      ),
+                    ),
+                  ),
+                ),
+              // Floating coral dot, unattached, above-right of the icon.
+              Positioned(
+                left: iconCenter.dx + iconSize * 0.42,
+                top: iconCenter.dy - iconSize * 0.55,
+                child: const _Dot(diameter: 11, color: AppColors.splashAccent),
+              ),
+              // Floating mint dot, lower-left, near the heartbeat trace.
+              Positioned(
+                left: width * 0.135,
+                top: height * 0.655,
+                child: _Dot(
+                  diameter: 8,
+                  color: AppColors.splashIconBackground.withValues(alpha: 0.8),
+                ),
+              ),
+              // Horizontal heartbeat trace spanning the full width.
+              Positioned(
+                left: 0,
+                right: 0,
+                top: height * 0.66,
+                child: SizedBox(
+                  height: height * 0.075,
+                  child: CustomPaint(
+                    painter: _HeartbeatLinePainter(
+                      color: Colors.white.withValues(alpha: 0.22),
+                    ),
+                    size: Size.infinite,
+                  ),
+                ),
               ),
               Center(
                 child: Padding(
@@ -86,7 +151,9 @@ class SplashScreen extends ConsumerWidget {
                         child: SizedBox(
                           width: iconSize * 0.44,
                           height: iconSize * 0.44,
-                          child: CustomPaint(painter: _PulsePainter(color: fill)),
+                          child: CustomPaint(
+                            painter: _PulsePainter(color: fill),
+                          ),
                         ),
                       ),
                       SizedBox(height: height * 0.035),
@@ -116,10 +183,23 @@ class SplashScreen extends ConsumerWidget {
                         ],
                       ),
                       SizedBox(height: height * 0.035),
-                      const Text(
-                        'Blood pressure, recorded',
-                        style: TextStyle(color: Colors.white70, fontSize: 16),
-                        textAlign: TextAlign.center,
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          _TaglineDash(),
+                          const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 12),
+                            child: Text(
+                              'Blood pressure, recorded',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          _TaglineDash(),
+                        ],
                       ),
                     ],
                   ),
@@ -128,7 +208,7 @@ class SplashScreen extends ConsumerWidget {
               Positioned(
                 left: 0,
                 right: 0,
-                bottom: height * 0.07,
+                bottom: height * 0.09,
                 child: Center(
                   child: SizedBox(
                     width: width * 0.33,
@@ -137,9 +217,26 @@ class SplashScreen extends ConsumerWidget {
                       borderRadius: BorderRadius.circular(2),
                       child: const LinearProgressIndicator(
                         backgroundColor: AppColors.splashProgressTrack,
-                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.splashAccent),
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          AppColors.splashAccent,
+                        ),
                       ),
                     ),
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: height * 0.045,
+                child: const Text(
+                  'NOT A MEDICAL DEVICE',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Colors.white38,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 2,
                   ),
                 ),
               ),
@@ -164,6 +261,32 @@ class _Blob extends StatelessWidget {
       height: diameter,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
+  }
+}
+
+class _Dot extends StatelessWidget {
+  const _Dot({required this.diameter, required this.color});
+
+  final double diameter;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: diameter,
+      height: diameter,
+      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+    );
+  }
+}
+
+/// The short horizontal dash flanking the tagline on either side.
+class _TaglineDash extends StatelessWidget {
+  const _TaglineDash();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(width: 20, height: 1, color: Colors.white38);
   }
 }
 
@@ -200,5 +323,51 @@ class _PulsePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _PulsePainter oldDelegate) => oldDelegate.color != color;
+  bool shouldRepaint(covariant _PulsePainter oldDelegate) =>
+      oldDelegate.color != color;
+}
+
+/// Draws the full-width heartbeat trace near the bottom of the splash
+/// screen — a mostly-flat line with two pulse spikes, matching the
+/// reference. A separate, wider shape from [_PulsePainter]'s icon-sized
+/// waveform.
+class _HeartbeatLinePainter extends CustomPainter {
+  const _HeartbeatLinePainter({required this.color});
+
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round;
+
+    final w = size.width;
+    final midY = size.height * 0.5;
+    final path = Path()..moveTo(0, midY);
+
+    void spikeAt(double startX) {
+      path
+        ..lineTo(startX, midY)
+        ..lineTo(startX + w * 0.03, midY)
+        ..lineTo(startX + w * 0.05, size.height * 0.1)
+        ..lineTo(startX + w * 0.07, size.height * 0.95)
+        ..lineTo(startX + w * 0.09, size.height * 0.35)
+        ..lineTo(startX + w * 0.11, midY);
+    }
+
+    spikeAt(w * 0.18);
+    path.lineTo(w * 0.55, midY);
+    spikeAt(w * 0.55);
+    path.lineTo(w, midY);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _HeartbeatLinePainter oldDelegate) =>
+      oldDelegate.color != color;
 }

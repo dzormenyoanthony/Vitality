@@ -1,3 +1,4 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,18 +7,17 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/theme/app_colors.dart';
+import '../data/keep_signed_in_provider.dart';
 import '../domain/credentials_validator.dart';
 import 'auth_controllers.dart';
 
-/// Visual design matches `design_references/Sign In screen.png`, minus the
-/// reference's personalized "Welcome back, Anna" name/avatar/7-day-average
-/// card: that section shows real per-user history, but local blood-pressure
-/// and reminder data is wiped on sign-out (see main.dart's
-/// `_handleAuthGateChange`), so none of it is actually available pre-auth.
-/// Showing it would mean either fabricating the numbers or resurrecting a
-/// prior account's data on a shared device — both against CLAUDE.md's "no
-/// fake functionality" rule. This keeps the header's visual design (colors,
-/// shapes, wordmark) but with a generic greeting instead.
+/// Visual design matches `design_references/Sign In screen.png`, including
+/// its "Welcome back, Anna" reading-summary card and avatar — per explicit
+/// user direction, those are static illustrative content (like the example
+/// reading chip on the Create Account screen), not a real signed-in user's
+/// data. Real per-user history isn't available here anyway: local
+/// blood-pressure/reminder data is wiped on sign-out (see main.dart's
+/// `_handleAuthGateChange`), so nothing genuine could be shown pre-auth.
 class SignInScreen extends ConsumerStatefulWidget {
   const SignInScreen({super.key});
 
@@ -53,6 +53,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
     final theme = Theme.of(context);
     final signInState = ref.watch(signInControllerProvider);
     final googleState = ref.watch(googleSignInControllerProvider);
+    final keepSignedIn = ref.watch(keepSignedInProvider);
     final isLoading = signInState.isLoading || googleState.isLoading;
 
     return Scaffold(
@@ -61,241 +62,505 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
       // directly on this color instead of showing the hero tint behind them.
       backgroundColor: theme.colorScheme.surface,
       body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const _HeroBanner(),
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.surface,
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(AppSpacing.radiusXl),
-                  ),
-                ),
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.lg,
-                    AppSpacing.xl,
-                    AppSpacing.lg,
-                    AppSpacing.lg,
-                  ),
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        Text(
-                          'Welcome back',
-                          style: theme.textTheme.headlineMedium?.copyWith(
-                            fontWeight: FontWeight.w800,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const _HeroBanner(),
+                Expanded(
+                  child: Stack(
+                    // Clip.none: the decorative blob below deliberately pokes
+                    // above this sheet's top edge, into the hero card's rounded
+                    // bottom-left corner — matching the reference, where the
+                    // card visibly sits on top of it.
+                    clipBehavior: Clip.none,
+                    children: [
+                      ColoredBox(
+                        // The hero card has its own rounded bottom corners (see
+                        // _HeroBanner) and sits on top of this same plain white
+                        // page — unlike Create Account, there's no separate
+                        // rounded "sheet" here.
+                        color: theme.colorScheme.surface,
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.fromLTRB(
+                            AppSpacing.lg,
+                            AppSpacing.xl,
+                            AppSpacing.lg,
+                            AppSpacing.lg,
                           ),
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          'Sign in to continue tracking your blood pressure.',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        OutlinedButton.icon(
-                          onPressed: isLoading
-                              ? null
-                              : () => ref
-                                    .read(
-                                      googleSignInControllerProvider.notifier,
-                                    )
-                                    .signInWithGoogle(),
-                          style: OutlinedButton.styleFrom(
-                            shape: const StadiumBorder(),
-                            side: BorderSide(color: theme.colorScheme.outline),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.md,
-                            ),
-                            foregroundColor: theme.colorScheme.onSurface,
-                            // Solid white, not the sheet's tint: the bundled
-                            // Google mark asset has its own opaque white
-                            // square background, which otherwise shows up
-                            // as a visible box against a tinted surface.
-                            backgroundColor: Colors.white,
-                          ),
-                          icon: googleState.isLoading
-                              ? const SizedBox(
-                                  width: 32,
-                                  height: 32,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : const _GoogleLogo(),
-                          label: Text(
-                            'Continue with Google',
-                            style: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                        if (googleState.hasError) ...[
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            friendlyMessage(googleState.error!),
-                            style: TextStyle(color: theme.colorScheme.error),
-                          ),
-                        ],
-                        const SizedBox(height: AppSpacing.lg),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Divider(
-                                color: theme.colorScheme.outlineVariant,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.sm,
-                              ),
-                              child: Text(
-                                'OR',
-                                style: theme.textTheme.labelMedium?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
+                          child: Form(
+                            key: _formKey,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                Text(
+                                  'Welcome back',
+                                  style: theme.textTheme.headlineMedium
+                                      ?.copyWith(fontWeight: FontWeight.w800),
                                 ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Divider(
-                                color: theme.colorScheme.outlineVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        TextFormField(
-                          controller: _emailController,
-                          enabled: !isLoading,
-                          keyboardType: TextInputType.emailAddress,
-                          autofillHints: const [AutofillHints.email],
-                          decoration: InputDecoration(
-                            labelText: 'EMAIL',
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            filled: true,
-                            fillColor: AppColors.onboardingChipUnselected,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppSpacing.radiusMd,
-                              ),
-                              borderSide: BorderSide.none,
-                            ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(
-                                AppSpacing.radiusMd,
-                              ),
-                              borderSide: BorderSide.none,
-                            ),
-                            prefixIcon: const Icon(Icons.mail_outline),
-                          ),
-                          validator: CredentialsValidator.validateEmail,
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        TextFormField(
-                          controller: _passwordController,
-                          enabled: !isLoading,
-                          obscureText: _obscurePassword,
-                          autofillHints: const [AutofillHints.password],
-                          decoration: InputDecoration(
-                            labelText: 'PASSWORD',
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            prefixIcon: const Icon(Icons.lock_outline),
-                            suffixIcon: IconButton(
-                              tooltip: _obscurePassword
-                                  ? 'Show password'
-                                  : 'Hide password',
-                              icon: Icon(
-                                _obscurePassword
-                                    ? Icons.visibility_outlined
-                                    : Icons.visibility_off_outlined,
-                              ),
-                              onPressed: () => setState(
-                                () => _obscurePassword = !_obscurePassword,
-                              ),
-                            ),
-                          ),
-                          validator: CredentialsValidator.validatePassword,
-                          onFieldSubmitted: (_) => _submit(),
-                        ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: isLoading
-                                ? null
-                                : () => context.go(AppRoutes.forgotPassword),
-                            child: const Text('Forgot?'),
-                          ),
-                        ),
-                        if (signInState.hasError) ...[
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              bottom: AppSpacing.sm,
-                            ),
-                            child: Text(
-                              friendlyMessage(signInState.error!),
-                              style: TextStyle(color: theme.colorScheme.error),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: AppSpacing.sm),
-                        FilledButton.icon(
-                          onPressed: isLoading ? null : _submit,
-                          iconAlignment: IconAlignment.end,
-                          style: FilledButton.styleFrom(
-                            shape: const StadiumBorder(),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.md,
-                            ),
-                            textStyle: theme.textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          icon: signInState.isLoading
-                              ? const SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    color: Colors.white,
+                                const SizedBox(height: AppSpacing.sm),
+                                Text(
+                                  'Sign in to continue tracking your blood pressure.',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
                                   ),
-                                )
-                              : const Icon(Icons.arrow_forward),
-                          label: const Text('Sign in'),
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        Center(
-                          child: TextButton(
-                            onPressed: isLoading
-                                ? null
-                                : () => context.go(AppRoutes.signUp),
-                            child: Text.rich(
-                              TextSpan(
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
                                 ),
-                                children: [
-                                  const TextSpan(text: 'New here? '),
-                                  TextSpan(
-                                    text: 'Create an account',
+                                const SizedBox(height: AppSpacing.lg),
+                                OutlinedButton.icon(
+                                  onPressed: isLoading
+                                      ? null
+                                      : () => ref
+                                            .read(
+                                              googleSignInControllerProvider
+                                                  .notifier,
+                                            )
+                                            .signInWithGoogle(),
+                                  style: OutlinedButton.styleFrom(
+                                    shape: const StadiumBorder(),
+                                    side: BorderSide(
+                                      color: theme.colorScheme.outline,
+                                      width: 1.5,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: AppSpacing.md,
+                                    ),
+                                    foregroundColor:
+                                        theme.colorScheme.onSurface,
+                                    // Solid white, not the sheet's tint: the bundled
+                                    // Google mark asset has its own opaque white
+                                    // square background, which otherwise shows up
+                                    // as a visible box against a tinted surface.
+                                    backgroundColor: Colors.white,
+                                  ),
+                                  icon: googleState.isLoading
+                                      ? const SizedBox(
+                                          width: 32,
+                                          height: 32,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                          ),
+                                        )
+                                      : const _GoogleLogo(),
+                                  label: Text(
+                                    'Continue with Google',
+                                    style: theme.textTheme.titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w700),
+                                  ),
+                                ),
+                                if (googleState.hasError) ...[
+                                  const SizedBox(height: AppSpacing.sm),
+                                  Text(
+                                    friendlyMessage(googleState.error!),
                                     style: TextStyle(
-                                      color: AppColors.dashboardAccentTeal,
-                                      fontWeight: FontWeight.w700,
+                                      color: theme.colorScheme.error,
                                     ),
                                   ),
                                 ],
-                              ),
+                                const SizedBox(height: AppSpacing.lg),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Divider(
+                                        color: theme.colorScheme.outlineVariant,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: AppSpacing.sm,
+                                      ),
+                                      child: Text(
+                                        'OR',
+                                        style: theme.textTheme.labelMedium
+                                            ?.copyWith(
+                                              color: theme
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                            ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Divider(
+                                        color: theme.colorScheme.outlineVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: AppSpacing.lg),
+                                TextFormField(
+                                  controller: _emailController,
+                                  enabled: !isLoading,
+                                  keyboardType: TextInputType.emailAddress,
+                                  autofillHints: const [AutofillHints.email],
+                                  decoration: InputDecoration(
+                                    labelText: 'EMAIL',
+                                    floatingLabelBehavior:
+                                        FloatingLabelBehavior.always,
+                                    filled: true,
+                                    fillColor:
+                                        AppColors.onboardingChipUnselected,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        AppSpacing.radiusMd,
+                                      ),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        AppSpacing.radiusMd,
+                                      ),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    prefixIcon: const Icon(Icons.mail_outline),
+                                  ),
+                                  validator: CredentialsValidator.validateEmail,
+                                ),
+                                const SizedBox(height: AppSpacing.md),
+                                TextFormField(
+                                  controller: _passwordController,
+                                  enabled: !isLoading,
+                                  obscureText: _obscurePassword,
+                                  autofillHints: const [AutofillHints.password],
+                                  decoration: InputDecoration(
+                                    labelText: 'PASSWORD',
+                                    floatingLabelBehavior:
+                                        FloatingLabelBehavior.always,
+                                    prefixIcon: const Icon(Icons.lock_outline),
+                                    suffixIcon: IconButton(
+                                      tooltip: _obscurePassword
+                                          ? 'Show password'
+                                          : 'Hide password',
+                                      icon: Icon(
+                                        _obscurePassword
+                                            ? Icons.visibility_outlined
+                                            : Icons.visibility_off_outlined,
+                                      ),
+                                      onPressed: () => setState(
+                                        () => _obscurePassword =
+                                            !_obscurePassword,
+                                      ),
+                                    ),
+                                  ),
+                                  validator:
+                                      CredentialsValidator.validatePassword,
+                                  onFieldSubmitted: (_) => _submit(),
+                                ),
+                                Row(
+                                  children: [
+                                    Checkbox(
+                                      value: keepSignedIn,
+                                      onChanged: isLoading
+                                          ? null
+                                          : (value) => ref
+                                                .read(
+                                                  keepSignedInProvider.notifier,
+                                                )
+                                                .setKeepSignedIn(value ?? true),
+                                    ),
+                                    Expanded(
+                                      child: Text(
+                                        'Keep me signed in',
+                                        style: theme.textTheme.bodyMedium,
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: isLoading
+                                          ? null
+                                          : () => context.go(
+                                              AppRoutes.forgotPassword,
+                                            ),
+                                      child: const Text('Forgot?'),
+                                    ),
+                                  ],
+                                ),
+                                if (signInState.hasError) ...[
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                      bottom: AppSpacing.sm,
+                                    ),
+                                    child: Text(
+                                      friendlyMessage(signInState.error!),
+                                      style: TextStyle(
+                                        color: theme.colorScheme.error,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                                const SizedBox(height: AppSpacing.sm),
+                                FilledButton.icon(
+                                  onPressed: isLoading ? null : _submit,
+                                  iconAlignment: IconAlignment.end,
+                                  style: FilledButton.styleFrom(
+                                    shape: const StadiumBorder(),
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: AppSpacing.md,
+                                    ),
+                                    textStyle: theme.textTheme.titleMedium
+                                        ?.copyWith(fontWeight: FontWeight.w700),
+                                  ),
+                                  icon: signInState.isLoading
+                                      ? const SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 2,
+                                            color: Colors.white,
+                                          ),
+                                        )
+                                      : const Icon(Icons.arrow_forward),
+                                  label: const Text('Sign in'),
+                                ),
+                                const SizedBox(height: AppSpacing.md),
+                                Center(
+                                  child: TextButton(
+                                    onPressed: isLoading
+                                        ? null
+                                        : () => context.go(AppRoutes.signUp),
+                                    child: Text.rich(
+                                      TextSpan(
+                                        style: theme.textTheme.bodyLarge
+                                            ?.copyWith(
+                                              color: theme
+                                                  .colorScheme
+                                                  .onSurfaceVariant,
+                                            ),
+                                        children: [
+                                          const TextSpan(text: 'New here? '),
+                                          TextSpan(
+                                            text: 'Create an account',
+                                            style: TextStyle(
+                                              color:
+                                                  AppColors.dashboardAccentTeal,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
+                          ),
+                        ),
+                      ),
+                      // Straddles the seam between the hero card and this sheet,
+                      // matching the reference's peach blob peeking out from
+                      // under the card's rounded bottom-left corner.
+                      Positioned(
+                        top: -width * 0.1,
+                        left: -width * 0.14,
+                        child: _Circle(
+                          diameter: width * 0.26,
+                          color: AppColors.signInAccentTan,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
+    );
+  }
+}
+
+/// The pale mint header — brand mark, decorative shapes, and the mock
+/// reading-summary card + avatar. See the file-level doc comment on
+/// [SignInScreen] for why the card/avatar are static illustrative content.
+class _HeroBanner extends StatelessWidget {
+  const _HeroBanner();
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth;
+        return ClipRRect(
+          borderRadius: BorderRadius.only(
+            bottomLeft: Radius.circular(width * 0.22),
+            bottomRight: Radius.circular(width * 0.06),
+          ),
+          child: Stack(
+            clipBehavior: Clip.hardEdge,
+            children: [
+              const Positioned.fill(
+                child: ColoredBox(color: AppColors.onboardingIllustrationBg),
+              ),
+              // Decorative circle, cropped at the header's top-right edge —
+              // matching the reference's pale shape behind the avatar.
+              Positioned(
+                top: -width * 0.12,
+                right: -width * 0.18,
+                child: _Circle(
+                  diameter: width * 0.68,
+                  color: AppColors.onboardingIllustrationCircleBright,
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.lg,
+                  AppSpacing.lg,
+                  AppSpacing.xl,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          width: 40,
+                          height: 40,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: AppColors.heroFill,
+                            borderRadius: BorderRadius.circular(
+                              AppSpacing.radiusMd,
+                            ),
+                          ),
+                          child: const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CustomPaint(
+                              painter: _PulsePainter(color: Colors.white),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Text(
+                          'VITALY',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: AppColors.heroFill,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 3,
                           ),
                         ),
                       ],
                     ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Expanded(child: _ReadingSummaryCard()),
+                        const SizedBox(width: AppSpacing.xl),
+                        const Padding(
+                          padding: EdgeInsets.only(top: AppSpacing.md),
+                          child: _AvatarBadge(),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+/// Static "7-day average" card, mirroring the reference's illustrative
+/// example — not a real user's reading history (see [SignInScreen]'s doc
+/// comment).
+class _ReadingSummaryCard extends StatelessWidget {
+  const _ReadingSummaryCard();
+
+  static const _spots = [
+    FlSpot(0, 2),
+    FlSpot(1, 3.2),
+    FlSpot(2, 1.8),
+    FlSpot(3, 3.4),
+    FlSpot(4, 2.6),
+    FlSpot(5, 3.8),
+    FlSpot(6, 4.2),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Material(
+      color: theme.colorScheme.surface,
+      elevation: 2,
+      borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    '7-DAY AVERAGE',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                      letterSpacing: 1,
+                    ),
                   ),
+                ),
+                Text(
+                  '42 logs',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: AppColors.dashboardAccentTeal,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.xs),
+            Text.rich(
+              TextSpan(
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                ),
+                children: [
+                  const TextSpan(text: '121'),
+                  TextSpan(
+                    text: '/78',
+                    style: TextStyle(color: theme.colorScheme.onSurfaceVariant),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            SizedBox(
+              height: 36,
+              child: LineChart(
+                LineChartData(
+                  minY: 0,
+                  maxY: 5,
+                  titlesData: const FlTitlesData(show: false),
+                  gridData: const FlGridData(show: false),
+                  borderData: FlBorderData(show: false),
+                  lineTouchData: const LineTouchData(enabled: false),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: _spots,
+                      color: AppColors.dashboardAccentTeal,
+                      barWidth: 2,
+                      isCurved: false,
+                      dotData: FlDotData(
+                        show: true,
+                        checkToShowDot: (spot, barData) =>
+                            spot.x == barData.spots.last.x,
+                        getDotPainter: (spot, percent, barData, index) =>
+                            FlDotCirclePainter(
+                              radius: 4,
+                              color: AppColors.dashboardAccentCoral,
+                              strokeWidth: 0,
+                            ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -306,88 +571,48 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   }
 }
 
-/// The pale mint header — brand mark and decorative shapes only. The
-/// reference's personalized name/avatar/7-day-average card is intentionally
-/// omitted; see the file-level doc comment on [SignInScreen].
-class _HeroBanner extends StatelessWidget {
-  const _HeroBanner();
+/// Static avatar + join-month, mirroring the reference's illustrative
+/// example — not a real signed-in user (see [SignInScreen]'s doc comment).
+class _AvatarBadge extends StatelessWidget {
+  const _AvatarBadge();
 
   @override
   Widget build(BuildContext context) {
-    return ClipRect(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          return Stack(
-            clipBehavior: Clip.hardEdge,
-            children: [
-              const Positioned.fill(
-                child: ColoredBox(color: AppColors.onboardingIllustrationBg),
-              ),
-              // Decorative circle, cropped at the header's top-right edge —
-              // matching the reference's pale shape behind where its avatar
-              // sits.
-              Positioned(
-                top: -width * 0.12,
-                right: -width * 0.18,
-                child: _Circle(
-                  diameter: width * 0.68,
-                  color: AppColors.onboardingIllustrationCircleBright,
-                ),
-              ),
-              // Decorative blob, cropped at the header's bottom-left edge.
-              Positioned(
-                bottom: -width * 0.12,
-                left: -width * 0.12,
-                child: _Circle(
-                  diameter: width * 0.38,
-                  color: AppColors.onboardingIllustrationCircleBright2,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.xxl,
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: AppColors.heroFill,
-                        borderRadius: BorderRadius.circular(
-                          AppSpacing.radiusMd,
-                        ),
-                      ),
-                      child: const SizedBox(
-                        width: 18,
-                        height: 18,
-                        child: CustomPaint(
-                          painter: _PulsePainter(color: Colors.white),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: AppSpacing.sm),
-                    Text(
-                      'VITALY',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: AppColors.heroFill,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 3,
-                      ),
-                    ),
-                  ],
-                ),
+    final theme = Theme.of(context);
+    return Column(
+      children: [
+        Container(
+          width: 64,
+          height: 64,
+          alignment: Alignment.center,
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 8,
+                offset: Offset(0, 2),
               ),
             ],
-          );
-        },
-      ),
+          ),
+          child: Text(
+            'A',
+            style: theme.textTheme.headlineSmall?.copyWith(
+              color: AppColors.heroFill,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          'SINCE MAR',
+          style: theme.textTheme.labelSmall?.copyWith(
+            color: AppColors.heroFill,
+            letterSpacing: 1,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -114,6 +114,11 @@ abstract final class AppColors {
   /// Purely decorative/comparative, never severity-coded (PROJECT_SPEC.md
   /// §9, §14) — fixed across themes like the other chart accents above.
   static const Color readingBarFill = Color(0xFF9AD0C0);
+
+  /// Sign In screen's decorative blob, sampled from
+  /// `design_references/Sign In screen.png` — a warm sandy tan, distinct
+  /// from [onboardingIllustrationCircleBright2]'s pinker peach.
+  static const Color signInAccentTan = Color(0xFFEFC08D);
 }
 
 /// Four decorative (background, foreground) accent pairs used for
@@ -205,8 +210,16 @@ class AppAccentColors extends ThemeExtension<AppAccentColors> {
       mintForeground: Color.lerp(mintForeground, other.mintForeground, t)!,
       coralBackground: Color.lerp(coralBackground, other.coralBackground, t)!,
       coralForeground: Color.lerp(coralForeground, other.coralForeground, t)!,
-      purpleBackground: Color.lerp(purpleBackground, other.purpleBackground, t)!,
-      purpleForeground: Color.lerp(purpleForeground, other.purpleForeground, t)!,
+      purpleBackground: Color.lerp(
+        purpleBackground,
+        other.purpleBackground,
+        t,
+      )!,
+      purpleForeground: Color.lerp(
+        purpleForeground,
+        other.purpleForeground,
+        t,
+      )!,
       blueBackground: Color.lerp(blueBackground, other.blueBackground, t)!,
       blueForeground: Color.lerp(blueForeground, other.blueForeground, t)!,
     );

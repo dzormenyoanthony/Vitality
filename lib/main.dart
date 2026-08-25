@@ -19,6 +19,7 @@ import 'core/theme/app_theme.dart';
 import 'core/theme/theme_mode_provider.dart';
 import 'core/utils/logger.dart';
 import 'core/widgets/error_view.dart';
+import 'features/authentication/data/keep_signed_in_provider.dart';
 import 'features/blood_pressure/data/app_database.dart';
 import 'features/blood_pressure/data/blood_pressure_providers.dart';
 import 'features/blood_pressure/data/drift_blood_pressure_repository.dart';
@@ -40,7 +41,11 @@ Future<void> main() async {
     // would be off from local wall-clock time in that case, but this is
     // rare (only if the platform timezone lookup itself fails) and
     // shouldn't block the rest of the app from starting.
-    AppLogger.error('Failed to resolve local timezone', error: error, stackTrace: stackTrace);
+    AppLogger.error(
+      'Failed to resolve local timezone',
+      error: error,
+      stackTrace: stackTrace,
+    );
   }
 
   final notificationScheduler = FlutterLocalNotificationsScheduler(
@@ -56,10 +61,20 @@ Future<void> main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+    // Firebase Auth persists a session across app restarts by itself; if
+    // the user unchecked "Keep me signed in" on the Sign In screen, undo
+    // that restored session here, before the router ever sees it.
+    final keepSignedIn =
+        sharedPreferences.getBool(keepSignedInPrefsKey) ?? true;
+    if (!keepSignedIn) {
+      await fb.FirebaseAuth.instance.signOut();
+    }
     runApp(
       ProviderScope(
         overrides: [
-          notificationSchedulerProvider.overrideWithValue(notificationScheduler),
+          notificationSchedulerProvider.overrideWithValue(
+            notificationScheduler,
+          ),
           sharedPreferencesProvider.overrideWithValue(sharedPreferences),
           appDatabaseProvider.overrideWithValue(db),
           bloodPressureRepositoryProvider.overrideWithValue(
@@ -81,7 +96,11 @@ Future<void> main() async {
       ),
     );
   } catch (error, stackTrace) {
-    AppLogger.error('Failed to initialize Firebase', error: error, stackTrace: stackTrace);
+    AppLogger.error(
+      'Failed to initialize Firebase',
+      error: error,
+      stackTrace: stackTrace,
+    );
     runApp(const _StartupFailureApp());
   }
 }
@@ -106,7 +125,6 @@ class _StartupFailureApp extends StatelessWidget {
   }
 }
 
-
 class VitalyApp extends ConsumerStatefulWidget {
   const VitalyApp({super.key});
 
@@ -114,7 +132,8 @@ class VitalyApp extends ConsumerStatefulWidget {
   ConsumerState<VitalyApp> createState() => _VitalyAppState();
 }
 
-class _VitalyAppState extends ConsumerState<VitalyApp> with WidgetsBindingObserver {
+class _VitalyAppState extends ConsumerState<VitalyApp>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -165,8 +184,14 @@ class _VitalyAppState extends ConsumerState<VitalyApp> with WidgetsBindingObserv
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(themeModeProvider);
 
-    ref.listen(pendingDeepLinkProvider, (_, _) => _consumeDeepLinkIfReady(ref, router));
-    ref.listen(authGateProvider, (_, _) => _consumeDeepLinkIfReady(ref, router));
+    ref.listen(
+      pendingDeepLinkProvider,
+      (_, _) => _consumeDeepLinkIfReady(ref, router),
+    );
+    ref.listen(
+      authGateProvider,
+      (_, _) => _consumeDeepLinkIfReady(ref, router),
+    );
     ref.listen(authGateProvider, _handleAuthGateChange);
 
     return MaterialApp.router(
