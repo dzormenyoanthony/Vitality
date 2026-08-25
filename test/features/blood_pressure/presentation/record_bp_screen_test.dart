@@ -1,4 +1,6 @@
 import 'package:drift/native.dart';
+import 'dart:ui' show Tristate;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -29,7 +31,7 @@ void main() {
       ),
     );
 
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Save reading'));
     await tester.pump();
 
     expect(find.text('Enter a systolic value.'), findsOneWidget);
@@ -55,7 +57,7 @@ void main() {
 
     await tester.enterText(find.widgetWithText(TextFormField, 'Systolic (mmHg)'), '999');
     await tester.enterText(find.widgetWithText(TextFormField, 'Diastolic (mmHg)'), '80');
-    await tester.tap(find.widgetWithText(FilledButton, 'Save'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Save reading'));
     await tester.pump();
 
     expect(find.text('Systolic must be between 60 and 260 mmHg.'), findsOneWidget);
@@ -81,7 +83,7 @@ void main() {
     expect(find.widgetWithText(TextFormField, 'Pulse (optional, bpm)'), findsOneWidget);
   });
 
-  testWidgets('date & time shows a formatted timestamp, not a raw DateTime.toString()', (
+  testWidgets('date & time shows a friendly formatted timestamp with a Change button', (
     tester,
   ) async {
     final db = AppDatabase(NativeDatabase.memory());
@@ -94,19 +96,20 @@ void main() {
       ),
     );
 
-    final subtitle = tester
-        .widget<Text>(
-          find.descendant(of: find.widgetWithText(ListTile, 'Date & time'), matching: find.byType(Text)).last,
-        )
-        .data!;
-    expect(subtitle, isNot(contains('.'))); // no raw millisecond fraction
-    expect(subtitle, matches(RegExp(r'^\d{4}-\d{2}-\d{2} \d{2}:\d{2}$')));
+    expect(find.widgetWithText(TextButton, 'Change'), findsOneWidget);
+    // Friendly format, e.g. "Tue 5 Jan 2026 · 07:15" — not a raw
+    // DateTime.toString() (which would include a millisecond fraction).
+    expect(
+      find.textContaining(RegExp(r'^\w{3} \d{1,2} \w{3} \d{4} · \d{2}:\d{2}$')),
+      findsOneWidget,
+    );
   });
 
   testWidgets('multiple context chips can be selected at once', (tester) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
+    final handle = tester.ensureSemantics();
 
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -118,29 +121,34 @@ void main() {
       ),
     );
 
-    await tester.tap(find.widgetWithText(FilterChip, 'Morning'));
+    await tester.tap(find.text('Morning'));
     await tester.pump();
-    await tester.tap(find.widgetWithText(FilterChip, 'Before medication'));
+    await tester.tap(find.text('Before medication'));
     await tester.pump();
 
     expect(
-      tester.widget<FilterChip>(find.widgetWithText(FilterChip, 'Morning')).selected,
+      tester.getSemantics(find.text('Morning')).flagsCollection.isSelected == Tristate.isTrue,
       isTrue,
     );
     expect(
-      tester.widget<FilterChip>(find.widgetWithText(FilterChip, 'Before medication')).selected,
+      tester.getSemantics(find.text('Before medication')).flagsCollection.isSelected == Tristate.isTrue,
       isTrue,
     );
     expect(
-      tester.widget<FilterChip>(find.widgetWithText(FilterChip, 'After exercise')).selected,
+      tester.getSemantics(find.text('After exercise')).flagsCollection.isSelected == Tristate.isTrue,
       isFalse,
     );
+
+    handle.dispose();
   });
 
-  testWidgets('body position and cuff arm fields are present and selectable', (tester) async {
+  testWidgets('body position chip and cuff arm dropdown are present and selectable', (
+    tester,
+  ) async {
     tester.view.physicalSize = const Size(800, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
+    final handle = tester.ensureSemantics();
 
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
@@ -152,20 +160,30 @@ void main() {
       ),
     );
 
-    expect(
-      find.widgetWithText(DropdownButtonFormField<BodyPosition?>, 'Body position (optional)'),
-      findsOneWidget,
-    );
     expect(
       find.widgetWithText(DropdownButtonFormField<CuffArm?>, 'Cuff arm (optional)'),
       findsOneWidget,
     );
 
-    await tester.tap(find.widgetWithText(DropdownButtonFormField<BodyPosition?>, 'None').first);
+    // Body position is a single-select chip merged into the context row.
+    expect(
+      tester.getSemantics(find.text('Sitting')).flagsCollection.isSelected == Tristate.isTrue,
+      isFalse,
+    );
+    await tester.tap(find.text('Sitting'));
+    await tester.pump();
+    expect(
+      tester.getSemantics(find.text('Sitting')).flagsCollection.isSelected == Tristate.isTrue,
+      isTrue,
+    );
+
+    await tester.tap(find.widgetWithText(DropdownButtonFormField<CuffArm?>, 'None').first);
     await tester.pumpAndSettle();
-    await tester.tap(find.text('Sitting').last);
+    await tester.tap(find.text('Left arm').last);
     await tester.pumpAndSettle();
 
-    expect(find.text('Sitting'), findsOneWidget);
+    expect(find.text('Left arm'), findsOneWidget);
+
+    handle.dispose();
   });
 }

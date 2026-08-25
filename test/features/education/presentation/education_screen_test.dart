@@ -20,7 +20,9 @@ void main() {
     );
     await tester.pump();
 
-    expect(find.text('BASICS'), findsOneWidget);
+    // Once as the featured card's category badge, once as the section
+    // header for the rest of the Basics articles.
+    expect(find.text('BASICS'), findsNWidgets(2));
     expect(find.text('MEASURING WELL'), findsOneWidget);
     expect(find.text('WORKING WITH YOUR CLINICIAN'), findsOneWidget);
 

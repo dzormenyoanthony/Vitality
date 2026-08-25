@@ -43,7 +43,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('128/82 mmHg'), findsOneWidget);
+    expect(find.text('128'), findsOneWidget);
+    expect(find.text('82'), findsOneWidget);
     expect(find.text('68 bpm'), findsOneWidget);
     expect(find.text('Morning'), findsOneWidget);
     expect(find.text('Before breakfast'), findsOneWidget);

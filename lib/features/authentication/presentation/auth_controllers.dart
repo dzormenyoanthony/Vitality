@@ -14,7 +14,9 @@ class SignInController extends AsyncNotifier<void> {
   Future<void> signIn({required String email, required String password}) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
-      () => ref.read(authRepositoryProvider).signIn(email: email, password: password),
+      () => ref
+          .read(authRepositoryProvider)
+          .signIn(email: email, password: password),
     );
   }
 }
@@ -30,7 +32,9 @@ class SignUpController extends AsyncNotifier<void> {
   Future<void> signUp({required String email, required String password}) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(
-      () => ref.read(authRepositoryProvider).signUp(email: email, password: password),
+      () => ref
+          .read(authRepositoryProvider)
+          .signUp(email: email, password: password),
     );
   }
 }
@@ -38,6 +42,23 @@ class SignUpController extends AsyncNotifier<void> {
 final signUpControllerProvider = AsyncNotifierProvider<SignUpController, void>(
   SignUpController.new,
 );
+
+class GoogleSignInController extends AsyncNotifier<void> {
+  @override
+  FutureOr<void> build() {}
+
+  Future<void> signInWithGoogle() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(
+      () => ref.read(authRepositoryProvider).signInWithGoogle(),
+    );
+  }
+}
+
+final googleSignInControllerProvider =
+    AsyncNotifierProvider<GoogleSignInController, void>(
+      GoogleSignInController.new,
+    );
 
 class ForgotPasswordController extends AsyncNotifier<void> {
   @override

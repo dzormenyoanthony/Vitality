@@ -17,6 +17,14 @@ abstract interface class AuthRepository {
 
   Future<AppUser> signIn({required String email, required String password});
 
+  /// Signs in (creating the account on first use) via Google OAuth — one of
+  /// the "secure sign-in" methods PROJECT_SPEC.md §20 allows. Requires
+  /// Google Sign-In to be enabled as a provider in the Firebase console
+  /// (with SHA-1/SHA-256 fingerprints registered for Android) before it will
+  /// work at runtime; the code path itself doesn't depend on that being
+  /// done yet.
+  Future<AppUser> signInWithGoogle();
+
   Future<void> signOut();
 
   Future<void> sendPasswordResetEmail(String email);

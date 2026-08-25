@@ -68,18 +68,32 @@ void main() {
       // Unauthenticated -> sign-in.
       expect(find.text('Welcome back'), findsOneWidget);
 
-      await tester.tap(find.widgetWithText(TextButton, "Don't have an account? Create one"));
+      await tester.tap(
+        find.widgetWithText(TextButton, "Don't have an account? Create one"),
+      );
       await _settle(tester);
-      expect(find.text('Create your account'), findsOneWidget);
+      expect(find.text('Start your blood pressure story'), findsOneWidget);
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Email'),
+        find.widgetWithText(TextFormField, 'EMAIL'),
         'new@example.com',
       );
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Password'),
+        find.widgetWithText(TextFormField, 'PASSWORD'),
         'password123',
       );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'CONFIRM PASSWORD'),
+        'password123',
+      );
+      await tester.ensureVisible(find.byType(Checkbox));
+      await tester.pump();
+      await tester.tap(find.byType(Checkbox));
+      await tester.pump();
+      await tester.ensureVisible(
+        find.widgetWithText(FilledButton, 'Create account'),
+      );
+      await tester.pump();
       await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
       await _settle(tester);
 

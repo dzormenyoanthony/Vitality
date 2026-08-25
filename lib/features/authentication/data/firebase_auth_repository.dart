@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:google_sign_in/google_sign_in.dart' as gsi;
 
 import '../../../core/errors/failure.dart';
 import '../../../core/utils/logger.dart';
@@ -9,6 +10,14 @@ class FirebaseAuthRepository implements AuthRepository {
   FirebaseAuthRepository(this._firebaseAuth);
 
   final fb.FirebaseAuth _firebaseAuth;
+
+  // `GoogleSignIn.instance.initialize()` must run exactly once before any
+  // other call on the singleton; this lazily runs it on first use instead
+  // of requiring app-startup wiring elsewhere.
+  Future<void>? _googleSignInInit;
+  Future<void> _ensureGoogleSignInInitialized() {
+    return _googleSignInInit ??= gsi.GoogleSignIn.instance.initialize();
+  }
 
   AppUser _toAppUser(fb.User user) {
     return AppUser(
@@ -58,6 +67,31 @@ class FirebaseAuthRepository implements AuthRepository {
         password: password,
       );
       return _toAppUser(credential.user!);
+    } on fb.FirebaseAuthException catch (e) {
+      throw mapFirebaseAuthException(e);
+    }
+  }
+
+  @override
+  Future<AppUser> signInWithGoogle() async {
+    try {
+      await _ensureGoogleSignInInitialized();
+      final account = await gsi.GoogleSignIn.instance.authenticate();
+      final idToken = account.authentication.idToken;
+      if (idToken == null) {
+        throw const UnexpectedFailure("Google didn't return a sign-in token.");
+      }
+      final credential = fb.GoogleAuthProvider.credential(idToken: idToken);
+      final userCredential = await _firebaseAuth.signInWithCredential(
+        credential,
+      );
+      return _toAppUser(userCredential.user!);
+    } on gsi.GoogleSignInException catch (e) {
+      if (e.code == gsi.GoogleSignInExceptionCode.canceled) {
+        throw const ValidationFailure('Sign-in was cancelled.');
+      }
+      AppLogger.error('GoogleSignInException: code=${e.code}', error: e);
+      throw const UnexpectedFailure();
     } on fb.FirebaseAuthException catch (e) {
       throw mapFirebaseAuthException(e);
     }

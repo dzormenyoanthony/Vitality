@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../data/blood_pressure_providers.dart';
@@ -12,8 +13,24 @@ import '../data/blood_pressure_reading.dart';
 import '../domain/same_time_comparison.dart';
 import 'measurement_context_label.dart';
 
+const _weekdayNames = [
+  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+]; // ignore: prefer_const_declarations
+
+const _monthNames = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]; // ignore: prefer_const_declarations
+
+const _shortMonthNames = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+]; // ignore: prefer_const_declarations
+
 /// Full detail of a single reading, with edit and delete actions
 /// (PROJECT_SPEC.md §8, §9). Deletion always requires confirmation.
+///
+/// Visual design matches `design_references/Reading.png`.
 class ReadingDetailScreen extends ConsumerWidget {
   const ReadingDetailScreen({super.key, required this.readingId});
 
@@ -57,7 +74,7 @@ class ReadingDetailScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reading detail'),
+        title: const Text('Reading'),
         actions: [
           if (readingState.value != null) ...[
             IconButton(
@@ -109,30 +126,113 @@ class _ReadingDetailBody extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
         Text(
-          '${reading.systolic}/${reading.diastolic} mmHg',
-          style: theme.textTheme.headlineMedium,
+          _formatFullDate(reading.timestamp),
+          style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: AppSpacing.sm),
-        Text(_formatTimestamp(reading.timestamp), style: theme.textTheme.bodyMedium),
+        _BigReading(reading: reading),
         const SizedBox(height: AppSpacing.lg),
-        if (reading.pulse != null) _DetailRow(label: 'Pulse', value: '${reading.pulse} bpm'),
-        if (reading.bodyPosition != null)
+        const Divider(height: 1),
+        if (reading.pulse != null) ...[
+          _DetailRow(label: 'Pulse', value: '${reading.pulse} bpm'),
+          const Divider(height: 1),
+        ],
+        if (reading.bodyPosition != null) ...[
           _DetailRow(label: 'Body position', value: reading.bodyPosition!.label),
-        if (reading.cuffArm != null) _DetailRow(label: 'Cuff arm', value: reading.cuffArm!.label),
-        if (reading.measurementContexts.isNotEmpty)
+          const Divider(height: 1),
+        ],
+        if (reading.cuffArm != null) ...[
+          _DetailRow(label: 'Cuff arm', value: reading.cuffArm!.label),
+          const Divider(height: 1),
+        ],
+        if (reading.measurementContexts.isNotEmpty) ...[
           _DetailRow(
             label: 'Context',
             value: reading.measurementContexts.map((c) => c.label).join(', '),
           ),
-        if (reading.notes != null && reading.notes!.isNotEmpty)
-          _DetailRow(label: 'Notes', value: reading.notes!),
-        if (comparison.length > 1) ...[
+          const Divider(height: 1),
+        ],
+        // Every reading today is manually entered — the scan/import path
+        // (PROJECT_SPEC.md's BP Report Scanning section) isn't built yet,
+        // so this is accurate rather than a placeholder for that feature.
+        const _DetailRow(label: 'Entered', value: 'Manually'),
+        const Divider(height: 1),
+        if (reading.notes != null && reading.notes!.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
+          Text(
+            'NOTE',
+            style: theme.textTheme.labelMedium?.copyWith(color: AppColors.dashboardAccentTeal),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(reading.notes!, style: theme.textTheme.bodyLarge),
+        ],
+        if (comparison.length > 1) ...[
+          const SizedBox(height: AppSpacing.lg),
           _SameTimeOfDayCard(readings: comparison, highlightId: reading.id),
         ],
       ],
     );
   }
+}
+
+/// The large systolic/diastolic readout at the top of the screen, matching
+/// the same "big bold numbers, muted slash and unit" treatment used for
+/// the Dashboard's latest-reading card.
+class _BigReading extends StatelessWidget {
+  const _BigReading({required this.reading});
+
+  final BloodPressureReading reading;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerLeft,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Text(
+            '${reading.systolic}',
+            style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text(
+              '/',
+              style: theme.textTheme.headlineSmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Text(
+            '${reading.diastolic}',
+            style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.w800),
+          ),
+          const SizedBox(width: AppSpacing.xs),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 6),
+            child: Text(
+              'mmHg',
+              style: theme.textTheme.bodyLarge?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String _formatFullDate(DateTime ts) {
+  final weekday = _weekdayNames[ts.weekday - 1];
+  final month = _monthNames[ts.month - 1];
+  final hh = ts.hour.toString().padLeft(2, '0');
+  final mm = ts.minute.toString().padLeft(2, '0');
+  return '$weekday ${ts.day} $month ${ts.year} · $hh:$mm';
 }
 
 /// Systolic values for the last few readings sharing this reading's
@@ -160,7 +260,10 @@ class _SameTimeOfDayCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('SAME TIME OF DAY, LAST ${readings.length}', style: theme.textTheme.labelMedium),
+          Text(
+            'SAME TIME OF DAY, LAST ${readings.length}',
+            style: theme.textTheme.labelMedium?.copyWith(color: AppColors.dashboardAccentTeal),
+          ),
           const SizedBox(height: AppSpacing.md),
           Row(
             crossAxisAlignment: CrossAxisAlignment.end,
@@ -178,8 +281,8 @@ class _SameTimeOfDayCard extends StatelessWidget {
                             child: Container(
                               decoration: BoxDecoration(
                                 color: r.id == highlightId
-                                    ? theme.colorScheme.primary
-                                    : theme.colorScheme.primaryContainer,
+                                    ? AppColors.dashboardAccentTeal
+                                    : AppColors.readingBarFill,
                                 borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                               ),
                             ),
@@ -187,7 +290,7 @@ class _SameTimeOfDayCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      Text('${r.timestamp.month}/${r.timestamp.day}', style: theme.textTheme.labelSmall),
+                      Text(_shortDateLabel(r.timestamp), style: theme.textTheme.labelSmall),
                     ],
                   ),
                 ),
@@ -206,9 +309,7 @@ class _SameTimeOfDayCard extends StatelessWidget {
   }
 }
 
-String _formatTimestamp(DateTime ts) =>
-    '${ts.year}-${ts.month.toString().padLeft(2, '0')}-${ts.day.toString().padLeft(2, '0')} '
-    '${ts.hour.toString().padLeft(2, '0')}:${ts.minute.toString().padLeft(2, '0')}';
+String _shortDateLabel(DateTime ts) => '${ts.day} ${_shortMonthNames[ts.month - 1]}';
 
 class _DetailRow extends StatelessWidget {
   const _DetailRow({required this.label, required this.value});
@@ -220,13 +321,25 @@ class _DetailRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.md),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+      child: Row(
         children: [
-          Text(label, style: theme.textTheme.labelMedium),
-          const SizedBox(height: AppSpacing.xs),
-          Text(value, style: theme.textTheme.bodyLarge),
+          Text(
+            label,
+            style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(width: AppSpacing.md),
+          // Expanded (not Spacer + Flexible, which split the remaining
+          // width 50/50 and squeezed longer values into an unnecessary
+          // second line) so every value gets the full remaining width and
+          // right-aligns flush against the same edge across every row.
+          Expanded(
+            child: Text(
+              value,
+              textAlign: TextAlign.right,
+              style: theme.textTheme.bodyLarge,
+            ),
+          ),
         ],
       ),
     );

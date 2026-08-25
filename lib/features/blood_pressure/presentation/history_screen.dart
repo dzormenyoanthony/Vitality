@@ -14,9 +14,37 @@ import '../data/blood_pressure_reading.dart';
 import '../domain/history_filter.dart';
 import 'measurement_context_label.dart';
 
-/// Chronological list of recorded readings (PROJECT_SPEC.md §8), with a
-/// client-side filter and swipe-to-edit/delete on each row. Filtering is
-/// display-only over already-fetched readings — no new persistence.
+const _weekdayShortNames = [
+  'MON',
+  'TUE',
+  'WED',
+  'THU',
+  'FRI',
+  'SAT',
+  'SUN',
+]; // ignore: prefer_const_declarations
+
+const _monthShortNames = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'May',
+  'Jun',
+  'Jul',
+  'Aug',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dec',
+]; // ignore: prefer_const_declarations
+
+/// Chronological, day-grouped list of recorded readings (PROJECT_SPEC.md
+/// §8), with a client-side filter and swipe-to-edit/delete on each row.
+/// Filtering is display-only over already-fetched readings — no new
+/// persistence.
+///
+/// Visual design matches `design_references/History.png`.
 class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
 
@@ -26,13 +54,14 @@ class HistoryScreen extends ConsumerStatefulWidget {
 
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   HistoryFilter _filter = HistoryFilter.all;
+  bool _newestFirst = true;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final readingsState = ref.watch(readingsStreamProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('History')),
       floatingActionButton: FloatingActionButton(
         // Unique per screen: the bottom-nav shell keeps every tab (and any
         // route pushed on top) mounted simultaneously, so default hero
@@ -42,58 +71,265 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         tooltip: 'Record BP',
         child: const Icon(Icons.add),
       ),
-      body: readingsState.when(
-        loading: () => const LoadingIndicator(),
-        error: (error, _) => ErrorView(
-          message: friendlyMessage(error),
-          onRetry: () => ref.invalidate(readingsStreamProvider),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.md,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      'History',
+                      style: theme.textTheme.headlineMedium,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: _newestFirst
+                        ? 'Sort: newest first'
+                        : 'Sort: oldest first',
+                    icon: const Icon(Icons.filter_list),
+                    onPressed: () =>
+                        setState(() => _newestFirst = !_newestFirst),
+                  ),
+                  IconButton(
+                    tooltip: 'Export',
+                    icon: const Icon(Icons.file_download_outlined),
+                    onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Export isn't available yet."),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: readingsState.when(
+                loading: () => const LoadingIndicator(),
+                error: (error, _) => ErrorView(
+                  message: friendlyMessage(error),
+                  onRetry: () => ref.invalidate(readingsStreamProvider),
+                ),
+                data: (readings) {
+                  if (readings.isEmpty) {
+                    return const EmptyView(
+                      message: 'No readings yet. Tap + to record your first blood pressure reading.',
+                      icon: Icons.monitor_heart_outlined,
+                    );
+                  }
+                  final filtered = filterReadings(readings, _filter);
+                  final ordered = _newestFirst
+                      ? filtered
+                      : filtered.reversed.toList();
+                  return Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.lg,
+                          0,
+                          AppSpacing.lg,
+                          AppSpacing.md,
+                        ),
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              for (final f in HistoryFilter.values)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    right: AppSpacing.sm,
+                                  ),
+                                  child: _HistoryFilterChip(
+                                    filter: f,
+                                    selected: _filter == f,
+                                    onTap: () => setState(() => _filter = f),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: ordered.isEmpty
+                            ? const EmptyView(
+                                message: 'No readings match this filter.',
+                                icon: Icons.filter_alt_off_outlined,
+                              )
+                            : _HistoryList(
+                                readings: ordered,
+                                allReadings: readings,
+                              ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ],
         ),
-        data: (readings) {
-          if (readings.isEmpty) {
-            return const EmptyView(
-              message: 'No readings yet. Tap + to record your first blood pressure reading.',
-              icon: Icons.monitor_heart_outlined,
-            );
-          }
-          final filtered = filterReadings(readings, _filter);
-          return Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.md,
-                  AppSpacing.sm,
-                  AppSpacing.md,
-                  AppSpacing.sm,
-                ),
-                child: Wrap(
-                  spacing: AppSpacing.sm,
-                  children: [
-                    for (final f in HistoryFilter.values)
-                      FilterChip(
-                        label: Text(f.label),
-                        selected: _filter == f,
-                        onSelected: (_) => setState(() => _filter = f),
-                      ),
-                  ],
-                ),
+      ),
+    );
+  }
+}
+
+class _HistoryFilterChip extends StatelessWidget {
+  const _HistoryFilterChip({
+    required this.filter,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final HistoryFilter filter;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
+    final (background, foreground) = switch (filter) {
+      HistoryFilter.all => (accents.mintBackground, accents.mintForeground),
+      HistoryFilter.morning => (
+        accents.coralBackground,
+        accents.coralForeground,
+      ),
+      HistoryFilter.evening => (
+        accents.purpleBackground,
+        accents.purpleForeground,
+      ),
+      HistoryFilter.withNotes => (
+        accents.blueBackground,
+        accents.blueForeground,
+      ),
+    };
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: background,
+        shape: StadiumBorder(
+          side: BorderSide(
+            color: selected ? foreground : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            child: Text(
+              filter.label,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: foreground,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
               ),
-              Expanded(
-                child: filtered.isEmpty
-                    ? const EmptyView(
-                        message: 'No readings match this filter.',
-                        icon: Icons.filter_alt_off_outlined,
-                      )
-                    : ListView.separated(
-                        padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
-                        itemCount: filtered.length,
-                        separatorBuilder: (_, _) => const Divider(height: 1),
-                        itemBuilder: (context, index) =>
-                            _ReadingListTile(reading: filtered[index]),
-                      ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Flattens [readings] into day-header + row items and renders them as one
+/// scrollable list, ending with a summary line over [allReadings] (the
+/// unfiltered set, so the summary stays stable across filter/sort changes).
+class _HistoryList extends StatelessWidget {
+  const _HistoryList({required this.readings, required this.allReadings});
+
+  final List<BloodPressureReading> readings;
+  final List<BloodPressureReading> allReadings;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final items = <Object>[];
+    DateTime? lastDay;
+    for (final r in readings) {
+      final day = DateTime(
+        r.timestamp.year,
+        r.timestamp.month,
+        r.timestamp.day,
+      );
+      if (lastDay == null || day != lastDay) {
+        items.add(day);
+        lastDay = day;
+      }
+      items.add(r);
+    }
+
+    final earliest = allReadings
+        .map((r) => r.timestamp)
+        .reduce((a, b) => a.isBefore(b) ? a : b);
+    final summary =
+        '${allReadings.length} reading${allReadings.length == 1 ? '' : 's'} recorded '
+        'since ${earliest.day} ${_monthShortNames[earliest.month - 1]} ${earliest.year}';
+
+    return ListView.builder(
+      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+      itemCount: items.length + 1,
+      itemBuilder: (context, index) {
+        if (index == items.length) {
+          return Padding(
+            padding: const EdgeInsets.all(AppSpacing.lg),
+            child: Text(
+              summary,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
-            ],
+            ),
           );
-        },
+        }
+        final item = items[index];
+        if (item is DateTime) {
+          return _DayHeader(day: item);
+        }
+        return _ReadingListTile(reading: item as BloodPressureReading);
+      },
+    );
+  }
+}
+
+class _DayHeader extends StatelessWidget {
+  const _DayHeader({required this.day});
+
+  final DateTime day;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final now = DateTime.now();
+    final isToday =
+        day.year == now.year && day.month == now.month && day.day == now.day;
+    final base =
+        '${_weekdayShortNames[day.weekday - 1]} ${day.day} '
+        '${_monthShortNames[day.month - 1].toUpperCase()}';
+    final label = isToday ? 'TODAY · $base' : base;
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.lg,
+        AppSpacing.md,
+        AppSpacing.lg,
+        AppSpacing.sm,
+      ),
+      child: Text(
+        label,
+        style: theme.textTheme.labelMedium?.copyWith(
+          color: AppColors.dashboardAccentTeal,
+        ),
       ),
     );
   }
@@ -129,9 +365,8 @@ class _ReadingListTile extends ConsumerWidget {
       return true;
     } catch (error) {
       if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(friendlyMessage(error))));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text(friendlyMessage(error))));
       }
       return false;
     }
@@ -142,53 +377,132 @@ class _ReadingListTile extends ConsumerWidget {
     final theme = Theme.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final ts = reading.timestamp;
-    final dateLabel =
-        '${ts.year}-${ts.month.toString().padLeft(2, '0')}-${ts.day.toString().padLeft(2, '0')} '
-        '${ts.hour.toString().padLeft(2, '0')}:${ts.minute.toString().padLeft(2, '0')}';
     final isMorning = ts.hour < 12;
+    final timeLabel =
+        '${ts.hour.toString().padLeft(2, '0')}:${ts.minute.toString().padLeft(2, '0')}';
+    final subtitle = _subtitleFor(reading);
 
-    return Dismissible(
-      key: ValueKey(reading.id),
-      background: Container(
-        alignment: Alignment.centerLeft,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-        color: accents.mintBackground,
-        child: Icon(Icons.edit_outlined, color: accents.mintForeground),
-      ),
-      secondaryBackground: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-        color: accents.coralBackground,
-        child: Icon(Icons.delete_outline, color: accents.coralForeground),
-      ),
-      confirmDismiss: (direction) async {
-        if (direction == DismissDirection.startToEnd) {
-          context.push(AppRoutes.recordBp, extra: reading);
-          return false; // Editing happens on another screen; keep this row.
-        }
-        return _confirmDelete(context, ref);
-      },
-      child: ListTile(
-        onTap: () => context.push(AppRoutes.readingDetailPath(reading.id)),
-        leading: Padding(
-          padding: const EdgeInsets.only(top: AppSpacing.xs),
-          child: Text(
-            isMorning ? 'AM' : 'PM',
-            style: theme.textTheme.labelSmall?.copyWith(
-              color: isMorning ? accents.coralForeground : accents.purpleForeground,
+    return Column(
+      children: [
+        Dismissible(
+          key: ValueKey(reading.id),
+          background: Container(
+            alignment: Alignment.centerLeft,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            color: accents.mintBackground,
+            child: Icon(Icons.edit_outlined, color: accents.mintForeground),
+          ),
+          secondaryBackground: Container(
+            alignment: Alignment.centerRight,
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+            color: accents.coralBackground,
+            child: Icon(Icons.delete_outline, color: accents.coralForeground),
+          ),
+          confirmDismiss: (direction) async {
+            if (direction == DismissDirection.startToEnd) {
+              context.push(AppRoutes.recordBp, extra: reading);
+              return false; // Editing happens on another screen; keep this row.
+            }
+            return _confirmDelete(context, ref);
+          },
+          child: InkWell(
+            onTap: () => context.push(AppRoutes.readingDetailPath(reading.id)),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.sm,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                      vertical: AppSpacing.xs,
+                    ),
+                    decoration: BoxDecoration(
+                      color: isMorning
+                          ? accents.coralBackground
+                          : accents.purpleBackground,
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    ),
+                    child: Text(
+                      timeLabel,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: isMorning
+                            ? accents.coralForeground
+                            : accents.purpleForeground,
+                        fontWeight: FontWeight.w700,
+                        fontFeatures: const [FontFeature.tabularFigures()],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                            Text(
+                              '${reading.systolic}/${reading.diastolic}',
+                              style: theme.textTheme.headlineSmall?.copyWith(
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.xs),
+                            Text(
+                              'mmHg',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (subtitle != null) ...[
+                          const SizedBox(height: 2),
+                          Text(
+                            subtitle,
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.chevron_right,
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
             ),
           ),
         ),
-        title: Text(
-          '${reading.systolic}/${reading.diastolic} mmHg'
-          '${reading.pulse != null ? ' · ${reading.pulse} bpm' : ''}',
-          style: theme.textTheme.titleMedium,
-        ),
-        subtitle: Text(
-          [dateLabel, ...reading.measurementContexts.map((c) => c.label)].join(' · '),
-        ),
-        trailing: const Icon(Icons.chevron_right),
-      ),
+        const Divider(height: 1),
+      ],
     );
   }
+}
+
+/// "{pulse} bpm · {position, contexts}" (or "Note added" when there are no
+/// position/context tags but the reading does have a note) — purely
+/// descriptive metadata, never an interpretation (PROJECT_SPEC.md §12-14).
+String? _subtitleFor(BloodPressureReading reading) {
+  final tags = <String>[
+    if (reading.bodyPosition != null) reading.bodyPosition!.label,
+    ...reading.measurementContexts.map((c) => c.label),
+  ];
+  final hasNote = reading.notes != null && reading.notes!.isNotEmpty;
+
+  final parts = <String>[
+    if (reading.pulse != null) '${reading.pulse} bpm',
+    if (tags.isNotEmpty) tags.join(', ') else if (hasNote) 'Note added',
+  ];
+  if (parts.isEmpty) return null;
+  return parts.join(' · ');
 }

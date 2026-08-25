@@ -106,6 +106,14 @@ abstract final class AppColors {
   /// [onboardingHeadline]/[onboardingBody] exactly (same teal/dark-teal
   /// palette as Onboarding 1 of 3); only the field border is new.
   static const Color onboardingFieldBorder = Color(0xFF566A65);
+
+  /// Reading detail's "SAME TIME OF DAY" bar chart, sampled from
+  /// `design_references/Reading.png` — a medium mint fill for the
+  /// non-highlighted bars. The highlighted (current) bar reuses
+  /// [dashboardAccentTeal] instead of a new color, matching the reference.
+  /// Purely decorative/comparative, never severity-coded (PROJECT_SPEC.md
+  /// §9, §14) — fixed across themes like the other chart accents above.
+  static const Color readingBarFill = Color(0xFF9AD0C0);
 }
 
 /// Four decorative (background, foreground) accent pairs used for

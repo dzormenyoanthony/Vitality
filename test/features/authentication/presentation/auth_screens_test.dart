@@ -27,7 +27,9 @@ void main() {
       expect(find.text('Enter your password.'), findsOneWidget);
     });
 
-    testWidgets('shows a friendly error message on failed sign-in', (tester) async {
+    testWidgets('shows a friendly error message on failed sign-in', (
+      tester,
+    ) async {
       final authRepository = FakeAuthRepository();
       addTearDown(authRepository.dispose);
 
@@ -66,10 +68,17 @@ void main() {
       );
 
       await tester.enterText(
-        find.widgetWithText(TextFormField, 'Email'),
+        find.widgetWithText(TextFormField, 'EMAIL'),
         'new@example.com',
       );
-      await tester.enterText(find.widgetWithText(TextFormField, 'Password'), '123');
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'PASSWORD'),
+        '123',
+      );
+      await tester.ensureVisible(
+        find.widgetWithText(FilledButton, 'Create account'),
+      );
+      await tester.pumpAndSettle();
       await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
       await tester.pump();
 
@@ -77,6 +86,65 @@ void main() {
         find.text('Password must be at least 6 characters.'),
         findsOneWidget,
       );
+    });
+
+    testWidgets('rejects a confirm password that does not match', (
+      tester,
+    ) async {
+      final authRepository = FakeAuthRepository();
+      addTearDown(authRepository.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
+          child: const MaterialApp(home: SignUpScreen()),
+        ),
+      );
+
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'EMAIL'),
+        'new@example.com',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'PASSWORD'),
+        'password123',
+      );
+      await tester.enterText(
+        find.widgetWithText(TextFormField, 'CONFIRM PASSWORD'),
+        'password456',
+      );
+      await tester.ensureVisible(
+        find.widgetWithText(FilledButton, 'Create account'),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(FilledButton, 'Create account'));
+      await tester.pump();
+
+      expect(find.text('Passwords do not match.'), findsOneWidget);
+      expect(authRepository.currentUser, isNull);
+    });
+
+    testWidgets('signs in with Google via the Continue with Google button', (
+      tester,
+    ) async {
+      final authRepository = FakeAuthRepository();
+      addTearDown(authRepository.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
+          child: const MaterialApp(home: SignUpScreen()),
+        ),
+      );
+
+      expect(authRepository.currentUser, isNull);
+
+      await tester.tap(
+        find.widgetWithText(OutlinedButton, 'Continue with Google'),
+      );
+      await tester.pumpAndSettle();
+
+      expect(authRepository.currentUser, isNotNull);
     });
   });
 }

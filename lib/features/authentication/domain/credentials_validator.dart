@@ -28,6 +28,13 @@ abstract final class CredentialsValidator {
     return null;
   }
 
+  static String? validateConfirmPassword(String? value, String password) {
+    final confirmation = value ?? '';
+    if (confirmation.isEmpty) return 'Confirm your password.';
+    if (confirmation != password) return 'Passwords do not match.';
+    return null;
+  }
+
   static String? validatePreferredName(String? value) {
     final name = value?.trim() ?? '';
     if (name.isEmpty) return 'Enter a preferred name.';

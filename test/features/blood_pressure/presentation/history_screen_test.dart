@@ -51,7 +51,8 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('120/80 mmHg · 70 bpm'), findsOneWidget);
+    expect(find.text('120/80'), findsOneWidget);
+    expect(find.text('70 bpm'), findsOneWidget);
 
     await db.close();
   });
@@ -80,14 +81,14 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('120/80 mmHg'), findsOneWidget);
-    expect(find.text('130/85 mmHg'), findsOneWidget);
+    expect(find.text('120/80'), findsOneWidget);
+    expect(find.text('130/85'), findsOneWidget);
 
-    await tester.tap(find.widgetWithText(FilterChip, 'Morning'));
+    await tester.tap(find.text('Morning'));
     await tester.pump();
 
-    expect(find.text('120/80 mmHg'), findsOneWidget);
-    expect(find.text('130/85 mmHg'), findsNothing);
+    expect(find.text('120/80'), findsOneWidget);
+    expect(find.text('130/85'), findsNothing);
 
     await db.close();
   });
@@ -110,7 +111,7 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    await tester.drag(find.text('120/80 mmHg'), const Offset(-500, 0));
+    await tester.drag(find.text('120/80'), const Offset(-500, 0));
     await tester.pumpAndSettle();
 
     expect(find.text('Delete this reading?'), findsOneWidget);

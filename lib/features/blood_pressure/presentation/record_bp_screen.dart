@@ -4,13 +4,25 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/theme/app_colors.dart';
 import '../data/blood_pressure_reading.dart';
 import '../domain/reading_validator.dart';
 import 'measurement_context_label.dart';
 import 'record_bp_controller.dart';
 
+const _weekdayShortNames = [
+  'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun',
+]; // ignore: prefer_const_declarations
+
+const _monthShortNames = [
+  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+]; // ignore: prefer_const_declarations
+
 /// Add/edit form for a blood-pressure reading (PROJECT_SPEC.md §6).
 /// Pass [existingReading] to edit it in place; omit it to record a new one.
+///
+/// Visual design matches `design_references/Add reading.png`.
 class RecordBpScreen extends ConsumerStatefulWidget {
   const RecordBpScreen({super.key, this.existingReading});
 
@@ -107,11 +119,13 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final saveState = ref.watch(recordBpControllerProvider);
     final isSaving = saveState.isLoading;
 
     return Scaffold(
-      appBar: AppBar(title: Text(_isEditing ? 'Edit reading' : 'Record BP')),
+      appBar: AppBar(title: Text(_isEditing ? 'Edit reading' : 'Add reading')),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -120,77 +134,88 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Text(
+                  'MEASUREMENT · REQUIRED',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: AppColors.dashboardAccentTeal,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.sm),
                 Row(
                   children: [
                     Expanded(
-                      child: TextFormField(
+                      child: _BigNumberField(
                         controller: _systolicController,
                         enabled: !isSaving,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Systolic (mmHg)',
-                          suffixText: 'mmHg',
-                        ),
+                        labelText: 'Systolic (mmHg)',
                         validator: ReadingValidator.validateSystolic,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
-                      child: TextFormField(
+                      child: _BigNumberField(
                         controller: _diastolicController,
                         enabled: !isSaving,
-                        keyboardType: TextInputType.number,
-                        decoration: const InputDecoration(
-                          labelText: 'Diastolic (mmHg)',
-                          suffixText: 'mmHg',
-                        ),
+                        labelText: 'Diastolic (mmHg)',
                         validator: ReadingValidator.validateDiastolic,
                       ),
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
-                TextFormField(
-                  controller: _pulseController,
-                  enabled: !isSaving,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Pulse (optional, bpm)',
-                    suffixText: 'bpm',
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'Accepted range ${ReadingValidator.minSystolic}–${ReadingValidator.maxSystolic} / '
+                  '${ReadingValidator.minDiastolic}–${ReadingValidator.maxDiastolic} mmHg. '
+                  'Range limits are input checks, not an assessment.',
+                  style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Text(
+                  'OPTIONAL',
+                  style: theme.textTheme.labelMedium?.copyWith(
+                    color: AppColors.dashboardAccentTeal,
                   ),
-                  validator: ReadingValidator.validatePulse,
                 ),
-                const SizedBox(height: AppSpacing.md),
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: const Text('Date & time'),
-                  subtitle: Text(_formatTimestamp(_timestamp)),
-                  trailing: const Icon(Icons.edit_calendar_outlined),
-                  onTap: isSaving ? null : _pickTimestamp,
-                ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.sm),
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Expanded(
-                      child: DropdownButtonFormField<BodyPosition?>(
-                        initialValue: _bodyPosition,
-                        decoration: const InputDecoration(labelText: 'Body position (optional)'),
-                        items: [
-                          const DropdownMenuItem(value: null, child: Text('None')),
-                          ...BodyPosition.values.map(
-                            (p) => DropdownMenuItem(value: p, child: Text(p.label)),
-                          ),
-                        ],
-                        onChanged: isSaving
-                            ? null
-                            : (value) => setState(() => _bodyPosition = value),
+                      child: _BigNumberField(
+                        controller: _pulseController,
+                        enabled: !isSaving,
+                        labelText: 'Pulse (optional, bpm)',
+                        suffixText: 'bpm',
+                        validator: ReadingValidator.validatePulse,
                       ),
                     ),
                     const SizedBox(width: AppSpacing.md),
                     Expanded(
                       child: DropdownButtonFormField<CuffArm?>(
                         initialValue: _cuffArm,
-                        decoration: const InputDecoration(labelText: 'Cuff arm (optional)'),
+                        decoration: InputDecoration(
+                          labelText: 'Cuff arm (optional)',
+                          floatingLabelBehavior: FloatingLabelBehavior.always,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.md,
+                            vertical: AppSpacing.lg,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                            borderSide: BorderSide(color: theme.colorScheme.outlineVariant),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                            borderSide: BorderSide(color: theme.colorScheme.outlineVariant),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                            borderSide: const BorderSide(
+                              color: AppColors.dashboardAccentTeal,
+                              width: 2,
+                            ),
+                          ),
+                        ),
                         items: [
                           const DropdownMenuItem(value: null, child: Text('None')),
                           ...CuffArm.values.map(
@@ -202,38 +227,73 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
-                Text('Context (optional)', style: Theme.of(context).textTheme.labelMedium),
-                const SizedBox(height: AppSpacing.sm),
+                const SizedBox(height: AppSpacing.lg),
                 Wrap(
                   spacing: AppSpacing.sm,
-                  runSpacing: AppSpacing.xs,
+                  runSpacing: AppSpacing.sm,
                   children: [
-                    for (final c in MeasurementContext.values)
-                      FilterChip(
-                        label: Text(c.label),
-                        selected: _contexts.contains(c),
-                        onSelected: isSaving
+                    for (final p in BodyPosition.values)
+                      _TagChip(
+                        label: p.label,
+                        selected: _bodyPosition == p,
+                        background: accents.mintBackground,
+                        foreground: accents.mintForeground,
+                        onTap: isSaving
                             ? null
-                            : (selected) => setState(() {
-                                if (selected) {
-                                  _contexts.add(c);
-                                } else {
+                            : () => setState(() => _bodyPosition = _bodyPosition == p ? null : p),
+                      ),
+                    for (final c in MeasurementContext.values)
+                      _TagChip(
+                        label: c.label,
+                        selected: _contexts.contains(c),
+                        background: _contextAccent(c, accents).$1,
+                        foreground: _contextAccent(c, accents).$2,
+                        onTap: isSaving
+                            ? null
+                            : () => setState(() {
+                                if (_contexts.contains(c)) {
                                   _contexts.remove(c);
+                                } else {
+                                  _contexts.add(c);
                                 }
                               }),
                       ),
                   ],
                 ),
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.lg),
                 TextFormField(
                   controller: _notesController,
                   enabled: !isSaving,
                   maxLines: 3,
-                  decoration: const InputDecoration(
-                    labelText: 'Notes (optional)',
-                    alignLabelWithHint: true,
+                  decoration: InputDecoration(
+                    hintText: 'Notes',
+                    contentPadding: const EdgeInsets.all(AppSpacing.md),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                      borderSide: BorderSide(color: theme.colorScheme.outlineVariant),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                      borderSide: BorderSide(color: theme.colorScheme.outlineVariant),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+                      borderSide: const BorderSide(color: AppColors.dashboardAccentTeal, width: 2),
+                    ),
                   ),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(_formatFriendlyTimestamp(_timestamp), style: theme.textTheme.bodyLarge),
+                    ),
+                    TextButton(
+                      onPressed: isSaving ? null : _pickTimestamp,
+                      style: TextButton.styleFrom(foregroundColor: AppColors.dashboardAccentTeal),
+                      child: const Text('Change', style: TextStyle(fontWeight: FontWeight.w700)),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 if (saveState.hasError) ...[
@@ -241,12 +301,17 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                     padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                     child: Text(
                       friendlyMessage(saveState.error!),
-                      style: TextStyle(color: Theme.of(context).colorScheme.error),
+                      style: TextStyle(color: theme.colorScheme.error),
                     ),
                   ),
                 ],
                 FilledButton(
                   onPressed: isSaving ? null : _submit,
+                  style: FilledButton.styleFrom(
+                    shape: const StadiumBorder(),
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                    textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                  ),
                   child: isSaving
                       ? Semantics(
                           label: 'Saving',
@@ -256,7 +321,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                             child: CircularProgressIndicator(strokeWidth: 2),
                           ),
                         )
-                      : Text(_isEditing ? 'Save changes' : 'Save'),
+                      : Text(_isEditing ? 'Save changes' : 'Save reading'),
                 ),
               ],
             ),
@@ -267,6 +332,127 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
   }
 }
 
-String _formatTimestamp(DateTime ts) =>
-    '${ts.year}-${ts.month.toString().padLeft(2, '0')}-${ts.day.toString().padLeft(2, '0')} '
-    '${ts.hour.toString().padLeft(2, '0')}:${ts.minute.toString().padLeft(2, '0')}';
+/// The oversized bordered number entry used for systolic/diastolic/pulse,
+/// matching `design_references/Add reading.png`. [labelText] stays a real
+/// `InputDecoration` label (always floated above the box via
+/// [FloatingLabelBehavior.always]) rather than a separate sibling widget,
+/// so the field's accessible name still includes its unit
+/// (PROJECT_SPEC.md §35 — suffixText alone isn't exposed to semantics).
+class _BigNumberField extends StatelessWidget {
+  const _BigNumberField({
+    required this.controller,
+    required this.enabled,
+    required this.labelText,
+    required this.validator,
+    this.suffixText,
+  });
+
+  final TextEditingController controller;
+  final bool enabled;
+  final String labelText;
+  final String? suffixText;
+  final String? Function(String?) validator;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return TextFormField(
+      controller: controller,
+      enabled: enabled,
+      keyboardType: TextInputType.number,
+      style: theme.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.w700),
+      decoration: InputDecoration(
+        labelText: labelText,
+        floatingLabelBehavior: FloatingLabelBehavior.always,
+        hintText: '—',
+        suffixText: suffixText,
+        suffixStyle: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        contentPadding: const EdgeInsets.all(AppSpacing.md),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+          borderSide: BorderSide(color: theme.colorScheme.outlineVariant),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+          borderSide: BorderSide(color: theme.colorScheme.outlineVariant),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
+          borderSide: const BorderSide(color: AppColors.dashboardAccentTeal, width: 2),
+        ),
+      ),
+      validator: validator,
+    );
+  }
+}
+
+/// A selectable tag chip shared by the body-position (single-select) and
+/// context (multi-select) rows — same selected/unselected treatment as the
+/// other screens' filter chips (accent-filled when selected, outlined when
+/// not).
+class _TagChip extends StatelessWidget {
+  const _TagChip({
+    required this.label,
+    required this.selected,
+    required this.background,
+    required this.foreground,
+    required this.onTap,
+  });
+
+  final String label;
+  final bool selected;
+  final Color background;
+  final Color foreground;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: Material(
+        color: selected ? background : theme.colorScheme.surface,
+        shape: StadiumBorder(
+          side: BorderSide(color: selected ? foreground : theme.colorScheme.outlineVariant),
+        ),
+        child: InkWell(
+          customBorder: const StadiumBorder(),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+            child: Text(
+              label,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: selected ? foreground : theme.colorScheme.onSurface,
+                fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Groups [MeasurementContext] values into the same 4-accent palette used
+/// throughout the app (time-of-day → coral, medication → purple,
+/// activity/other → blue) so the merged body-position + context row reads
+/// as one consistent tag system, matching
+/// `design_references/Add reading.png`.
+(Color, Color) _contextAccent(MeasurementContext c, AppAccentColors accents) => switch (c) {
+  MeasurementContext.morning ||
+  MeasurementContext.evening => (accents.coralBackground, accents.coralForeground),
+  MeasurementContext.beforeMedication ||
+  MeasurementContext.afterMedication => (accents.purpleBackground, accents.purpleForeground),
+  MeasurementContext.afterExercise ||
+  MeasurementContext.afterMeal ||
+  MeasurementContext.other => (accents.blueBackground, accents.blueForeground),
+};
+
+String _formatFriendlyTimestamp(DateTime ts) {
+  final hh = ts.hour.toString().padLeft(2, '0');
+  final mm = ts.minute.toString().padLeft(2, '0');
+  return '${_weekdayShortNames[ts.weekday - 1]} ${ts.day} ${_monthShortNames[ts.month - 1]} '
+      '${ts.year} · $hh:$mm';
+}
