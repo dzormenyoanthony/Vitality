@@ -13,22 +13,33 @@ import '../../features/blood_pressure/presentation/trends_screen.dart';
 import '../../features/dashboard/presentation/dashboard_screen.dart';
 import '../../features/education/presentation/article_detail_screen.dart';
 import '../../features/education/presentation/education_screen.dart';
+import '../../features/onboarding/data/onboarding_intro_provider.dart';
+import '../../features/onboarding/presentation/onboarding_complete_profile_screen.dart';
+import '../../features/onboarding/presentation/onboarding_controller.dart';
 import '../../features/onboarding/presentation/onboarding_screen.dart';
 import '../../features/reminders/data/reminder.dart';
 import '../../features/reminders/presentation/reminder_form_screen.dart';
 import '../../features/reminders/presentation/reminders_screen.dart';
+import '../../features/reports/presentation/report_viewer_screen.dart';
+import '../../features/reports/presentation/review_extracted_screen.dart';
+import '../../features/reports/presentation/saved_reports_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 import '../constants/app_routes.dart';
 import '../widgets/main_shell.dart';
 import 'auth_gate_provider.dart';
+import 'splash_min_duration_provider.dart';
 
-/// Bridges Riverpod's [authGateProvider] to go_router's `refreshListenable`
-/// so `redirect:` re-runs whenever auth/onboarding state changes, without
-/// recreating the [GoRouter] instance (which would drop navigation state).
+/// Bridges Riverpod's [authGateProvider] and [splashMinDurationElapsedProvider]
+/// to go_router's `refreshListenable` so `redirect:` re-runs whenever
+/// auth/onboarding state changes (or the minimum Splash duration elapses),
+/// without recreating the [GoRouter] instance (which would drop navigation
+/// state).
 class _AuthGateRefreshListenable extends ChangeNotifier {
   _AuthGateRefreshListenable(Ref ref) {
     ref.listen(authGateProvider, (_, _) => notifyListeners());
+    ref.listen(splashMinDurationElapsedProvider, (_, _) => notifyListeners());
+    ref.listen(pendingProfileNameProvider, (_, _) => notifyListeners());
   }
 }
 
@@ -38,8 +49,18 @@ const _authRoutes = {
   AppRoutes.forgotPassword,
 };
 
-/// Centralized, named routing for Vitaly (PROJECT_SPEC.md §7, §30:
-/// Authentication → Onboarding → Main application).
+// Reachable by a brand-new, unauthenticated visitor on a device that has
+// never finished onboarding: the intro carousel itself, plus every auth
+// route as an escape hatch (e.g. "Already with us? Sign in" from Create
+// Account, for someone who actually has an account already).
+const _preAuthOnboardingRoutes = {
+  AppRoutes.onboarding,
+  ..._authRoutes,
+};
+
+/// Centralized, named routing for Vitaly (PROJECT_SPEC.md §7, §30: for a
+/// brand-new user, Onboarding → Authentication → Main application; a
+/// returning user who's simply signed out skips straight to Authentication).
 final appRouterProvider = Provider<GoRouter>((ref) {
   final refreshListenable = _AuthGateRefreshListenable(ref);
   ref.onDispose(refreshListenable.dispose);
@@ -51,18 +72,62 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final gate = ref.read(authGateProvider);
       final location = state.matchedLocation;
 
+      // Keep the branded Splash screen on screen for a minimum, perceptible
+      // duration regardless of how fast the auth/onboarding gate resolves
+      // (see splash_min_duration_provider.dart).
+      if (!ref.read(splashMinDurationElapsedProvider)) {
+        return location == AppRoutes.splash ? null : AppRoutes.splash;
+      }
+
+      // Every sign-in/sign-up briefly re-triggers AuthGateLoading: watching
+      // userProfileStreamProvider(uid) for the first time after a fresh
+      // authStateChanges() emission is synchronously Loading until that
+      // stream's first event arrives, however fast that is in practice.
+      // Splash's own minimum-duration window above already covers this at
+      // boot (initialLocation is `/`, and gate starts Loading there), so
+      // Loading never needs to force navigation anywhere - doing so is
+      // exactly what used to bounce a user mid-flow (e.g. sitting on
+      // `/sign-in` or `/sign-up`, showing its own loading indicator) back
+      // to Splash for a single frame before the gate resolves further.
+      // Staying put lets the current screen's own loading state carry it
+      // instead.
+      //
+      // NeedsOnboarding needs one exception to that same principle: right
+      // after the pre-auth onboarding carousel hands a collected name to
+      // Create Account, SignUpController.signUp() creates the Firebase Auth
+      // user first and only writes the Firestore profile afterward - a real
+      // async gap in which the gate legitimately reports NeedsOnboarding
+      // before that write lands. Without this guard the redirect below
+      // would bounce the user to the name-collection screen while still
+      // sitting on `/sign-up` waiting on that same write.
+      // pendingProfileNameProvider is only non-null during that exact
+      // window (cleared right after the write succeeds), so it's a
+      // reliable signal to stay put instead.
+      final signUpInFlight = ref.read(pendingProfileNameProvider) != null;
+
       switch (gate) {
         case AuthGateLoading():
+          return null;
         case AuthGateError():
           return location == AppRoutes.splash ? null : AppRoutes.splash;
         case AuthGateUnauthenticated():
+          final introSeen = ref.read(onboardingIntroSeenProvider);
+          if (!introSeen) {
+            return _preAuthOnboardingRoutes.contains(location)
+                ? null
+                : AppRoutes.onboarding;
+          }
           return _authRoutes.contains(location) ? null : AppRoutes.signIn;
         case AuthGateNeedsOnboarding():
-          return location == AppRoutes.onboarding ? null : AppRoutes.onboarding;
+          if (signUpInFlight) return null;
+          return location == AppRoutes.onboardingProfile
+              ? null
+              : AppRoutes.onboardingProfile;
         case AuthGateReady():
           final mustLeave =
               _authRoutes.contains(location) ||
               location == AppRoutes.onboarding ||
+              location == AppRoutes.onboardingProfile ||
               location == AppRoutes.splash;
           return mustLeave ? AppRoutes.dashboard : null;
       }
@@ -92,6 +157,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.onboarding,
         name: AppRoutes.onboarding,
         builder: (context, state) => const OnboardingScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.onboardingProfile,
+        name: AppRoutes.onboardingProfile,
+        builder: (context, state) => const OnboardingCompleteProfileScreen(),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
@@ -171,6 +241,25 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: AppRoutes.educationArticle,
         builder: (context, state) => ArticleDetailScreen(
           articleId: state.pathParameters['id']!,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.reviewExtracted,
+        name: AppRoutes.reviewExtracted,
+        builder: (context, state) => ReviewExtractedScreen(
+          args: state.extra as ReviewExtractedArgs,
+        ),
+      ),
+      GoRoute(
+        path: AppRoutes.savedReports,
+        name: AppRoutes.savedReports,
+        builder: (context, state) => const SavedReportsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.reportViewer,
+        name: AppRoutes.reportViewer,
+        builder: (context, state) => ReportViewerScreen(
+          reportId: int.parse(state.pathParameters['id']!),
         ),
       ),
     ],

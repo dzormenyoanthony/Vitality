@@ -1,8 +1,51 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/authentication/data/auth_providers.dart';
 import '../../features/onboarding/data/user_profile_providers.dart';
 import '../errors/failure.dart';
+
+/// How long a profile-stream error is allowed to persist before it's
+/// escalated to a user-facing [AuthGateError].
+///
+/// Firestore's `users/{uid}` rule requires `request.auth.uid == userId`.
+/// Right after a sign-in/sign-up resolves, attaching a fresh profile
+/// listener for the new uid can hit a transient permission-denied before
+/// the Firestore SDK's own auth token has caught up with the just-completed
+/// sign-in - a known Firebase race, not a real failure. Riverpod's
+/// [StreamProvider] doesn't tear down its subscription after one error
+/// event, so the same underlying stream typically self-heals and emits a
+/// successful snapshot moments later. Without this grace window, that
+/// harmless blip flashes the "Unable to load your profile" screen before
+/// self-correcting to the Dashboard.
+const profileErrorGraceDuration = Duration(milliseconds: 800);
+
+/// Tracks, per uid, whether a profile-stream error has persisted past
+/// [profileErrorGraceDuration] without a subsequent success arriving.
+class ProfileErrorGraceNotifier extends Notifier<bool> {
+  ProfileErrorGraceNotifier(this.uid);
+
+  final String uid;
+  Timer? _timer;
+
+  @override
+  bool build() {
+    ref.onDispose(() => _timer?.cancel());
+    _timer = Timer(profileErrorGraceDuration, () => state = true);
+    return false;
+  }
+}
+
+/// `autoDispose`, for the same reason as [userProfileStreamProvider]: this
+/// is only watched while an error is actively present, so once it's
+/// disposed (error cleared, or nothing watching it), the next error for
+/// this uid gets a fresh grace window instead of reusing an
+/// already-elapsed one left over from an earlier sign-in this session.
+final profileErrorGraceElapsedProvider =
+    NotifierProvider.autoDispose.family<ProfileErrorGraceNotifier, bool, String>(
+      ProfileErrorGraceNotifier.new,
+    );
 
 /// The single source of truth the router's `redirect:` reads to decide
 /// where the user should land (PROJECT_SPEC.md §30: Authentication →
@@ -80,6 +123,10 @@ final authGateProvider = Provider<AuthGateState>((ref) {
 
       final profileState = ref.watch(userProfileStreamProvider(user.uid));
       if (profileState.hasError) {
+        final graceElapsed = ref.watch(
+          profileErrorGraceElapsedProvider(user.uid),
+        );
+        if (!graceElapsed) return const AuthGateLoading();
         return AuthGateError(user.uid, friendlyMessage(profileState.error!));
       }
 
