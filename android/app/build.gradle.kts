@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("org.jetbrains.kotlin.android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
     id("com.google.gms.google-services")
@@ -22,8 +23,9 @@ android {
         applicationId = "com.vitality.app.vitality"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
-        // firebase_auth requires minSdk 23.
-        minSdk = maxOf(flutter.minSdkVersion, 23)
+        // firebase_auth requires minSdk 23; google_sign_in_android requires
+        // minSdk 24 (its Credential Manager-based sign-in flow).
+        minSdk = maxOf(flutter.minSdkVersion, 24)
         targetSdk = flutter.targetSdkVersion
         // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)

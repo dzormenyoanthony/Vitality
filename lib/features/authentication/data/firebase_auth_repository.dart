@@ -88,7 +88,7 @@ class FirebaseAuthRepository implements AuthRepository {
       return _toAppUser(userCredential.user!);
     } on gsi.GoogleSignInException catch (e) {
       if (e.code == gsi.GoogleSignInExceptionCode.canceled) {
-        throw const ValidationFailure('Sign-in was cancelled.');
+        throw const CancelledFailure();
       }
       AppLogger.error('GoogleSignInException: code=${e.code}', error: e);
       throw const UnexpectedFailure();

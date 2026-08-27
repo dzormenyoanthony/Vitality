@@ -103,6 +103,33 @@ void main() {
     });
 
     testWidgets(
+      'cancelling the Google account picker does not show an error message',
+      (tester) async {
+        final authRepository = FakeAuthRepository()..simulateGoogleCancel = true;
+        addTearDown(authRepository.dispose);
+        final prefs = await mockPrefs();
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              authRepositoryProvider.overrideWithValue(authRepository),
+              sharedPreferencesProvider.overrideWithValue(prefs),
+            ],
+            child: const MaterialApp(home: SignInScreen()),
+          ),
+        );
+
+        await tester.tap(
+          find.widgetWithText(OutlinedButton, 'Continue with Google'),
+        );
+        await tester.pumpAndSettle();
+
+        expect(authRepository.currentUser, isNull);
+        expect(find.text('Sign-in was cancelled.'), findsNothing);
+      },
+    );
+
+    testWidgets(
       'unchecking "Keep me signed in" persists the preference as false',
       (tester) async {
         final authRepository = FakeAuthRepository();
@@ -222,5 +249,28 @@ void main() {
 
       expect(authRepository.currentUser, isNotNull);
     });
+
+    testWidgets(
+      'cancelling the Google account picker does not show an error message',
+      (tester) async {
+        final authRepository = FakeAuthRepository()..simulateGoogleCancel = true;
+        addTearDown(authRepository.dispose);
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
+            child: const MaterialApp(home: SignUpScreen()),
+          ),
+        );
+
+        await tester.tap(
+          find.widgetWithText(OutlinedButton, 'Continue with Google'),
+        );
+        await tester.pumpAndSettle();
+
+        expect(authRepository.currentUser, isNull);
+        expect(find.text('Sign-in was cancelled.'), findsNothing);
+      },
+    );
   });
 }

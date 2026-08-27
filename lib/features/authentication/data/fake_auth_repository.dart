@@ -13,6 +13,10 @@ class FakeAuthRepository implements AuthRepository {
   AppUser? _currentUser;
   int _uidCounter = 0;
 
+  /// Test-only: makes the next [signInWithGoogle] call behave as if the
+  /// user dismissed the account picker, instead of succeeding.
+  bool simulateGoogleCancel = false;
+
   @override
   Stream<AppUser?> authStateChanges() async* {
     // Mirrors Firebase Auth's real behavior: emit the current state
@@ -65,6 +69,9 @@ class FakeAuthRepository implements AuthRepository {
 
   @override
   Future<AppUser> signInWithGoogle() async {
+    if (simulateGoogleCancel) {
+      throw const CancelledFailure();
+    }
     const email = 'fake-google-user@example.com';
     _accounts.putIfAbsent(email, () => '');
     final user = AppUser(

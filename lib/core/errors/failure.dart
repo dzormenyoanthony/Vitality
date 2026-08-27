@@ -26,6 +26,14 @@ final class UnexpectedFailure extends Failure {
   const UnexpectedFailure([super.message = 'An unexpected error occurred.']);
 }
 
+/// The user backed out of a flow themselves (e.g. dismissed the Google
+/// account picker) — distinct from [ValidationFailure] so callers can
+/// choose not to display this as an error at all, rather than showing a
+/// false "something went wrong" message for a normal cancel.
+final class CancelledFailure extends Failure {
+  const CancelledFailure([super.message = 'Sign-in was cancelled.']);
+}
+
 /// Extracts a safe, user-facing message from anything a repository might
 /// throw. Non-[Failure] errors (a bug, an unmapped exception) fall back to
 /// a generic message rather than surfacing internals (CLAUDE.md §12).
