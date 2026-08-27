@@ -120,6 +120,11 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                             // square background, which otherwise shows up
                             // as a visible box against a tinted surface.
                             backgroundColor: Colors.white,
+                            // No press/hover/focus overlay: a grey tap
+                            // ripple over solid white contrasts badly
+                            // against the Google mark's own opaque white
+                            // square background.
+                            overlayColor: Colors.transparent,
                           ),
                           icon: googleState.isLoading
                               ? const SizedBox(
@@ -193,6 +198,15 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                               ),
                               borderSide: BorderSide.none,
                             ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMd,
+                              ),
+                              borderSide: const BorderSide(
+                                color: AppColors.dashboardAccentTeal,
+                                width: 2,
+                              ),
+                            ),
                             prefixIcon: const Icon(Icons.mail_outline),
                           ),
                           validator: CredentialsValidator.validateEmail,
@@ -218,16 +232,21 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                               borderRadius: BorderRadius.circular(
                                 AppSpacing.radiusMd,
                               ),
-                              borderSide: const BorderSide(
-                                color: AppColors.dashboardAccentTeal,
-                              ),
+                              borderSide: BorderSide.none,
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(
                                 AppSpacing.radiusMd,
                               ),
+                              borderSide: BorderSide.none,
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMd,
+                              ),
                               borderSide: const BorderSide(
                                 color: AppColors.dashboardAccentTeal,
+                                width: 2,
                               ),
                             ),
                             prefixIcon: const Icon(Icons.lock_outline),

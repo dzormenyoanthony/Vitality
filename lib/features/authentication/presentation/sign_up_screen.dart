@@ -123,6 +123,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 // which otherwise shows up as a visible box
                                 // against the tinted surface.
                                 backgroundColor: Colors.white,
+                                // No press/hover/focus overlay: a grey tap
+                                // ripple over solid white contrasts badly
+                                // against the Google mark's own opaque
+                                // white square background.
+                                overlayColor: Colors.transparent,
                               ),
                               icon: googleState.isLoading
                                   ? const SizedBox(
