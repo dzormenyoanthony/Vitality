@@ -35,6 +35,8 @@ class ConfirmReportController extends AsyncNotifier<void> {
     required List<ExtractedReading> confirmedReadings,
     required Set<int> selectedForHistoryIds,
     required ReportSource source,
+    ReportCategory category = ReportCategory.bpReport,
+    String? provider,
   }) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
@@ -52,6 +54,8 @@ class ConfirmReportController extends AsyncNotifier<void> {
         confirmedReadings: confirmedReadings,
         source: source,
         localPagePaths: localPagePaths,
+        category: category,
+        provider: provider,
       );
 
       final bloodPressureRepository = ref.read(bloodPressureRepositoryProvider);

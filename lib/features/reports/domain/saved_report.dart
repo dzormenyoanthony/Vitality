@@ -6,6 +6,25 @@ enum ReportDocumentType { image, pdf }
 /// How the report entered Vitaly.
 enum ReportSource { scan, import }
 
+/// What kind of document this is, for filtering in the Saved Reports
+/// "document locker" (`design_references/My document locker.png`).
+/// [bpReport] is the default for anything scanned/imported through the
+/// original "Scan BP Report" flow; the others let a user file other kinds
+/// of health paperwork they keep in the same locker. This is purely an
+/// organizational tag chosen by the user — Vitaly never infers or claims a
+/// document's medical category automatically (PROJECT_SPEC.md §9, §14).
+enum ReportCategory { bpReport, labResults, prescriptions, ecg, other }
+
+extension ReportCategoryLabel on ReportCategory {
+  String get label => switch (this) {
+    ReportCategory.bpReport => 'BP report',
+    ReportCategory.labResults => 'Lab results',
+    ReportCategory.prescriptions => 'Prescriptions',
+    ReportCategory.ecg => 'ECG',
+    ReportCategory.other => 'Other',
+  };
+}
+
 /// Processing state of OCR extraction for a report (PROJECT_SPEC.md
 /// "Scan BP Report" §4, §13-14). OCR never runs automatically into BP
 /// History — this only tracks whether extraction was attempted/succeeded.
@@ -29,6 +48,8 @@ final class SavedReport {
     required this.source,
     required this.localPagePaths,
     this.storagePagePaths,
+    this.category = ReportCategory.bpReport,
+    this.provider,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -40,6 +61,15 @@ final class SavedReport {
   final DateTime? reportDate;
   final int pageCount;
   final OcrStatus ocrStatus;
+
+  /// User-chosen organizational category (default [ReportCategory.bpReport]
+  /// for backward-compatible rows saved before this field existed).
+  final ReportCategory category;
+
+  /// Optional free-text source, e.g. a clinician or lab name ("Dr. Okafor",
+  /// "Northside Lab") — purely informational, never validated or used in
+  /// any calculation.
+  final String? provider;
 
   /// Every candidate OCR detected, unconfirmed.
   final List<ExtractedReading> extractedReadings;

@@ -167,6 +167,61 @@ void main() {
     expect(report!.title, 'New title');
   });
 
+  test('defaults to bpReport with no provider when not specified', () async {
+    final id = await repository.add(
+      title: 'Untagged report',
+      documentType: ReportDocumentType.image,
+      pageCount: 1,
+      ocrStatus: OcrStatus.notProcessed,
+      source: ReportSource.scan,
+      localPagePaths: ['/tmp/page_0.jpg'],
+    );
+
+    final report = await repository.watchById(id).first;
+    expect(report!.category, ReportCategory.bpReport);
+    expect(report.provider, isNull);
+  });
+
+  test('round-trips a chosen category and provider', () async {
+    final id = await repository.add(
+      title: 'Ambulatory BP monitor',
+      documentType: ReportDocumentType.pdf,
+      pageCount: 1,
+      ocrStatus: OcrStatus.notProcessed,
+      source: ReportSource.scan,
+      localPagePaths: ['/tmp/page_0.pdf'],
+      category: ReportCategory.ecg,
+      provider: 'Dr. Okafor',
+    );
+
+    final report = await repository.watchById(id).first;
+    expect(report!.category, ReportCategory.ecg);
+    expect(report.provider, 'Dr. Okafor');
+  });
+
+  test('updateDetails changes title, category, and provider together', () async {
+    final id = await repository.add(
+      title: 'Old title',
+      documentType: ReportDocumentType.image,
+      pageCount: 1,
+      ocrStatus: OcrStatus.notProcessed,
+      source: ReportSource.scan,
+      localPagePaths: ['/tmp/page_0.jpg'],
+    );
+
+    await repository.updateDetails(
+      id: id,
+      title: 'Lipid panel & metabolic',
+      category: ReportCategory.labResults,
+      provider: 'Northside Lab',
+    );
+
+    final report = await repository.watchById(id).first;
+    expect(report!.title, 'Lipid panel & metabolic');
+    expect(report.category, ReportCategory.labResults);
+    expect(report.provider, 'Northside Lab');
+  });
+
   test('updateStoragePagePaths records the uploaded paths', () async {
     final id = await repository.add(
       title: 'Report',

@@ -74,6 +74,16 @@ class _ScanEntrySheetContent extends StatelessWidget {
   }
 }
 
+/// Opens the native camera scanner directly (no chooser sheet) — used by
+/// the Saved Reports "document locker" hero card's "Scan a page" button,
+/// which already separates the two entry points into distinct buttons
+/// (`design_references/My document locker.png`).
+Future<void> scanWithCamera(BuildContext context, WidgetRef ref) => _scanWithCamera(context, ref);
+
+/// Opens the device file picker directly (no chooser sheet) — the hero
+/// card's "Upload report" button counterpart to [scanWithCamera].
+Future<void> importFromDevice(BuildContext context, WidgetRef ref) => _importFromDevice(context, ref);
+
 Future<void> _scanWithCamera(BuildContext context, WidgetRef ref) async {
   final messenger = ScaffoldMessenger.of(context);
   try {

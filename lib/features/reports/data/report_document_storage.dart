@@ -38,6 +38,23 @@ class ReportDocumentStorage {
     return savedPaths;
   }
 
+  /// Sums the on-disk size of [paths] in bytes, for the Saved Reports
+  /// "document locker" storage-usage display. A missing/unreadable file
+  /// (e.g. not yet synced to this device) is simply skipped rather than
+  /// failing the whole total.
+  Future<int> totalSizeBytes(List<String> paths) async {
+    var total = 0;
+    for (final path in paths) {
+      try {
+        final file = File(path);
+        if (await file.exists()) total += await file.length();
+      } catch (_) {
+        // Skip — see doc comment above.
+      }
+    }
+    return total;
+  }
+
   /// Deletes a report's local page files individually. Never throws — a
   /// missing file (already cleaned up, or never synced to this device) is
   /// not an error.

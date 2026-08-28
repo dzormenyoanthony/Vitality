@@ -971,6 +971,17 @@ Users must be able to:
 - Delete a report.
 - Share/export where supported.
 
+**Document locker redesign (approved, implemented):** per
+`design_references/My document locker.png`, the Saved Reports screen was
+rebuilt as a "document locker" — a storage-usage hero card (file count,
+total size, Upload/Scan actions), category filter chips, and a date-
+grouped card list. This introduced a real, user-chosen
+`ReportCategory` (BP report / Lab results / Prescriptions / ECG / Other)
+and an optional free-text provider/source label per report — both purely
+organizational metadata the user assigns themselves; Vitaly never infers
+or validates a document's medical category (Section 9, 14). Reports saved
+before this existed default to `bpReport` with no provider.
+
 ---
 
 ## 11. Report Viewer

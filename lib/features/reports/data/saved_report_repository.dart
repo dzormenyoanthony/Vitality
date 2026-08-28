@@ -24,6 +24,8 @@ abstract interface class SavedReportRepository {
     List<ExtractedReading> confirmedReadings = const [],
     required ReportSource source,
     required List<String> localPagePaths,
+    ReportCategory category = ReportCategory.bpReport,
+    String? provider,
   });
 
   Future<void> updateOcrResult({
@@ -38,6 +40,15 @@ abstract interface class SavedReportRepository {
   });
 
   Future<void> rename({required int id, required String title});
+
+  /// Updates the user-editable details shown on the Saved Reports list
+  /// (title, category, provider) in one write.
+  Future<void> updateDetails({
+    required int id,
+    required String title,
+    required ReportCategory category,
+    String? provider,
+  });
 
   /// Records the Firebase Storage paths for [id]'s pages once uploaded
   /// (`ReportDocumentStorage`'s best-effort background push).

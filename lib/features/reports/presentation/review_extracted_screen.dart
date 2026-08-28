@@ -49,11 +49,19 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
   List<ExtractedReading> _readings = [];
   final Set<int> _selectedForHistory = {};
   int _nextId = 0;
+  ReportCategory _category = ReportCategory.bpReport;
+  final _providerController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     _runOcr();
+  }
+
+  @override
+  void dispose() {
+    _providerController.dispose();
+    super.dispose();
   }
 
   Future<void> _runOcr() async {
@@ -148,6 +156,10 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
           confirmedReadings: _readings,
           selectedForHistoryIds: _selectedForHistory,
           source: widget.args.source,
+          category: _category,
+          provider: _providerController.text.trim().isEmpty
+              ? null
+              : _providerController.text.trim(),
         );
 
     final state = ref.read(confirmReportControllerProvider);
@@ -214,6 +226,43 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
     );
   }
 
+  /// Lets the user file this document into a category and (optionally)
+  /// note who it's from, matching `design_references/My document
+  /// locker.png`'s category filters and per-file provider label.
+  Widget _buildDetailsSection(ThemeData theme) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Document details', style: theme.textTheme.titleMedium),
+            const SizedBox(height: AppSpacing.md),
+            DropdownButtonFormField<ReportCategory>(
+              initialValue: _category,
+              decoration: const InputDecoration(labelText: 'Category'),
+              items: [
+                for (final category in ReportCategory.values)
+                  DropdownMenuItem(value: category, child: Text(category.label)),
+              ],
+              onChanged: (value) {
+                if (value != null) setState(() => _category = value);
+              },
+            ),
+            const SizedBox(height: AppSpacing.md),
+            TextField(
+              controller: _providerController,
+              decoration: const InputDecoration(
+                labelText: 'Source (optional)',
+                hintText: 'e.g. Dr. Okafor, Northside Lab',
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildBody(ThemeData theme, bool isSaving) {
     if (_ocrStatus == OcrStatus.processing) {
       return const Center(
@@ -229,7 +278,7 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
     }
 
     if (_ocrStatus == OcrStatus.failed) {
-      return Padding(
+      return SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -258,6 +307,8 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
               onPressed: isSaving ? null : () => context.pop(),
               child: const Text('Scan or import again'),
             ),
+            const SizedBox(height: AppSpacing.lg),
+            _buildDetailsSection(theme),
           ],
         ),
       );
@@ -266,6 +317,8 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
+        _buildDetailsSection(theme),
+        const SizedBox(height: AppSpacing.lg),
         Text(
           _readings.isEmpty
               ? 'No blood pressure readings were detected. You can add one manually.'

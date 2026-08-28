@@ -81,6 +81,14 @@ class SavedReports extends Table {
   /// Comma-separated Firebase Storage paths, once uploaded — `null` until
   /// the first successful push, same pattern as [Readings.remoteId].
   TextColumn get storagePagePaths => text().nullable()();
+
+  /// [ReportCategory] name — defaults to 'bpReport' so rows saved before
+  /// this column existed keep their original meaning after migration.
+  TextColumn get category =>
+      text().withDefault(const Constant('bpReport'))();
+
+  /// Optional free-text clinician/lab name.
+  TextColumn get provider => text().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -134,7 +142,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -167,6 +175,10 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(readings, readings.source);
         await m.addColumn(readings, readings.sourceReportId);
         await m.createTable(savedReports);
+      }
+      if (from < 6) {
+        await m.addColumn(savedReports, savedReports.category);
+        await m.addColumn(savedReports, savedReports.provider);
       }
     },
   );

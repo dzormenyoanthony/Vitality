@@ -29,20 +29,66 @@ void main() {
     await db.close();
   });
 
-  testWidgets('lists a saved report with its page count and confirmed reading count', (tester) async {
+  testWidgets(
+    'lists a saved report with its date, type, and category chip count',
+    (tester) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      await DriftSavedReportRepository(db).add(
+        title: 'Scanned report',
+        documentType: ReportDocumentType.image,
+        reportDate: DateTime(2026, 8, 22),
+        pageCount: 2,
+        ocrStatus: OcrStatus.succeeded,
+        confirmedReadings: const [
+          ExtractedReading(id: 0, systolic: 136, diastolic: 84),
+        ],
+        source: ReportSource.scan,
+        localPagePaths: ['/tmp/page_0.jpg', '/tmp/page_1.jpg'],
+        category: ReportCategory.labResults,
+        provider: 'Northside Lab',
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [appDatabaseProvider.overrideWithValue(db)],
+          child: const MaterialApp(home: SavedReportsScreen()),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      expect(find.text('Scanned report'), findsOneWidget);
+      expect(find.textContaining('22 Aug'), findsOneWidget);
+      expect(find.textContaining('Northside Lab'), findsOneWidget);
+      expect(find.text('All 1'), findsOneWidget);
+      expect(find.text('Lab results 1'), findsOneWidget);
+
+      await db.close();
+    },
+  );
+
+  testWidgets('tapping a category chip filters the list to that category', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
-    await DriftSavedReportRepository(db).add(
-      title: 'Scanned report',
-      documentType: ReportDocumentType.image,
-      reportDate: DateTime(2026, 8, 22),
-      pageCount: 2,
-      ocrStatus: OcrStatus.succeeded,
-      confirmedReadings: const [
-        ExtractedReading(id: 0, systolic: 136, diastolic: 84),
-      ],
+    final repository = DriftSavedReportRepository(db);
+    await repository.add(
+      title: 'Ambulatory BP monitor',
+      documentType: ReportDocumentType.pdf,
+      pageCount: 1,
+      ocrStatus: OcrStatus.notProcessed,
       source: ReportSource.scan,
-      localPagePaths: ['/tmp/page_0.jpg', '/tmp/page_1.jpg'],
+      localPagePaths: const ['/tmp/bp.pdf'],
+      category: ReportCategory.bpReport,
+    );
+    await repository.add(
+      title: 'Lipid panel & metabolic',
+      documentType: ReportDocumentType.pdf,
+      pageCount: 1,
+      ocrStatus: OcrStatus.notProcessed,
+      source: ReportSource.import,
+      localPagePaths: const ['/tmp/lipid.pdf'],
+      category: ReportCategory.labResults,
     );
 
     await tester.pumpWidget(
@@ -54,9 +100,15 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('Scanned report'), findsOneWidget);
-    expect(find.textContaining('2 pages'), findsOneWidget);
-    expect(find.textContaining('1 reading confirmed'), findsOneWidget);
+    expect(find.text('Ambulatory BP monitor'), findsOneWidget);
+    expect(find.text('Lipid panel & metabolic'), findsOneWidget);
+
+    await tester.tap(find.text('Lab results 1'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Lipid panel & metabolic'), findsOneWidget);
+    expect(find.text('Ambulatory BP monitor'), findsNothing);
 
     await db.close();
   });

@@ -107,6 +107,16 @@ abstract final class AppColors {
   /// palette as Onboarding 1 of 3); only the field border is new.
   static const Color onboardingFieldBorder = Color(0xFF566A65);
 
+  /// Saved Reports "document locker" hero card, sampled from
+  /// `design_references/My document locker.png` (gradient reuses
+  /// [dashboardAccentTeal] → [heroFill], already a close pixel match).
+  /// Fixed regardless of app theme — same "always-branded" treatment as
+  /// the Dashboard latest-reading hero card ([heroFill]/[heroFillDark]).
+  static const Color documentLockerEyebrow = Color(0xFF56B19E);
+  static const Color documentLockerMetaText = Color(0xFFBDF0E0);
+  static const Color documentLockerUploadButtonBg = Color(0xFF19C29E);
+  static const Color documentLockerUploadButtonText = Color(0xFF053B36);
+
   /// Reading detail's "SAME TIME OF DAY" bar chart, sampled from
   /// `design_references/Reading.png` — a medium mint fill for the
   /// non-highlighted bars. The highlighted (current) bar reuses

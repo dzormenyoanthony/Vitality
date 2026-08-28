@@ -1801,6 +1801,29 @@ class $SavedReportsTable extends SavedReports
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('bpReport'),
+  );
+  static const VerificationMeta _providerMeta = const VerificationMeta(
+    'provider',
+  );
+  @override
+  late final GeneratedColumn<String> provider = GeneratedColumn<String>(
+    'provider',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1858,6 +1881,8 @@ class $SavedReportsTable extends SavedReports
     source,
     localPagePaths,
     storagePagePaths,
+    category,
+    provider,
     createdAt,
     updatedAt,
     remoteId,
@@ -1965,6 +1990,18 @@ class $SavedReportsTable extends SavedReports
         ),
       );
     }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    }
+    if (data.containsKey('provider')) {
+      context.handle(
+        _providerMeta,
+        provider.isAcceptableOrUnknown(data['provider']!, _providerMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -2046,6 +2083,14 @@ class $SavedReportsTable extends SavedReports
         DriftSqlType.string,
         data['${effectivePrefix}storage_page_paths'],
       ),
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      )!,
+      provider: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -2094,6 +2139,13 @@ class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
   /// Comma-separated Firebase Storage paths, once uploaded — `null` until
   /// the first successful push, same pattern as [Readings.remoteId].
   final String? storagePagePaths;
+
+  /// [ReportCategory] name — defaults to 'bpReport' so rows saved before
+  /// this column existed keep their original meaning after migration.
+  final String category;
+
+  /// Optional free-text clinician/lab name.
+  final String? provider;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -2114,6 +2166,8 @@ class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
     required this.source,
     required this.localPagePaths,
     this.storagePagePaths,
+    required this.category,
+    this.provider,
     required this.createdAt,
     required this.updatedAt,
     this.remoteId,
@@ -2136,6 +2190,10 @@ class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
     map['local_page_paths'] = Variable<String>(localPagePaths);
     if (!nullToAbsent || storagePagePaths != null) {
       map['storage_page_paths'] = Variable<String>(storagePagePaths);
+    }
+    map['category'] = Variable<String>(category);
+    if (!nullToAbsent || provider != null) {
+      map['provider'] = Variable<String>(provider);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -2165,6 +2223,10 @@ class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
       storagePagePaths: storagePagePaths == null && nullToAbsent
           ? const Value.absent()
           : Value(storagePagePaths),
+      category: Value(category),
+      provider: provider == null && nullToAbsent
+          ? const Value.absent()
+          : Value(provider),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       remoteId: remoteId == null && nullToAbsent
@@ -2197,6 +2259,8 @@ class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
       source: serializer.fromJson<String>(json['source']),
       localPagePaths: serializer.fromJson<String>(json['localPagePaths']),
       storagePagePaths: serializer.fromJson<String?>(json['storagePagePaths']),
+      category: serializer.fromJson<String>(json['category']),
+      provider: serializer.fromJson<String?>(json['provider']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       remoteId: serializer.fromJson<String?>(json['remoteId']),
@@ -2218,6 +2282,8 @@ class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
       'source': serializer.toJson<String>(source),
       'localPagePaths': serializer.toJson<String>(localPagePaths),
       'storagePagePaths': serializer.toJson<String?>(storagePagePaths),
+      'category': serializer.toJson<String>(category),
+      'provider': serializer.toJson<String?>(provider),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'remoteId': serializer.toJson<String?>(remoteId),
@@ -2237,6 +2303,8 @@ class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
     String? source,
     String? localPagePaths,
     Value<String?> storagePagePaths = const Value.absent(),
+    String? category,
+    Value<String?> provider = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<String?> remoteId = const Value.absent(),
@@ -2255,6 +2323,8 @@ class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
     storagePagePaths: storagePagePaths.present
         ? storagePagePaths.value
         : this.storagePagePaths,
+    category: category ?? this.category,
+    provider: provider.present ? provider.value : this.provider,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     remoteId: remoteId.present ? remoteId.value : this.remoteId,
@@ -2285,6 +2355,8 @@ class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
       storagePagePaths: data.storagePagePaths.present
           ? data.storagePagePaths.value
           : this.storagePagePaths,
+      category: data.category.present ? data.category.value : this.category,
+      provider: data.provider.present ? data.provider.value : this.provider,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
@@ -2306,6 +2378,8 @@ class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
           ..write('source: $source, ')
           ..write('localPagePaths: $localPagePaths, ')
           ..write('storagePagePaths: $storagePagePaths, ')
+          ..write('category: $category, ')
+          ..write('provider: $provider, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('remoteId: $remoteId, ')
@@ -2327,6 +2401,8 @@ class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
     source,
     localPagePaths,
     storagePagePaths,
+    category,
+    provider,
     createdAt,
     updatedAt,
     remoteId,
@@ -2347,6 +2423,8 @@ class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
           other.source == this.source &&
           other.localPagePaths == this.localPagePaths &&
           other.storagePagePaths == this.storagePagePaths &&
+          other.category == this.category &&
+          other.provider == this.provider &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.remoteId == this.remoteId &&
@@ -2365,6 +2443,8 @@ class SavedReportsCompanion extends UpdateCompanion<SavedReportRow> {
   final Value<String> source;
   final Value<String> localPagePaths;
   final Value<String?> storagePagePaths;
+  final Value<String> category;
+  final Value<String?> provider;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<String?> remoteId;
@@ -2381,6 +2461,8 @@ class SavedReportsCompanion extends UpdateCompanion<SavedReportRow> {
     this.source = const Value.absent(),
     this.localPagePaths = const Value.absent(),
     this.storagePagePaths = const Value.absent(),
+    this.category = const Value.absent(),
+    this.provider = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.remoteId = const Value.absent(),
@@ -2398,6 +2480,8 @@ class SavedReportsCompanion extends UpdateCompanion<SavedReportRow> {
     required String source,
     required String localPagePaths,
     this.storagePagePaths = const Value.absent(),
+    this.category = const Value.absent(),
+    this.provider = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.remoteId = const Value.absent(),
@@ -2422,6 +2506,8 @@ class SavedReportsCompanion extends UpdateCompanion<SavedReportRow> {
     Expression<String>? source,
     Expression<String>? localPagePaths,
     Expression<String>? storagePagePaths,
+    Expression<String>? category,
+    Expression<String>? provider,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? remoteId,
@@ -2441,6 +2527,8 @@ class SavedReportsCompanion extends UpdateCompanion<SavedReportRow> {
       if (source != null) 'source': source,
       if (localPagePaths != null) 'local_page_paths': localPagePaths,
       if (storagePagePaths != null) 'storage_page_paths': storagePagePaths,
+      if (category != null) 'category': category,
+      if (provider != null) 'provider': provider,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (remoteId != null) 'remote_id': remoteId,
@@ -2460,6 +2548,8 @@ class SavedReportsCompanion extends UpdateCompanion<SavedReportRow> {
     Value<String>? source,
     Value<String>? localPagePaths,
     Value<String?>? storagePagePaths,
+    Value<String>? category,
+    Value<String?>? provider,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<String?>? remoteId,
@@ -2479,6 +2569,8 @@ class SavedReportsCompanion extends UpdateCompanion<SavedReportRow> {
       source: source ?? this.source,
       localPagePaths: localPagePaths ?? this.localPagePaths,
       storagePagePaths: storagePagePaths ?? this.storagePagePaths,
+      category: category ?? this.category,
+      provider: provider ?? this.provider,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       remoteId: remoteId ?? this.remoteId,
@@ -2526,6 +2618,12 @@ class SavedReportsCompanion extends UpdateCompanion<SavedReportRow> {
     if (storagePagePaths.present) {
       map['storage_page_paths'] = Variable<String>(storagePagePaths.value);
     }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (provider.present) {
+      map['provider'] = Variable<String>(provider.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2555,6 +2653,8 @@ class SavedReportsCompanion extends UpdateCompanion<SavedReportRow> {
           ..write('source: $source, ')
           ..write('localPagePaths: $localPagePaths, ')
           ..write('storagePagePaths: $storagePagePaths, ')
+          ..write('category: $category, ')
+          ..write('provider: $provider, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('remoteId: $remoteId, ')
@@ -3328,6 +3428,8 @@ typedef $$SavedReportsTableCreateCompanionBuilder =
       required String source,
       required String localPagePaths,
       Value<String?> storagePagePaths,
+      Value<String> category,
+      Value<String?> provider,
       required DateTime createdAt,
       required DateTime updatedAt,
       Value<String?> remoteId,
@@ -3346,6 +3448,8 @@ typedef $$SavedReportsTableUpdateCompanionBuilder =
       Value<String> source,
       Value<String> localPagePaths,
       Value<String?> storagePagePaths,
+      Value<String> category,
+      Value<String?> provider,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
       Value<String?> remoteId,
@@ -3413,6 +3517,16 @@ class $$SavedReportsTableFilterComposer
 
   ColumnFilters<String> get storagePagePaths => $composableBuilder(
     column: $table.storagePagePaths,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get provider => $composableBuilder(
+    column: $table.provider,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3501,6 +3615,16 @@ class $$SavedReportsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get provider => $composableBuilder(
+    column: $table.provider,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -3576,6 +3700,12 @@ class $$SavedReportsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<String> get provider =>
+      $composableBuilder(column: $table.provider, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -3631,6 +3761,8 @@ class $$SavedReportsTableTableManager
                 Value<String> source = const Value.absent(),
                 Value<String> localPagePaths = const Value.absent(),
                 Value<String?> storagePagePaths = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<String?> provider = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<String?> remoteId = const Value.absent(),
@@ -3647,6 +3779,8 @@ class $$SavedReportsTableTableManager
                 source: source,
                 localPagePaths: localPagePaths,
                 storagePagePaths: storagePagePaths,
+                category: category,
+                provider: provider,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 remoteId: remoteId,
@@ -3665,6 +3799,8 @@ class $$SavedReportsTableTableManager
                 required String source,
                 required String localPagePaths,
                 Value<String?> storagePagePaths = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<String?> provider = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<String?> remoteId = const Value.absent(),
@@ -3681,6 +3817,8 @@ class $$SavedReportsTableTableManager
                 source: source,
                 localPagePaths: localPagePaths,
                 storagePagePaths: storagePagePaths,
+                category: category,
+                provider: provider,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 remoteId: remoteId,

@@ -54,6 +54,8 @@ class DriftSavedReportRepository implements SavedReportRepository {
       storagePagePaths: row.storagePagePaths == null
           ? null
           : _splitPaths(row.storagePagePaths),
+      category: ReportCategory.values.byName(row.category),
+      provider: row.provider,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -93,6 +95,8 @@ class DriftSavedReportRepository implements SavedReportRepository {
     List<ExtractedReading> confirmedReadings = const [],
     required ReportSource source,
     required List<String> localPagePaths,
+    ReportCategory category = ReportCategory.bpReport,
+    String? provider,
   }) async {
     final now = DateTime.now();
     final id = await _db
@@ -108,6 +112,8 @@ class DriftSavedReportRepository implements SavedReportRepository {
             confirmedReadingsJson: Value(_encodeReadings(confirmedReadings)),
             source: source.name,
             localPagePaths: _joinPaths(localPagePaths),
+            category: Value(category.name),
+            provider: Value(provider),
             createdAt: now,
             updatedAt: now,
           ),
@@ -150,6 +156,24 @@ class DriftSavedReportRepository implements SavedReportRepository {
   Future<void> rename({required int id, required String title}) async {
     await (_db.update(_db.savedReports)..where((r) => r.id.equals(id))).write(
       SavedReportsCompanion(title: Value(title), updatedAt: Value(DateTime.now())),
+    );
+    unawaited(_pushToFirestore(id));
+  }
+
+  @override
+  Future<void> updateDetails({
+    required int id,
+    required String title,
+    required ReportCategory category,
+    String? provider,
+  }) async {
+    await (_db.update(_db.savedReports)..where((r) => r.id.equals(id))).write(
+      SavedReportsCompanion(
+        title: Value(title),
+        category: Value(category.name),
+        provider: Value(provider),
+        updatedAt: Value(DateTime.now()),
+      ),
     );
     unawaited(_pushToFirestore(id));
   }
@@ -217,6 +241,8 @@ class DriftSavedReportRepository implements SavedReportRepository {
         'confirmedReadingsJson': row.confirmedReadingsJson,
         'source': row.source,
         'storagePagePaths': row.storagePagePaths,
+        'category': row.category,
+        'provider': row.provider,
         'createdAt': Timestamp.fromDate(row.createdAt),
         'updatedAt': Timestamp.fromDate(row.updatedAt),
       }, SetOptions(merge: true));
