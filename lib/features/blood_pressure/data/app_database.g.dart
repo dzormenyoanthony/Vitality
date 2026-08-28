@@ -116,6 +116,27 @@ class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('manual'),
+  );
+  static const VerificationMeta _sourceReportIdMeta = const VerificationMeta(
+    'sourceReportId',
+  );
+  @override
+  late final GeneratedColumn<int> sourceReportId = GeneratedColumn<int>(
+    'source_report_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -172,6 +193,8 @@ class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
     measurementContexts,
     bodyPosition,
     cuffArm,
+    source,
+    sourceReportId,
     createdAt,
     updatedAt,
     remoteId,
@@ -261,6 +284,21 @@ class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
         cuffArm.isAcceptableOrUnknown(data['cuff_arm']!, _cuffArmMeta),
       );
     }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    }
+    if (data.containsKey('source_report_id')) {
+      context.handle(
+        _sourceReportIdMeta,
+        sourceReportId.isAcceptableOrUnknown(
+          data['source_report_id']!,
+          _sourceReportIdMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -338,6 +376,14 @@ class $ReadingsTable extends Readings with TableInfo<$ReadingsTable, Reading> {
         DriftSqlType.string,
         data['${effectivePrefix}cuff_arm'],
       ),
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      sourceReportId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}source_report_id'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -381,6 +427,14 @@ class Reading extends DataClass implements Insertable<Reading> {
   final String? measurementContexts;
   final String? bodyPosition;
   final String? cuffArm;
+
+  /// [ReadingSource] name — 'manual' (default) or 'importedReport'
+  /// (PROJECT_SPEC.md §12, §33).
+  final String source;
+
+  /// The originating [SavedReports.id], set only when [source] is
+  /// 'importedReport'.
+  final int? sourceReportId;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -404,6 +458,8 @@ class Reading extends DataClass implements Insertable<Reading> {
     this.measurementContexts,
     this.bodyPosition,
     this.cuffArm,
+    required this.source,
+    this.sourceReportId,
     required this.createdAt,
     required this.updatedAt,
     this.remoteId,
@@ -433,6 +489,10 @@ class Reading extends DataClass implements Insertable<Reading> {
     }
     if (!nullToAbsent || cuffArm != null) {
       map['cuff_arm'] = Variable<String>(cuffArm);
+    }
+    map['source'] = Variable<String>(source);
+    if (!nullToAbsent || sourceReportId != null) {
+      map['source_report_id'] = Variable<int>(sourceReportId);
     }
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
@@ -469,6 +529,10 @@ class Reading extends DataClass implements Insertable<Reading> {
       cuffArm: cuffArm == null && nullToAbsent
           ? const Value.absent()
           : Value(cuffArm),
+      source: Value(source),
+      sourceReportId: sourceReportId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourceReportId),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
       remoteId: remoteId == null && nullToAbsent
@@ -500,6 +564,8 @@ class Reading extends DataClass implements Insertable<Reading> {
       ),
       bodyPosition: serializer.fromJson<String?>(json['bodyPosition']),
       cuffArm: serializer.fromJson<String?>(json['cuffArm']),
+      source: serializer.fromJson<String>(json['source']),
+      sourceReportId: serializer.fromJson<int?>(json['sourceReportId']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       remoteId: serializer.fromJson<String?>(json['remoteId']),
@@ -520,6 +586,8 @@ class Reading extends DataClass implements Insertable<Reading> {
       'measurementContexts': serializer.toJson<String?>(measurementContexts),
       'bodyPosition': serializer.toJson<String?>(bodyPosition),
       'cuffArm': serializer.toJson<String?>(cuffArm),
+      'source': serializer.toJson<String>(source),
+      'sourceReportId': serializer.toJson<int?>(sourceReportId),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'remoteId': serializer.toJson<String?>(remoteId),
@@ -538,6 +606,8 @@ class Reading extends DataClass implements Insertable<Reading> {
     Value<String?> measurementContexts = const Value.absent(),
     Value<String?> bodyPosition = const Value.absent(),
     Value<String?> cuffArm = const Value.absent(),
+    String? source,
+    Value<int?> sourceReportId = const Value.absent(),
     DateTime? createdAt,
     DateTime? updatedAt,
     Value<String?> remoteId = const Value.absent(),
@@ -557,6 +627,10 @@ class Reading extends DataClass implements Insertable<Reading> {
         : this.measurementContexts,
     bodyPosition: bodyPosition.present ? bodyPosition.value : this.bodyPosition,
     cuffArm: cuffArm.present ? cuffArm.value : this.cuffArm,
+    source: source ?? this.source,
+    sourceReportId: sourceReportId.present
+        ? sourceReportId.value
+        : this.sourceReportId,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
     remoteId: remoteId.present ? remoteId.value : this.remoteId,
@@ -580,6 +654,10 @@ class Reading extends DataClass implements Insertable<Reading> {
           ? data.bodyPosition.value
           : this.bodyPosition,
       cuffArm: data.cuffArm.present ? data.cuffArm.value : this.cuffArm,
+      source: data.source.present ? data.source.value : this.source,
+      sourceReportId: data.sourceReportId.present
+          ? data.sourceReportId.value
+          : this.sourceReportId,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
@@ -600,6 +678,8 @@ class Reading extends DataClass implements Insertable<Reading> {
           ..write('measurementContexts: $measurementContexts, ')
           ..write('bodyPosition: $bodyPosition, ')
           ..write('cuffArm: $cuffArm, ')
+          ..write('source: $source, ')
+          ..write('sourceReportId: $sourceReportId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('remoteId: $remoteId, ')
@@ -620,6 +700,8 @@ class Reading extends DataClass implements Insertable<Reading> {
     measurementContexts,
     bodyPosition,
     cuffArm,
+    source,
+    sourceReportId,
     createdAt,
     updatedAt,
     remoteId,
@@ -639,6 +721,8 @@ class Reading extends DataClass implements Insertable<Reading> {
           other.measurementContexts == this.measurementContexts &&
           other.bodyPosition == this.bodyPosition &&
           other.cuffArm == this.cuffArm &&
+          other.source == this.source &&
+          other.sourceReportId == this.sourceReportId &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt &&
           other.remoteId == this.remoteId &&
@@ -656,6 +740,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
   final Value<String?> measurementContexts;
   final Value<String?> bodyPosition;
   final Value<String?> cuffArm;
+  final Value<String> source;
+  final Value<int?> sourceReportId;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   final Value<String?> remoteId;
@@ -671,6 +757,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     this.measurementContexts = const Value.absent(),
     this.bodyPosition = const Value.absent(),
     this.cuffArm = const Value.absent(),
+    this.source = const Value.absent(),
+    this.sourceReportId = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
     this.remoteId = const Value.absent(),
@@ -687,6 +775,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     this.measurementContexts = const Value.absent(),
     this.bodyPosition = const Value.absent(),
     this.cuffArm = const Value.absent(),
+    this.source = const Value.absent(),
+    this.sourceReportId = const Value.absent(),
     required DateTime createdAt,
     required DateTime updatedAt,
     this.remoteId = const Value.absent(),
@@ -707,6 +797,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     Expression<String>? measurementContexts,
     Expression<String>? bodyPosition,
     Expression<String>? cuffArm,
+    Expression<String>? source,
+    Expression<int>? sourceReportId,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
     Expression<String>? remoteId,
@@ -724,6 +816,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
         'measurement_contexts': measurementContexts,
       if (bodyPosition != null) 'body_position': bodyPosition,
       if (cuffArm != null) 'cuff_arm': cuffArm,
+      if (source != null) 'source': source,
+      if (sourceReportId != null) 'source_report_id': sourceReportId,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
       if (remoteId != null) 'remote_id': remoteId,
@@ -742,6 +836,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     Value<String?>? measurementContexts,
     Value<String?>? bodyPosition,
     Value<String?>? cuffArm,
+    Value<String>? source,
+    Value<int?>? sourceReportId,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
     Value<String?>? remoteId,
@@ -758,6 +854,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
       measurementContexts: measurementContexts ?? this.measurementContexts,
       bodyPosition: bodyPosition ?? this.bodyPosition,
       cuffArm: cuffArm ?? this.cuffArm,
+      source: source ?? this.source,
+      sourceReportId: sourceReportId ?? this.sourceReportId,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
       remoteId: remoteId ?? this.remoteId,
@@ -798,6 +896,12 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
     if (cuffArm.present) {
       map['cuff_arm'] = Variable<String>(cuffArm.value);
     }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (sourceReportId.present) {
+      map['source_report_id'] = Variable<int>(sourceReportId.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -826,6 +930,8 @@ class ReadingsCompanion extends UpdateCompanion<Reading> {
           ..write('measurementContexts: $measurementContexts, ')
           ..write('bodyPosition: $bodyPosition, ')
           ..write('cuffArm: $cuffArm, ')
+          ..write('source: $source, ')
+          ..write('sourceReportId: $sourceReportId, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt, ')
           ..write('remoteId: $remoteId, ')
@@ -1568,16 +1674,911 @@ class RemindersCompanion extends UpdateCompanion<ReminderRow> {
   }
 }
 
+class $SavedReportsTable extends SavedReports
+    with TableInfo<$SavedReportsTable, SavedReportRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SavedReportsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _documentTypeMeta = const VerificationMeta(
+    'documentType',
+  );
+  @override
+  late final GeneratedColumn<String> documentType = GeneratedColumn<String>(
+    'document_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _reportDateMeta = const VerificationMeta(
+    'reportDate',
+  );
+  @override
+  late final GeneratedColumn<DateTime> reportDate = GeneratedColumn<DateTime>(
+    'report_date',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _pageCountMeta = const VerificationMeta(
+    'pageCount',
+  );
+  @override
+  late final GeneratedColumn<int> pageCount = GeneratedColumn<int>(
+    'page_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _ocrStatusMeta = const VerificationMeta(
+    'ocrStatus',
+  );
+  @override
+  late final GeneratedColumn<String> ocrStatus = GeneratedColumn<String>(
+    'ocr_status',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _extractedReadingsJsonMeta =
+      const VerificationMeta('extractedReadingsJson');
+  @override
+  late final GeneratedColumn<String> extractedReadingsJson =
+      GeneratedColumn<String>(
+        'extracted_readings_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      );
+  static const VerificationMeta _confirmedReadingsJsonMeta =
+      const VerificationMeta('confirmedReadingsJson');
+  @override
+  late final GeneratedColumn<String> confirmedReadingsJson =
+      GeneratedColumn<String>(
+        'confirmed_readings_json',
+        aliasedName,
+        false,
+        type: DriftSqlType.string,
+        requiredDuringInsert: false,
+        defaultValue: const Constant('[]'),
+      );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _localPagePathsMeta = const VerificationMeta(
+    'localPagePaths',
+  );
+  @override
+  late final GeneratedColumn<String> localPagePaths = GeneratedColumn<String>(
+    'local_page_paths',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _storagePagePathsMeta = const VerificationMeta(
+    'storagePagePaths',
+  );
+  @override
+  late final GeneratedColumn<String> storagePagePaths = GeneratedColumn<String>(
+    'storage_page_paths',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _remoteIdMeta = const VerificationMeta(
+    'remoteId',
+  );
+  @override
+  late final GeneratedColumn<String> remoteId = GeneratedColumn<String>(
+    'remote_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    documentType,
+    reportDate,
+    pageCount,
+    ocrStatus,
+    extractedReadingsJson,
+    confirmedReadingsJson,
+    source,
+    localPagePaths,
+    storagePagePaths,
+    createdAt,
+    updatedAt,
+    remoteId,
+    deletedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'saved_reports';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SavedReportRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('document_type')) {
+      context.handle(
+        _documentTypeMeta,
+        documentType.isAcceptableOrUnknown(
+          data['document_type']!,
+          _documentTypeMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_documentTypeMeta);
+    }
+    if (data.containsKey('report_date')) {
+      context.handle(
+        _reportDateMeta,
+        reportDate.isAcceptableOrUnknown(data['report_date']!, _reportDateMeta),
+      );
+    }
+    if (data.containsKey('page_count')) {
+      context.handle(
+        _pageCountMeta,
+        pageCount.isAcceptableOrUnknown(data['page_count']!, _pageCountMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pageCountMeta);
+    }
+    if (data.containsKey('ocr_status')) {
+      context.handle(
+        _ocrStatusMeta,
+        ocrStatus.isAcceptableOrUnknown(data['ocr_status']!, _ocrStatusMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_ocrStatusMeta);
+    }
+    if (data.containsKey('extracted_readings_json')) {
+      context.handle(
+        _extractedReadingsJsonMeta,
+        extractedReadingsJson.isAcceptableOrUnknown(
+          data['extracted_readings_json']!,
+          _extractedReadingsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('confirmed_readings_json')) {
+      context.handle(
+        _confirmedReadingsJsonMeta,
+        confirmedReadingsJson.isAcceptableOrUnknown(
+          data['confirmed_readings_json']!,
+          _confirmedReadingsJsonMeta,
+        ),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('local_page_paths')) {
+      context.handle(
+        _localPagePathsMeta,
+        localPagePaths.isAcceptableOrUnknown(
+          data['local_page_paths']!,
+          _localPagePathsMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_localPagePathsMeta);
+    }
+    if (data.containsKey('storage_page_paths')) {
+      context.handle(
+        _storagePagePathsMeta,
+        storagePagePaths.isAcceptableOrUnknown(
+          data['storage_page_paths']!,
+          _storagePagePathsMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('remote_id')) {
+      context.handle(
+        _remoteIdMeta,
+        remoteId.isAcceptableOrUnknown(data['remote_id']!, _remoteIdMeta),
+      );
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SavedReportRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SavedReportRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      documentType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}document_type'],
+      )!,
+      reportDate: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}report_date'],
+      ),
+      pageCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}page_count'],
+      )!,
+      ocrStatus: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}ocr_status'],
+      )!,
+      extractedReadingsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}extracted_readings_json'],
+      )!,
+      confirmedReadingsJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}confirmed_readings_json'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      localPagePaths: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}local_page_paths'],
+      )!,
+      storagePagePaths: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}storage_page_paths'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      remoteId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}remote_id'],
+      ),
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+    );
+  }
+
+  @override
+  $SavedReportsTable createAlias(String alias) {
+    return $SavedReportsTable(attachedDatabase, alias);
+  }
+}
+
+class SavedReportRow extends DataClass implements Insertable<SavedReportRow> {
+  final int id;
+  final String title;
+
+  /// 'image' or 'pdf'.
+  final String documentType;
+  final DateTime? reportDate;
+  final int pageCount;
+
+  /// [OcrStatus] name.
+  final String ocrStatus;
+  final String extractedReadingsJson;
+  final String confirmedReadingsJson;
+
+  /// 'scan' or 'import'.
+  final String source;
+
+  /// Comma-separated local file paths for each page, in order.
+  final String localPagePaths;
+
+  /// Comma-separated Firebase Storage paths, once uploaded — `null` until
+  /// the first successful push, same pattern as [Readings.remoteId].
+  final String? storagePagePaths;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// The Firestore document id once this row's metadata has been synced.
+  final String? remoteId;
+
+  /// Soft-delete marker, same purpose as [Readings.deletedAt].
+  final DateTime? deletedAt;
+  const SavedReportRow({
+    required this.id,
+    required this.title,
+    required this.documentType,
+    this.reportDate,
+    required this.pageCount,
+    required this.ocrStatus,
+    required this.extractedReadingsJson,
+    required this.confirmedReadingsJson,
+    required this.source,
+    required this.localPagePaths,
+    this.storagePagePaths,
+    required this.createdAt,
+    required this.updatedAt,
+    this.remoteId,
+    this.deletedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['title'] = Variable<String>(title);
+    map['document_type'] = Variable<String>(documentType);
+    if (!nullToAbsent || reportDate != null) {
+      map['report_date'] = Variable<DateTime>(reportDate);
+    }
+    map['page_count'] = Variable<int>(pageCount);
+    map['ocr_status'] = Variable<String>(ocrStatus);
+    map['extracted_readings_json'] = Variable<String>(extractedReadingsJson);
+    map['confirmed_readings_json'] = Variable<String>(confirmedReadingsJson);
+    map['source'] = Variable<String>(source);
+    map['local_page_paths'] = Variable<String>(localPagePaths);
+    if (!nullToAbsent || storagePagePaths != null) {
+      map['storage_page_paths'] = Variable<String>(storagePagePaths);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || remoteId != null) {
+      map['remote_id'] = Variable<String>(remoteId);
+    }
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    return map;
+  }
+
+  SavedReportsCompanion toCompanion(bool nullToAbsent) {
+    return SavedReportsCompanion(
+      id: Value(id),
+      title: Value(title),
+      documentType: Value(documentType),
+      reportDate: reportDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(reportDate),
+      pageCount: Value(pageCount),
+      ocrStatus: Value(ocrStatus),
+      extractedReadingsJson: Value(extractedReadingsJson),
+      confirmedReadingsJson: Value(confirmedReadingsJson),
+      source: Value(source),
+      localPagePaths: Value(localPagePaths),
+      storagePagePaths: storagePagePaths == null && nullToAbsent
+          ? const Value.absent()
+          : Value(storagePagePaths),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      remoteId: remoteId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(remoteId),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+    );
+  }
+
+  factory SavedReportRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SavedReportRow(
+      id: serializer.fromJson<int>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      documentType: serializer.fromJson<String>(json['documentType']),
+      reportDate: serializer.fromJson<DateTime?>(json['reportDate']),
+      pageCount: serializer.fromJson<int>(json['pageCount']),
+      ocrStatus: serializer.fromJson<String>(json['ocrStatus']),
+      extractedReadingsJson: serializer.fromJson<String>(
+        json['extractedReadingsJson'],
+      ),
+      confirmedReadingsJson: serializer.fromJson<String>(
+        json['confirmedReadingsJson'],
+      ),
+      source: serializer.fromJson<String>(json['source']),
+      localPagePaths: serializer.fromJson<String>(json['localPagePaths']),
+      storagePagePaths: serializer.fromJson<String?>(json['storagePagePaths']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      remoteId: serializer.fromJson<String?>(json['remoteId']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'title': serializer.toJson<String>(title),
+      'documentType': serializer.toJson<String>(documentType),
+      'reportDate': serializer.toJson<DateTime?>(reportDate),
+      'pageCount': serializer.toJson<int>(pageCount),
+      'ocrStatus': serializer.toJson<String>(ocrStatus),
+      'extractedReadingsJson': serializer.toJson<String>(extractedReadingsJson),
+      'confirmedReadingsJson': serializer.toJson<String>(confirmedReadingsJson),
+      'source': serializer.toJson<String>(source),
+      'localPagePaths': serializer.toJson<String>(localPagePaths),
+      'storagePagePaths': serializer.toJson<String?>(storagePagePaths),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'remoteId': serializer.toJson<String?>(remoteId),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+    };
+  }
+
+  SavedReportRow copyWith({
+    int? id,
+    String? title,
+    String? documentType,
+    Value<DateTime?> reportDate = const Value.absent(),
+    int? pageCount,
+    String? ocrStatus,
+    String? extractedReadingsJson,
+    String? confirmedReadingsJson,
+    String? source,
+    String? localPagePaths,
+    Value<String?> storagePagePaths = const Value.absent(),
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<String?> remoteId = const Value.absent(),
+    Value<DateTime?> deletedAt = const Value.absent(),
+  }) => SavedReportRow(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    documentType: documentType ?? this.documentType,
+    reportDate: reportDate.present ? reportDate.value : this.reportDate,
+    pageCount: pageCount ?? this.pageCount,
+    ocrStatus: ocrStatus ?? this.ocrStatus,
+    extractedReadingsJson: extractedReadingsJson ?? this.extractedReadingsJson,
+    confirmedReadingsJson: confirmedReadingsJson ?? this.confirmedReadingsJson,
+    source: source ?? this.source,
+    localPagePaths: localPagePaths ?? this.localPagePaths,
+    storagePagePaths: storagePagePaths.present
+        ? storagePagePaths.value
+        : this.storagePagePaths,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    remoteId: remoteId.present ? remoteId.value : this.remoteId,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+  );
+  SavedReportRow copyWithCompanion(SavedReportsCompanion data) {
+    return SavedReportRow(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      documentType: data.documentType.present
+          ? data.documentType.value
+          : this.documentType,
+      reportDate: data.reportDate.present
+          ? data.reportDate.value
+          : this.reportDate,
+      pageCount: data.pageCount.present ? data.pageCount.value : this.pageCount,
+      ocrStatus: data.ocrStatus.present ? data.ocrStatus.value : this.ocrStatus,
+      extractedReadingsJson: data.extractedReadingsJson.present
+          ? data.extractedReadingsJson.value
+          : this.extractedReadingsJson,
+      confirmedReadingsJson: data.confirmedReadingsJson.present
+          ? data.confirmedReadingsJson.value
+          : this.confirmedReadingsJson,
+      source: data.source.present ? data.source.value : this.source,
+      localPagePaths: data.localPagePaths.present
+          ? data.localPagePaths.value
+          : this.localPagePaths,
+      storagePagePaths: data.storagePagePaths.present
+          ? data.storagePagePaths.value
+          : this.storagePagePaths,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      remoteId: data.remoteId.present ? data.remoteId.value : this.remoteId,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SavedReportRow(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('documentType: $documentType, ')
+          ..write('reportDate: $reportDate, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('ocrStatus: $ocrStatus, ')
+          ..write('extractedReadingsJson: $extractedReadingsJson, ')
+          ..write('confirmedReadingsJson: $confirmedReadingsJson, ')
+          ..write('source: $source, ')
+          ..write('localPagePaths: $localPagePaths, ')
+          ..write('storagePagePaths: $storagePagePaths, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('remoteId: $remoteId, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    title,
+    documentType,
+    reportDate,
+    pageCount,
+    ocrStatus,
+    extractedReadingsJson,
+    confirmedReadingsJson,
+    source,
+    localPagePaths,
+    storagePagePaths,
+    createdAt,
+    updatedAt,
+    remoteId,
+    deletedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SavedReportRow &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.documentType == this.documentType &&
+          other.reportDate == this.reportDate &&
+          other.pageCount == this.pageCount &&
+          other.ocrStatus == this.ocrStatus &&
+          other.extractedReadingsJson == this.extractedReadingsJson &&
+          other.confirmedReadingsJson == this.confirmedReadingsJson &&
+          other.source == this.source &&
+          other.localPagePaths == this.localPagePaths &&
+          other.storagePagePaths == this.storagePagePaths &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.remoteId == this.remoteId &&
+          other.deletedAt == this.deletedAt);
+}
+
+class SavedReportsCompanion extends UpdateCompanion<SavedReportRow> {
+  final Value<int> id;
+  final Value<String> title;
+  final Value<String> documentType;
+  final Value<DateTime?> reportDate;
+  final Value<int> pageCount;
+  final Value<String> ocrStatus;
+  final Value<String> extractedReadingsJson;
+  final Value<String> confirmedReadingsJson;
+  final Value<String> source;
+  final Value<String> localPagePaths;
+  final Value<String?> storagePagePaths;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<String?> remoteId;
+  final Value<DateTime?> deletedAt;
+  const SavedReportsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.documentType = const Value.absent(),
+    this.reportDate = const Value.absent(),
+    this.pageCount = const Value.absent(),
+    this.ocrStatus = const Value.absent(),
+    this.extractedReadingsJson = const Value.absent(),
+    this.confirmedReadingsJson = const Value.absent(),
+    this.source = const Value.absent(),
+    this.localPagePaths = const Value.absent(),
+    this.storagePagePaths = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.remoteId = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+  });
+  SavedReportsCompanion.insert({
+    this.id = const Value.absent(),
+    required String title,
+    required String documentType,
+    this.reportDate = const Value.absent(),
+    required int pageCount,
+    required String ocrStatus,
+    this.extractedReadingsJson = const Value.absent(),
+    this.confirmedReadingsJson = const Value.absent(),
+    required String source,
+    required String localPagePaths,
+    this.storagePagePaths = const Value.absent(),
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.remoteId = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+  }) : title = Value(title),
+       documentType = Value(documentType),
+       pageCount = Value(pageCount),
+       ocrStatus = Value(ocrStatus),
+       source = Value(source),
+       localPagePaths = Value(localPagePaths),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt);
+  static Insertable<SavedReportRow> custom({
+    Expression<int>? id,
+    Expression<String>? title,
+    Expression<String>? documentType,
+    Expression<DateTime>? reportDate,
+    Expression<int>? pageCount,
+    Expression<String>? ocrStatus,
+    Expression<String>? extractedReadingsJson,
+    Expression<String>? confirmedReadingsJson,
+    Expression<String>? source,
+    Expression<String>? localPagePaths,
+    Expression<String>? storagePagePaths,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<String>? remoteId,
+    Expression<DateTime>? deletedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (documentType != null) 'document_type': documentType,
+      if (reportDate != null) 'report_date': reportDate,
+      if (pageCount != null) 'page_count': pageCount,
+      if (ocrStatus != null) 'ocr_status': ocrStatus,
+      if (extractedReadingsJson != null)
+        'extracted_readings_json': extractedReadingsJson,
+      if (confirmedReadingsJson != null)
+        'confirmed_readings_json': confirmedReadingsJson,
+      if (source != null) 'source': source,
+      if (localPagePaths != null) 'local_page_paths': localPagePaths,
+      if (storagePagePaths != null) 'storage_page_paths': storagePagePaths,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (remoteId != null) 'remote_id': remoteId,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+    });
+  }
+
+  SavedReportsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? title,
+    Value<String>? documentType,
+    Value<DateTime?>? reportDate,
+    Value<int>? pageCount,
+    Value<String>? ocrStatus,
+    Value<String>? extractedReadingsJson,
+    Value<String>? confirmedReadingsJson,
+    Value<String>? source,
+    Value<String>? localPagePaths,
+    Value<String?>? storagePagePaths,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<String?>? remoteId,
+    Value<DateTime?>? deletedAt,
+  }) {
+    return SavedReportsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      documentType: documentType ?? this.documentType,
+      reportDate: reportDate ?? this.reportDate,
+      pageCount: pageCount ?? this.pageCount,
+      ocrStatus: ocrStatus ?? this.ocrStatus,
+      extractedReadingsJson:
+          extractedReadingsJson ?? this.extractedReadingsJson,
+      confirmedReadingsJson:
+          confirmedReadingsJson ?? this.confirmedReadingsJson,
+      source: source ?? this.source,
+      localPagePaths: localPagePaths ?? this.localPagePaths,
+      storagePagePaths: storagePagePaths ?? this.storagePagePaths,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      remoteId: remoteId ?? this.remoteId,
+      deletedAt: deletedAt ?? this.deletedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (documentType.present) {
+      map['document_type'] = Variable<String>(documentType.value);
+    }
+    if (reportDate.present) {
+      map['report_date'] = Variable<DateTime>(reportDate.value);
+    }
+    if (pageCount.present) {
+      map['page_count'] = Variable<int>(pageCount.value);
+    }
+    if (ocrStatus.present) {
+      map['ocr_status'] = Variable<String>(ocrStatus.value);
+    }
+    if (extractedReadingsJson.present) {
+      map['extracted_readings_json'] = Variable<String>(
+        extractedReadingsJson.value,
+      );
+    }
+    if (confirmedReadingsJson.present) {
+      map['confirmed_readings_json'] = Variable<String>(
+        confirmedReadingsJson.value,
+      );
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (localPagePaths.present) {
+      map['local_page_paths'] = Variable<String>(localPagePaths.value);
+    }
+    if (storagePagePaths.present) {
+      map['storage_page_paths'] = Variable<String>(storagePagePaths.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (remoteId.present) {
+      map['remote_id'] = Variable<String>(remoteId.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SavedReportsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('documentType: $documentType, ')
+          ..write('reportDate: $reportDate, ')
+          ..write('pageCount: $pageCount, ')
+          ..write('ocrStatus: $ocrStatus, ')
+          ..write('extractedReadingsJson: $extractedReadingsJson, ')
+          ..write('confirmedReadingsJson: $confirmedReadingsJson, ')
+          ..write('source: $source, ')
+          ..write('localPagePaths: $localPagePaths, ')
+          ..write('storagePagePaths: $storagePagePaths, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('remoteId: $remoteId, ')
+          ..write('deletedAt: $deletedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ReadingsTable readings = $ReadingsTable(this);
   late final $RemindersTable reminders = $RemindersTable(this);
+  late final $SavedReportsTable savedReports = $SavedReportsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [readings, reminders];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [
+    readings,
+    reminders,
+    savedReports,
+  ];
 }
 
 typedef $$ReadingsTableCreateCompanionBuilder = ReadingsCompanion Function({
@@ -1591,6 +2592,8 @@ typedef $$ReadingsTableCreateCompanionBuilder = ReadingsCompanion Function({
   Value<String?> measurementContexts,
   Value<String?> bodyPosition,
   Value<String?> cuffArm,
+  Value<String> source,
+  Value<int?> sourceReportId,
   required DateTime createdAt,
   required DateTime updatedAt,
   Value<String?> remoteId,
@@ -1607,6 +2610,8 @@ typedef $$ReadingsTableUpdateCompanionBuilder = ReadingsCompanion Function({
   Value<String?> measurementContexts,
   Value<String?> bodyPosition,
   Value<String?> cuffArm,
+  Value<String> source,
+  Value<int?> sourceReportId,
   Value<DateTime> createdAt,
   Value<DateTime> updatedAt,
   Value<String?> remoteId,
@@ -1669,6 +2674,16 @@ class $$ReadingsTableFilterComposer
 
   ColumnFilters<String> get cuffArm => $composableBuilder(
     column: $table.cuffArm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sourceReportId => $composableBuilder(
+    column: $table.sourceReportId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1752,6 +2767,16 @@ class $$ReadingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sourceReportId => $composableBuilder(
+    column: $table.sourceReportId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -1818,6 +2843,14 @@ class $$ReadingsTableAnnotationComposer
   GeneratedColumn<String> get cuffArm =>
       $composableBuilder(column: $table.cuffArm, builder: (column) => column);
 
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<int> get sourceReportId => $composableBuilder(
+    column: $table.sourceReportId,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -1869,6 +2902,8 @@ class $$ReadingsTableTableManager
                 Value<String?> measurementContexts = const Value.absent(),
                 Value<String?> bodyPosition = const Value.absent(),
                 Value<String?> cuffArm = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<int?> sourceReportId = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<String?> remoteId = const Value.absent(),
@@ -1884,6 +2919,8 @@ class $$ReadingsTableTableManager
                 measurementContexts: measurementContexts,
                 bodyPosition: bodyPosition,
                 cuffArm: cuffArm,
+                source: source,
+                sourceReportId: sourceReportId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 remoteId: remoteId,
@@ -1901,6 +2938,8 @@ class $$ReadingsTableTableManager
                 Value<String?> measurementContexts = const Value.absent(),
                 Value<String?> bodyPosition = const Value.absent(),
                 Value<String?> cuffArm = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<int?> sourceReportId = const Value.absent(),
                 required DateTime createdAt,
                 required DateTime updatedAt,
                 Value<String?> remoteId = const Value.absent(),
@@ -1916,6 +2955,8 @@ class $$ReadingsTableTableManager
                 measurementContexts: measurementContexts,
                 bodyPosition: bodyPosition,
                 cuffArm: cuffArm,
+                source: source,
+                sourceReportId: sourceReportId,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
                 remoteId: remoteId,
@@ -2274,6 +3315,402 @@ typedef $$RemindersTableProcessedTableManager =
       ReminderRow,
       PrefetchHooks Function()
     >;
+typedef $$SavedReportsTableCreateCompanionBuilder =
+    SavedReportsCompanion Function({
+      Value<int> id,
+      required String title,
+      required String documentType,
+      Value<DateTime?> reportDate,
+      required int pageCount,
+      required String ocrStatus,
+      Value<String> extractedReadingsJson,
+      Value<String> confirmedReadingsJson,
+      required String source,
+      required String localPagePaths,
+      Value<String?> storagePagePaths,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<String?> remoteId,
+      Value<DateTime?> deletedAt,
+    });
+typedef $$SavedReportsTableUpdateCompanionBuilder =
+    SavedReportsCompanion Function({
+      Value<int> id,
+      Value<String> title,
+      Value<String> documentType,
+      Value<DateTime?> reportDate,
+      Value<int> pageCount,
+      Value<String> ocrStatus,
+      Value<String> extractedReadingsJson,
+      Value<String> confirmedReadingsJson,
+      Value<String> source,
+      Value<String> localPagePaths,
+      Value<String?> storagePagePaths,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<String?> remoteId,
+      Value<DateTime?> deletedAt,
+    });
+
+class $$SavedReportsTableFilterComposer
+    extends Composer<_$AppDatabase, $SavedReportsTable> {
+  $$SavedReportsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get reportDate => $composableBuilder(
+    column: $table.reportDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get pageCount => $composableBuilder(
+    column: $table.pageCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ocrStatus => $composableBuilder(
+    column: $table.ocrStatus,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get extractedReadingsJson => $composableBuilder(
+    column: $table.extractedReadingsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get confirmedReadingsJson => $composableBuilder(
+    column: $table.confirmedReadingsJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get localPagePaths => $composableBuilder(
+    column: $table.localPagePaths,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get storagePagePaths => $composableBuilder(
+    column: $table.storagePagePaths,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SavedReportsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SavedReportsTable> {
+  $$SavedReportsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get reportDate => $composableBuilder(
+    column: $table.reportDate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get pageCount => $composableBuilder(
+    column: $table.pageCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get ocrStatus => $composableBuilder(
+    column: $table.ocrStatus,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get extractedReadingsJson => $composableBuilder(
+    column: $table.extractedReadingsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get confirmedReadingsJson => $composableBuilder(
+    column: $table.confirmedReadingsJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get localPagePaths => $composableBuilder(
+    column: $table.localPagePaths,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get storagePagePaths => $composableBuilder(
+    column: $table.storagePagePaths,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get remoteId => $composableBuilder(
+    column: $table.remoteId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SavedReportsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SavedReportsTable> {
+  $$SavedReportsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get documentType => $composableBuilder(
+    column: $table.documentType,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get reportDate => $composableBuilder(
+    column: $table.reportDate,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get pageCount =>
+      $composableBuilder(column: $table.pageCount, builder: (column) => column);
+
+  GeneratedColumn<String> get ocrStatus =>
+      $composableBuilder(column: $table.ocrStatus, builder: (column) => column);
+
+  GeneratedColumn<String> get extractedReadingsJson => $composableBuilder(
+    column: $table.extractedReadingsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get confirmedReadingsJson => $composableBuilder(
+    column: $table.confirmedReadingsJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<String> get localPagePaths => $composableBuilder(
+    column: $table.localPagePaths,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get storagePagePaths => $composableBuilder(
+    column: $table.storagePagePaths,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get remoteId =>
+      $composableBuilder(column: $table.remoteId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+}
+
+class $$SavedReportsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SavedReportsTable,
+          SavedReportRow,
+          $$SavedReportsTableFilterComposer,
+          $$SavedReportsTableOrderingComposer,
+          $$SavedReportsTableAnnotationComposer,
+          $$SavedReportsTableCreateCompanionBuilder,
+          $$SavedReportsTableUpdateCompanionBuilder,
+          (
+            SavedReportRow,
+            BaseReferences<_$AppDatabase, $SavedReportsTable, SavedReportRow>,
+          ),
+          SavedReportRow,
+          PrefetchHooks Function()
+        > {
+  $$SavedReportsTableTableManager(_$AppDatabase db, $SavedReportsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SavedReportsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SavedReportsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SavedReportsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> documentType = const Value.absent(),
+                Value<DateTime?> reportDate = const Value.absent(),
+                Value<int> pageCount = const Value.absent(),
+                Value<String> ocrStatus = const Value.absent(),
+                Value<String> extractedReadingsJson = const Value.absent(),
+                Value<String> confirmedReadingsJson = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<String> localPagePaths = const Value.absent(),
+                Value<String?> storagePagePaths = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<String?> remoteId = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+              }) => SavedReportsCompanion(
+                id: id,
+                title: title,
+                documentType: documentType,
+                reportDate: reportDate,
+                pageCount: pageCount,
+                ocrStatus: ocrStatus,
+                extractedReadingsJson: extractedReadingsJson,
+                confirmedReadingsJson: confirmedReadingsJson,
+                source: source,
+                localPagePaths: localPagePaths,
+                storagePagePaths: storagePagePaths,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                remoteId: remoteId,
+                deletedAt: deletedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String title,
+                required String documentType,
+                Value<DateTime?> reportDate = const Value.absent(),
+                required int pageCount,
+                required String ocrStatus,
+                Value<String> extractedReadingsJson = const Value.absent(),
+                Value<String> confirmedReadingsJson = const Value.absent(),
+                required String source,
+                required String localPagePaths,
+                Value<String?> storagePagePaths = const Value.absent(),
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<String?> remoteId = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+              }) => SavedReportsCompanion.insert(
+                id: id,
+                title: title,
+                documentType: documentType,
+                reportDate: reportDate,
+                pageCount: pageCount,
+                ocrStatus: ocrStatus,
+                extractedReadingsJson: extractedReadingsJson,
+                confirmedReadingsJson: confirmedReadingsJson,
+                source: source,
+                localPagePaths: localPagePaths,
+                storagePagePaths: storagePagePaths,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                remoteId: remoteId,
+                deletedAt: deletedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SavedReportsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SavedReportsTable,
+      SavedReportRow,
+      $$SavedReportsTableFilterComposer,
+      $$SavedReportsTableOrderingComposer,
+      $$SavedReportsTableAnnotationComposer,
+      $$SavedReportsTableCreateCompanionBuilder,
+      $$SavedReportsTableUpdateCompanionBuilder,
+      (
+        SavedReportRow,
+        BaseReferences<_$AppDatabase, $SavedReportsTable, SavedReportRow>,
+      ),
+      SavedReportRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2282,4 +3719,6 @@ class $AppDatabaseManager {
       $$ReadingsTableTableManager(_db, _db.readings);
   $$RemindersTableTableManager get reminders =>
       $$RemindersTableTableManager(_db, _db.reminders);
+  $$SavedReportsTableTableManager get savedReports =>
+      $$SavedReportsTableTableManager(_db, _db.savedReports);
 }

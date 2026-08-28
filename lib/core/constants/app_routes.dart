@@ -8,6 +8,7 @@ abstract final class AppRoutes {
   static const String signUp = '/sign-up';
   static const String forgotPassword = '/forgot-password';
   static const String onboarding = '/onboarding';
+  static const String onboardingProfile = '/onboarding-profile';
   static const String dashboard = '/dashboard';
   static const String history = '/history';
   static const String recordBp = '/record-bp';
@@ -18,7 +19,11 @@ abstract final class AppRoutes {
   static const String settings = '/settings';
   static const String education = '/education';
   static const String educationArticle = '/education/:id';
+  static const String reviewExtracted = '/review-extracted';
+  static const String savedReports = '/saved-reports';
+  static const String reportViewer = '/report/:id';
 
   static String readingDetailPath(int id) => '/reading/$id';
   static String educationArticlePath(String id) => '/education/$id';
+  static String reportViewerPath(int id) => '/report/$id';
 }

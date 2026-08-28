@@ -14,7 +14,7 @@ abstract final class AppTheme {
       seedColor: AppColors.seed,
       brightness: Brightness.light,
     );
-    return _themeFrom(colorScheme, AppAccentColors.light);
+    return _themeFrom(colorScheme, AppAccentColors.light, BPStatusColors.light);
   }
 
   static ThemeData dark() {
@@ -22,10 +22,14 @@ abstract final class AppTheme {
       seedColor: AppColors.seed,
       brightness: Brightness.dark,
     );
-    return _themeFrom(colorScheme, AppAccentColors.dark);
+    return _themeFrom(colorScheme, AppAccentColors.dark, BPStatusColors.dark);
   }
 
-  static ThemeData _themeFrom(ColorScheme colorScheme, AppAccentColors accents) {
+  static ThemeData _themeFrom(
+    ColorScheme colorScheme,
+    AppAccentColors accents,
+    BPStatusColors statusColors,
+  ) {
     final base = ThemeData(colorScheme: colorScheme, useMaterial3: true);
     return base.copyWith(
       textTheme: AppTypography.textTheme(base.textTheme),
@@ -56,7 +60,7 @@ abstract final class AppTheme {
         backgroundColor: AppColors.actionAccent,
         foregroundColor: Colors.white,
       ),
-      extensions: [accents],
+      extensions: [accents, statusColors],
     );
   }
 }

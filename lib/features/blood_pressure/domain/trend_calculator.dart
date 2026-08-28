@@ -45,6 +45,8 @@ final class TrendStats {
     required this.avgPulse,
     required this.readingCount,
     required this.previousPeriodReadingCount,
+    this.previousAvgSystolic,
+    this.previousAvgDiastolic,
   });
 
   final TrendPeriod period;
@@ -66,6 +68,12 @@ final class TrendStats {
   /// `null` for [TrendPeriod.all], which has no equivalent prior window.
   final int? previousPeriodReadingCount;
 
+  /// Average systolic/diastolic over that same equivalent prior window,
+  /// enabling a BP category-movement comparison (PROJECT_SPEC.md §27).
+  /// `null` for [TrendPeriod.all] or when the prior window has no readings.
+  final double? previousAvgSystolic;
+  final double? previousAvgDiastolic;
+
   bool get hasPulseData => avgPulse != null;
 }
 
@@ -85,13 +93,18 @@ abstract final class TrendCalculator {
       ..sort((a, b) => a.timestamp.compareTo(b.timestamp));
 
     int? previousPeriodCount;
+    double? previousAvgSystolic;
+    double? previousAvgDiastolic;
     if (period.days != null) {
       final previousStart = windowStart!.subtract(Duration(days: period.days!));
-      previousPeriodCount = allReadings
+      final previousWindow = allReadings
           .where(
             (r) => !r.timestamp.isBefore(previousStart) && r.timestamp.isBefore(windowStart),
           )
-          .length;
+          .toList();
+      previousPeriodCount = previousWindow.length;
+      previousAvgSystolic = _average(previousWindow.map((r) => r.systolic));
+      previousAvgDiastolic = _average(previousWindow.map((r) => r.diastolic));
     }
 
     return TrendStats(
@@ -102,6 +115,8 @@ abstract final class TrendCalculator {
       avgPulse: _average(inWindow.where((r) => r.pulse != null).map((r) => r.pulse!)),
       readingCount: inWindow.length,
       previousPeriodReadingCount: previousPeriodCount,
+      previousAvgSystolic: previousAvgSystolic,
+      previousAvgDiastolic: previousAvgDiastolic,
     );
   }
 

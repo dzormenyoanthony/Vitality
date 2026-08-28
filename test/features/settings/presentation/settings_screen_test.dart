@@ -135,6 +135,15 @@ void main() {
   });
 
   testWidgets('cancelling the delete-account dialog keeps the account', (tester) async {
+    // The Account section (with "Delete account") sits below the fold at
+    // the default test surface size once the Data section is included —
+    // a taller surface avoids needing to scroll a list that isn't fully
+    // built yet.
+    tester.view.physicalSize = const Size(400, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final scheduler = FakeNotificationScheduler();
@@ -162,8 +171,6 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    await tester.ensureVisible(find.text('Delete account'));
-    await tester.pump();
     await tester.tap(find.text('Delete account'));
     await tester.pumpAndSettle();
     expect(find.text('Delete your account?'), findsOneWidget);
@@ -177,6 +184,11 @@ void main() {
   });
 
   testWidgets('confirming the delete-account dialog deletes the account', (tester) async {
+    tester.view.physicalSize = const Size(400, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final scheduler = FakeNotificationScheduler();
@@ -204,14 +216,17 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    await tester.ensureVisible(find.text('Delete account'));
-    await tester.pump();
     await tester.tap(find.text('Delete account'));
     await tester.pumpAndSettle();
 
+    // Fixed-duration pumps instead of pumpAndSettle(): deleteAccount now
+    // also reads the live savedReportRepositoryProvider Drift stream, and
+    // pumpAndSettle() on a widget that keeps a Drift stream subscription
+    // open reproducibly times out in this environment — same reasoning as
+    // the `_settle` helper in test/core/router/app_router_flow_test.dart.
     await tester.tap(find.widgetWithText(TextButton, 'Delete'));
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 200));
+    await tester.pump(const Duration(milliseconds: 300));
 
     expect(authRepository.currentUser, isNull);
 

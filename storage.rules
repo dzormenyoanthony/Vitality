@@ -1,0 +1,23 @@
+rules_version = '2';
+
+// Vitaly — Firebase Storage security rules (PROJECT_SPEC.md "Scan BP
+// Report" §16, §21, §25).
+//
+// A user may only read/write the original page files under their own
+// reports path. Report metadata (title, OCR status, extracted/confirmed
+// readings) lives in Firestore instead — see firestore.rules — and
+// references these paths, but never contains the file bytes themselves.
+//
+// Deploy via the Firebase console (Storage → Rules) or
+// `firebase deploy --only storage`.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /users/{userId}/reports/{reportId}/{fileName} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

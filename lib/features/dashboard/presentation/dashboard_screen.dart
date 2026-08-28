@@ -12,14 +12,17 @@ import '../../../core/widgets/loading_indicator.dart';
 import '../../authentication/data/auth_providers.dart';
 import '../../blood_pressure/data/blood_pressure_providers.dart';
 import '../../blood_pressure/data/blood_pressure_reading.dart';
+import '../../blood_pressure/domain/bp_classification_service.dart';
 import '../../blood_pressure/domain/logging_streak.dart';
 import '../../blood_pressure/domain/trend_calculator.dart';
+import '../../blood_pressure/presentation/bp_status_badge.dart';
 import '../../blood_pressure/presentation/measurement_context_label.dart';
 import '../../onboarding/data/user_profile_providers.dart';
 import '../../reminders/data/reminder.dart';
 import '../../reminders/data/reminder_providers.dart';
 import '../../reminders/domain/next_reminder.dart';
 import '../../reminders/presentation/reminder_controller.dart';
+import '../../reports/presentation/scan_entry_sheet.dart';
 import '../domain/logging_insight.dart';
 
 /// Vitaly's home dashboard (PROJECT_SPEC.md §10): a greeting, the latest
@@ -40,15 +43,30 @@ class DashboardScreen extends ConsumerWidget {
     final reminders = ref.watch(remindersStreamProvider).value ?? [];
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        // Unique per screen: the bottom-nav shell keeps every tab (and any
-        // route pushed on top) mounted simultaneously, so default hero
-        // tags collide across FABs on different screens.
-        heroTag: 'dashboard-fab',
-        backgroundColor: AppColors.dashboardAccentCoral,
-        onPressed: () => context.push(AppRoutes.recordBp),
-        icon: const Icon(Icons.add),
-        label: const Text('Add reading'),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            // Unique per screen: the bottom-nav shell keeps every tab (and
+            // any route pushed on top) mounted simultaneously, so default
+            // hero tags collide across FABs on different screens.
+            heroTag: 'dashboard-scan-fab',
+            mini: true,
+            backgroundColor: AppColors.dashboardAccentTeal,
+            tooltip: 'Scan BP report',
+            onPressed: () => showScanEntrySheet(context, ref),
+            child: const Icon(Icons.document_scanner_outlined, color: Colors.white),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          FloatingActionButton.extended(
+            heroTag: 'dashboard-fab',
+            backgroundColor: AppColors.dashboardAccentCoral,
+            onPressed: () => context.push(AppRoutes.recordBp),
+            icon: const Icon(Icons.add),
+            label: const Text('Add reading'),
+          ),
+        ],
       ),
       body: SafeArea(
         child: readingsState.when(
@@ -428,6 +446,10 @@ class _LatestReadingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final classification = BPClassificationService.classify(
+      systolic: reading.systolic,
+      diastolic: reading.diastolic,
+    );
 
     return Material(
       color: AppColors.heroFill,
@@ -493,6 +515,11 @@ class _LatestReadingCard extends StatelessWidget {
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              BPStatusBadge(
+                classification: classification,
+                onExplain: () => showBpExplanationSheet(context, classification),
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(_subtitleFor(reading), style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white)),

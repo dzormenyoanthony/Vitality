@@ -16,6 +16,11 @@ enum BodyPosition { sitting, standing, lying }
 /// Optional arm the cuff was worn on.
 enum CuffArm { left, right }
 
+/// Where a reading came from (PROJECT_SPEC.md §12, §33). A reading entered
+/// through Scan BP Report keeps this distinction permanently, even after
+/// it's confirmed into BP History and classified like any other reading.
+enum ReadingSource { manual, importedReport }
+
 /// A single blood-pressure measurement (PROJECT_SPEC.md §5).
 ///
 /// `id` is a local auto-increment integer for now — Phase 3 is local-only
@@ -32,6 +37,8 @@ final class BloodPressureReading {
     this.measurementContexts = const [],
     this.bodyPosition,
     this.cuffArm,
+    this.source = ReadingSource.manual,
+    this.sourceReportId,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -56,6 +63,13 @@ final class BloodPressureReading {
   final List<MeasurementContext> measurementContexts;
   final BodyPosition? bodyPosition;
   final CuffArm? cuffArm;
+
+  /// Where this reading came from. Defaults to [ReadingSource.manual].
+  final ReadingSource source;
+
+  /// The [SavedReport.id] this reading was confirmed from, when
+  /// [source] is [ReadingSource.importedReport].
+  final int? sourceReportId;
   final DateTime createdAt;
   final DateTime updatedAt;
 }

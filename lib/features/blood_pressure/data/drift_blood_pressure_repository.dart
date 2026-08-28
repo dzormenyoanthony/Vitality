@@ -43,6 +43,8 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
           ? null
           : BodyPosition.values.byName(row.bodyPosition!),
       cuffArm: row.cuffArm == null ? null : CuffArm.values.byName(row.cuffArm!),
+      source: ReadingSource.values.byName(row.source),
+      sourceReportId: row.sourceReportId,
       createdAt: row.createdAt,
       updatedAt: row.updatedAt,
     );
@@ -75,6 +77,8 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
     List<MeasurementContext> measurementContexts = const [],
     BodyPosition? bodyPosition,
     CuffArm? cuffArm,
+    ReadingSource source = ReadingSource.manual,
+    int? sourceReportId,
   }) async {
     final now = DateTime.now();
     final id = await _db
@@ -89,6 +93,8 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
             measurementContexts: Value(_formatContexts(measurementContexts)),
             bodyPosition: Value(bodyPosition?.name),
             cuffArm: Value(cuffArm?.name),
+            source: Value(source.name),
+            sourceReportId: Value(sourceReportId),
             createdAt: now,
             updatedAt: now,
           ),
@@ -174,6 +180,8 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
         'measurementContexts': row.measurementContexts,
         'bodyPosition': row.bodyPosition,
         'cuffArm': row.cuffArm,
+        'source': row.source,
+        'sourceReportId': row.sourceReportId,
         'createdAt': Timestamp.fromDate(row.createdAt),
         'updatedAt': Timestamp.fromDate(row.updatedAt),
       }, SetOptions(merge: true));

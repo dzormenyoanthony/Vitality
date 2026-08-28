@@ -414,9 +414,15 @@ The MVP onboarding should collect only information necessary for the approved pr
 
 Initial onboarding should include:
 
-- account creation or sign-in
+- an introductory carousel explaining the app, shown before an account exists
 - preferred name or first name
+- account creation or sign-in
 - basic application preferences
+
+For a brand-new user, the introductory carousel and name collection happen
+*before* account creation: Onboarding → Authentication → Main application
+(see §30). A user who already has an account, or who has completed
+onboarding on this device before, is not shown the carousel again.
 
 Age, sex, height, weight, medical history, diagnosis information, and medication information must not be required merely to create an account unless a future approved feature specifically requires them.
 
@@ -643,9 +649,19 @@ Brand-specific colors and typography may be introduced later through an approved
 
 # 30. Navigation
 
-The expected high-level application flow is:
+The expected high-level application flow depends on the user's state:
 
-Authentication → Onboarding → Main application.
+- Brand-new user (no account, first time on this device): Onboarding
+  (introductory carousel + preferred name) → Authentication (account
+  creation) → Main application.
+- Existing user who is not currently signed in: Authentication (sign in)
+  → Main application. The onboarding carousel is not shown again.
+- Returning user who is already authenticated and has completed
+  onboarding: Main application directly.
+
+A device-local record of onboarding completion (independent of any one
+account) determines which of these applies, since the decision must be
+made before it's known whether the visitor has an account at all.
 
 The main application should provide access to:
 

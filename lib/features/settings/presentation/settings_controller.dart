@@ -6,6 +6,7 @@ import '../../authentication/data/auth_providers.dart';
 import '../../blood_pressure/data/blood_pressure_providers.dart';
 import '../../onboarding/data/user_profile_providers.dart';
 import '../../reminders/data/reminder_providers.dart';
+import '../../reports/data/report_providers.dart';
 
 /// Handles profile edits and account deletion. Mirrors the shape of
 /// [OnboardingController]/[ReminderController]: an [AsyncNotifier] that
@@ -39,6 +40,15 @@ class SettingsController extends AsyncNotifier<void> {
       }
       await reminderRepository.deleteAll();
       await ref.read(bloodPressureRepositoryProvider).deleteAll();
+
+      final reportRepository = ref.read(savedReportRepositoryProvider);
+      final reportStorage = ref.read(reportDocumentStorageProvider);
+      final reports = await reportRepository.getAll();
+      for (final report in reports) {
+        await reportStorage.deleteLocalPages(report.localPagePaths);
+      }
+      await reportRepository.deleteAll();
+
       await ref.read(userProfileRepositoryProvider).deleteProfile(uid);
       await ref.read(authRepositoryProvider).deleteAccount();
     });

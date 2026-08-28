@@ -116,6 +116,94 @@ abstract final class AppColors {
   static const Color readingBarFill = Color(0xFF9AD0C0);
 }
 
+/// Background/foreground/icon for each [BPCategory] status (PROJECT_SPEC.md
+/// §21): semantic, not decorative — unlike [AppAccentColors], these colors
+/// carry meaning and are always paired with the category's text label and
+/// an icon, never shown as color alone. Tuned separately per theme for
+/// sufficient contrast against each background.
+@immutable
+class BPStatusColors extends ThemeExtension<BPStatusColors> {
+  const BPStatusColors({
+    required this.normalBackground,
+    required this.normalForeground,
+    required this.elevatedBackground,
+    required this.elevatedForeground,
+    required this.higherBackground,
+    required this.higherForeground,
+    required this.highBackground,
+    required this.highForeground,
+  });
+
+  final Color normalBackground;
+  final Color normalForeground;
+  final Color elevatedBackground;
+  final Color elevatedForeground;
+  final Color higherBackground;
+  final Color higherForeground;
+  final Color highBackground;
+  final Color highForeground;
+
+  static const light = BPStatusColors(
+    normalBackground: Color(0xFFDCF2E3),
+    normalForeground: Color(0xFF1B6B3A),
+    elevatedBackground: Color(0xFFFBF0C7),
+    elevatedForeground: Color(0xFF8A6D00),
+    higherBackground: Color(0xFFFBDFC4),
+    higherForeground: Color(0xFF9A4B12),
+    highBackground: Color(0xFFF9D6D2),
+    highForeground: Color(0xFFB3261E),
+  );
+
+  static const dark = BPStatusColors(
+    normalBackground: Color(0xFF1E3F2A),
+    normalForeground: Color(0xFF8FD9AE),
+    elevatedBackground: Color(0xFF473B15),
+    elevatedForeground: Color(0xFFF0CB6B),
+    higherBackground: Color(0xFF47301A),
+    higherForeground: Color(0xFFF3B27D),
+    highBackground: Color(0xFF4A2422),
+    highForeground: Color(0xFFF5A399),
+  );
+
+  @override
+  BPStatusColors copyWith({
+    Color? normalBackground,
+    Color? normalForeground,
+    Color? elevatedBackground,
+    Color? elevatedForeground,
+    Color? higherBackground,
+    Color? higherForeground,
+    Color? highBackground,
+    Color? highForeground,
+  }) {
+    return BPStatusColors(
+      normalBackground: normalBackground ?? this.normalBackground,
+      normalForeground: normalForeground ?? this.normalForeground,
+      elevatedBackground: elevatedBackground ?? this.elevatedBackground,
+      elevatedForeground: elevatedForeground ?? this.elevatedForeground,
+      higherBackground: higherBackground ?? this.higherBackground,
+      higherForeground: higherForeground ?? this.higherForeground,
+      highBackground: highBackground ?? this.highBackground,
+      highForeground: highForeground ?? this.highForeground,
+    );
+  }
+
+  @override
+  BPStatusColors lerp(ThemeExtension<BPStatusColors>? other, double t) {
+    if (other is! BPStatusColors) return this;
+    return BPStatusColors(
+      normalBackground: Color.lerp(normalBackground, other.normalBackground, t)!,
+      normalForeground: Color.lerp(normalForeground, other.normalForeground, t)!,
+      elevatedBackground: Color.lerp(elevatedBackground, other.elevatedBackground, t)!,
+      elevatedForeground: Color.lerp(elevatedForeground, other.elevatedForeground, t)!,
+      higherBackground: Color.lerp(higherBackground, other.higherBackground, t)!,
+      higherForeground: Color.lerp(higherForeground, other.higherForeground, t)!,
+      highBackground: Color.lerp(highBackground, other.highBackground, t)!,
+      highForeground: Color.lerp(highForeground, other.highForeground, t)!,
+    );
+  }
+}
+
 /// Four decorative (background, foreground) accent pairs used for
 /// non-medical categorical badges — time-of-day tags, measurement-context
 /// tags, stat tiles. Colors here are purely for visual distinction; they

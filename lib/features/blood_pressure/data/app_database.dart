@@ -27,6 +27,15 @@ class Readings extends Table {
   TextColumn get measurementContexts => text().nullable()();
   TextColumn get bodyPosition => text().nullable()();
   TextColumn get cuffArm => text().nullable()();
+
+  /// [ReadingSource] name — 'manual' (default) or 'importedReport'
+  /// (PROJECT_SPEC.md §12, §33).
+  TextColumn get source =>
+      text().withDefault(const Constant('manual'))();
+
+  /// The originating [SavedReports.id], set only when [source] is
+  /// 'importedReport'.
+  IntColumn get sourceReportId => integer().nullable()();
   DateTimeColumn get createdAt => dateTime()();
   DateTimeColumn get updatedAt => dateTime()();
 
@@ -38,6 +47,47 @@ class Readings extends Table {
   /// layer can propagate the deletion to Firestore before the local row
   /// is actually removed. Rows with this set are filtered out of every
   /// read query.
+  DateTimeColumn get deletedAt => dateTime().nullable()();
+}
+
+/// Local Drift table backing saved BP reports (PROJECT_SPEC.md
+/// "Scan BP Report" §9). `extractedReadingsJson`/`confirmedReadingsJson`
+/// hold JSON-encoded `List<ExtractedReading>` — each entry is itself a
+/// small record, so JSON is a better fit here than the comma-separated
+/// approach used for simpler columns like [Readings.measurementContexts].
+@DataClassName('SavedReportRow')
+class SavedReports extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text()();
+
+  /// 'image' or 'pdf'.
+  TextColumn get documentType => text()();
+  DateTimeColumn get reportDate => dateTime().nullable()();
+  IntColumn get pageCount => integer()();
+
+  /// [OcrStatus] name.
+  TextColumn get ocrStatus => text()();
+  TextColumn get extractedReadingsJson =>
+      text().withDefault(const Constant('[]'))();
+  TextColumn get confirmedReadingsJson =>
+      text().withDefault(const Constant('[]'))();
+
+  /// 'scan' or 'import'.
+  TextColumn get source => text()();
+
+  /// Comma-separated local file paths for each page, in order.
+  TextColumn get localPagePaths => text()();
+
+  /// Comma-separated Firebase Storage paths, once uploaded — `null` until
+  /// the first successful push, same pattern as [Readings.remoteId].
+  TextColumn get storagePagePaths => text().nullable()();
+  DateTimeColumn get createdAt => dateTime()();
+  DateTimeColumn get updatedAt => dateTime()();
+
+  /// The Firestore document id once this row's metadata has been synced.
+  TextColumn get remoteId => text().nullable()();
+
+  /// Soft-delete marker, same purpose as [Readings.deletedAt].
   DateTimeColumn get deletedAt => dateTime().nullable()();
 }
 
@@ -79,12 +129,12 @@ class Reminders extends Table {
   DateTimeColumn get deletedAt => dateTime().nullable()();
 }
 
-@DriftDatabase(tables: [Readings, Reminders])
+@DriftDatabase(tables: [Readings, Reminders, SavedReports])
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -112,6 +162,11 @@ class AppDatabase extends _$AppDatabase {
               'UPDATE readings SET measurement_contexts = measurement_context '
               'WHERE measurement_context IS NOT NULL',
             );
+      }
+      if (from < 5) {
+        await m.addColumn(readings, readings.source);
+        await m.addColumn(readings, readings.sourceReportId);
+        await m.createTable(savedReports);
       }
     },
   );

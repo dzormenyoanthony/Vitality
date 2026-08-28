@@ -1,17 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
-import '../../../core/errors/failure.dart';
+import '../../../core/constants/app_routes.dart';
 import '../../../core/theme/app_colors.dart';
-import '../../authentication/data/auth_providers.dart';
 import 'onboarding_controller.dart';
 import 'onboarding_name_screen.dart';
 import 'onboarding_reminders_screen.dart';
 import 'onboarding_trends_screen.dart';
 import 'onboarding_welcome_screen.dart';
 
-/// Hosts the onboarding carousel (Onboarding 1 of 3 → 2 of 3 → 3 of 3 →
-/// preferred name) behind a single `/onboarding` route.
+/// Hosts the pre-auth onboarding carousel (Onboarding 1 of 3 → 2 of 3 → 3
+/// of 3 → preferred name) behind a single `/onboarding` route, shown to a
+/// brand-new user before they create an account. The collected name is
+/// held in [pendingProfileNameProvider] and attached to the profile once
+/// Create Account actually creates the uid — see [PendingProfileNameNotifier]
+/// and `SignUpController.signUp`.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -23,18 +27,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   int _step = 0;
 
   void _submitName(String name) {
-    final uid = ref.read(authStateChangesProvider).value?.uid;
-    if (uid == null) return;
-    ref.read(onboardingControllerProvider.notifier).completeOnboarding(
-      uid: uid,
-      displayName: name,
-    );
+    ref.read(pendingProfileNameProvider.notifier).set(name);
+    context.go(AppRoutes.signUp);
   }
 
   @override
   Widget build(BuildContext context) {
-    final onboardingState = ref.watch(onboardingControllerProvider);
-
     final Widget step;
     final Color background;
     switch (_step) {
@@ -50,8 +48,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       default:
         step = OnboardingNameScreen(
           onSubmit: _submitName,
-          isSubmitting: onboardingState.isLoading,
-          errorMessage: onboardingState.hasError ? friendlyMessage(onboardingState.error!) : null,
+          isSubmitting: false,
         );
         background = AppColors.onboardingPageBg;
     }

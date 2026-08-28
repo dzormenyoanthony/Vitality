@@ -204,4 +204,60 @@ void main() {
       expect(rows.single.remoteId, 'remote-1');
     });
   });
+
+  group('reports', () {
+    test('pulls a remote-only report into an empty local db', () async {
+      final now = DateTime(2026, 1, 1, 10);
+      await firestore.collection('users').doc(_uid).collection('reports').doc('remote-1').set({
+        'title': 'Scanned report',
+        'documentType': 'image',
+        'reportDate': null,
+        'pageCount': 1,
+        'ocrStatus': 'succeeded',
+        'extractedReadingsJson': '[]',
+        'confirmedReadingsJson': '[]',
+        'source': 'scan',
+        'storagePagePaths': 'users/test-uid/reports/1/page_0.jpg',
+        'createdAt': Timestamp.fromDate(now),
+        'updatedAt': Timestamp.fromDate(now),
+      });
+
+      await coordinator.syncAll(_uid);
+
+      final rows = await db.select(db.savedReports).get();
+      expect(rows, hasLength(1));
+      expect(rows.single.title, 'Scanned report');
+      expect(rows.single.remoteId, 'remote-1');
+      // No local copies of the page files exist yet on this device.
+      expect(rows.single.localPagePaths, isEmpty);
+    });
+
+    test('pushes a local-only report up to Firestore, without local file paths', () async {
+      final now = DateTime(2026, 1, 1, 10);
+      await db
+          .into(db.savedReports)
+          .insert(
+            SavedReportsCompanion.insert(
+              title: 'Local report',
+              documentType: 'image',
+              pageCount: 1,
+              ocrStatus: 'succeeded',
+              source: 'scan',
+              localPagePaths: '/tmp/page_0.jpg',
+              createdAt: now,
+              updatedAt: now,
+            ),
+          );
+
+      await coordinator.syncAll(_uid);
+
+      final snapshot = await firestore.collection('users').doc(_uid).collection('reports').get();
+      expect(snapshot.docs, hasLength(1));
+      expect(snapshot.docs.single.data()['title'], 'Local report');
+      expect(snapshot.docs.single.data().containsKey('localPagePaths'), isFalse);
+
+      final rows = await db.select(db.savedReports).get();
+      expect(rows.single.remoteId, snapshot.docs.single.id);
+    });
+  });
 }

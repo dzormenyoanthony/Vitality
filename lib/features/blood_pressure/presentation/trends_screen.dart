@@ -11,7 +11,10 @@ import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
+import '../domain/bp_classification_service.dart';
 import '../domain/trend_calculator.dart';
+import '../domain/trend_summary_lines.dart';
+import 'bp_status_badge.dart';
 import 'trend_pdf_export.dart';
 
 const _monthNames = [
@@ -180,6 +183,10 @@ class _TrendBody extends StatelessWidget {
         _ChartCard(stats: stats),
         const SizedBox(height: AppSpacing.md),
         _StatsGrid(stats: stats),
+        if (stats.avgSystolic != null && stats.avgDiastolic != null) ...[
+          const SizedBox(height: AppSpacing.md),
+          _AverageStatusCard(stats: stats),
+        ],
         const SizedBox(height: AppSpacing.md),
         const _DisclaimerCard(),
         const SizedBox(height: AppSpacing.md),
@@ -616,6 +623,53 @@ class _StatTile extends StatelessWidget {
             style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// The period average's status (PROJECT_SPEC.md §23, §27): always labeled
+/// as an average of N readings — never phrased as a new measurement — and
+/// includes a category-movement sentence versus the prior period when the
+/// category actually changed.
+class _AverageStatusCard extends StatelessWidget {
+  const _AverageStatusCard({required this.stats});
+
+  final TrendStats stats;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final classification = BPClassificationService.classify(
+      systolic: stats.avgSystolic!.round(),
+      diastolic: stats.avgDiastolic!.round(),
+    );
+    final movementLine = categoryMovementLine(stats);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            BPStatusBadge(
+              classification: classification,
+              onExplain: () => showBpExplanationSheet(context, classification),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'Average of ${stats.readingCount} recorded reading${stats.readingCount == 1 ? '' : 's'}',
+              style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+            if (movementLine != null) ...[
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                movementLine,
+                style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

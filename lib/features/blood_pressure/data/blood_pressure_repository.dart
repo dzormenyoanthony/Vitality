@@ -18,6 +18,8 @@ abstract interface class BloodPressureRepository {
     List<MeasurementContext> measurementContexts = const [],
     BodyPosition? bodyPosition,
     CuffArm? cuffArm,
+    ReadingSource source = ReadingSource.manual,
+    int? sourceReportId,
   });
 
   Future<void> updateReading({

@@ -33,8 +33,9 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    // Unauthenticated by default, so the router redirects to sign-in.
-    expect(find.text('Welcome back'), findsOneWidget);
+    // Unauthenticated and never onboarded on this device by default, so
+    // the router redirects to the intro carousel, not sign-in.
+    expect(find.text('Two numbers, five seconds.'), findsOneWidget);
     expect(find.byType(MaterialApp), findsOneWidget);
   });
 }

@@ -59,6 +59,23 @@ void main() {
     expect(readings.single.pulse, 70);
     expect(readings.single.notes, 'Felt fine');
     expect(readings.single.measurementContexts, [MeasurementContext.morning]);
+    expect(readings.single.source, ReadingSource.manual);
+    expect(readings.single.sourceReportId, isNull);
+  });
+
+  test('addReading records an imported-report source and its origin report id', () async {
+    final id = await repository.addReading(
+      systolic: 136,
+      diastolic: 84,
+      timestamp: DateTime(2026, 1, 1),
+      source: ReadingSource.importedReport,
+      sourceReportId: 7,
+    );
+
+    final reading = await repository.watchById(id).first;
+
+    expect(reading!.source, ReadingSource.importedReport);
+    expect(reading.sourceReportId, 7);
   });
 
   test('watchAll orders readings newest first', () async {

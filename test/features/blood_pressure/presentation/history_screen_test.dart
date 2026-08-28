@@ -53,6 +53,9 @@ void main() {
 
     expect(find.text('120/80'), findsOneWidget);
     expect(find.text('70 bpm'), findsOneWidget);
+    // Systolic 120 -> elevated; diastolic 80 -> higher; overall: higher
+    // (PROJECT_SPEC.md §20 — the higher applicable category wins).
+    expect(find.text('Higher than the usual range'), findsOneWidget);
 
     await db.close();
   });

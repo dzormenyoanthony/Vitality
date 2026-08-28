@@ -48,10 +48,40 @@ void main() {
     expect(find.text('68 bpm'), findsOneWidget);
     expect(find.text('Morning'), findsOneWidget);
     expect(find.text('Before breakfast'), findsOneWidget);
+    expect(find.text('Manually'), findsOneWidget);
+    // Systolic 128 -> elevated; diastolic 82 -> higher; overall: higher.
+    expect(find.text('Higher than the usual range'), findsOneWidget);
 
     // Closing the database directly lets Drift's stream cleanup complete
     // as part of this awaited call, rather than firing a zero-duration
     // Timer that flutter_test's teardown never gets a chance to flush.
+    await db.close();
+  });
+
+  testWidgets('shows "Imported Report" for a reading confirmed from a scanned report', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final repository = DriftBloodPressureRepository(db);
+    final id = await repository.addReading(
+      systolic: 136,
+      diastolic: 84,
+      timestamp: DateTime(2026, 1, 5, 7, 15),
+      source: ReadingSource.importedReport,
+      sourceReportId: 1,
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: MaterialApp(home: ReadingDetailScreen(readingId: id)),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Imported Report'), findsOneWidget);
+    expect(find.text('Manually'), findsNothing);
+
     await db.close();
   });
 }

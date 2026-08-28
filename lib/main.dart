@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -20,6 +21,7 @@ import 'core/theme/theme_mode_provider.dart';
 import 'core/utils/logger.dart';
 import 'core/widgets/error_view.dart';
 import 'features/authentication/data/keep_signed_in_provider.dart';
+import 'features/onboarding/data/onboarding_intro_provider.dart';
 import 'features/blood_pressure/data/app_database.dart';
 import 'features/blood_pressure/data/blood_pressure_providers.dart';
 import 'features/blood_pressure/data/drift_blood_pressure_repository.dart';
@@ -27,6 +29,9 @@ import 'features/reminders/data/drift_reminder_repository.dart';
 import 'features/reminders/data/flutter_local_notifications_scheduler.dart';
 import 'features/reminders/data/reminder_deep_link_provider.dart';
 import 'features/reminders/data/reminder_providers.dart';
+import 'features/reports/data/drift_saved_report_repository.dart';
+import 'features/reports/data/report_document_storage.dart';
+import 'features/reports/data/report_providers.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -88,6 +93,19 @@ Future<void> main() async {
             DriftReminderRepository(
               db,
               firestore: FirebaseFirestore.instance,
+              currentUid: currentUid,
+            ),
+          ),
+          savedReportRepositoryProvider.overrideWithValue(
+            DriftSavedReportRepository(
+              db,
+              firestore: FirebaseFirestore.instance,
+              currentUid: currentUid,
+            ),
+          ),
+          reportDocumentStorageProvider.overrideWithValue(
+            ReportDocumentStorage(
+              storage: FirebaseStorage.instance,
               currentUid: currentUid,
             ),
           ),
@@ -173,9 +191,14 @@ class _VitalyAppState extends ConsumerState<VitalyApp>
   void _handleAuthGateChange(AuthGateState? previous, AuthGateState next) {
     if (next is AuthGateReady) {
       ref.read(syncCoordinatorProvider).syncAll(next.uid);
+      // Once fully onboarded, this device should never show the intro
+      // carousel again — a later sign-out must land on Sign In, not
+      // Onboarding (PROJECT_SPEC.md §30).
+      ref.read(onboardingIntroSeenProvider.notifier).markSeen();
     } else if (next is AuthGateUnauthenticated) {
       ref.read(bloodPressureRepositoryProvider).deleteAll();
       ref.read(reminderRepositoryProvider).deleteAll();
+      ref.read(savedReportRepositoryProvider).deleteAll();
     }
   }
 

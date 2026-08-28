@@ -11,7 +11,9 @@ import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
+import '../domain/bp_classification_service.dart';
 import '../domain/history_filter.dart';
+import 'bp_status_badge.dart';
 import 'measurement_context_label.dart';
 
 const _weekdayShortNames = [
@@ -460,6 +462,14 @@ class _ReadingListTile extends ConsumerWidget {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 2),
+                        BPStatusBadge(
+                          classification: BPClassificationService.classify(
+                            systolic: reading.systolic,
+                            diastolic: reading.diastolic,
+                          ),
+                          dense: true,
+                        ),
                         if (subtitle != null) ...[
                           const SizedBox(height: 2),
                           Text(
@@ -502,6 +512,7 @@ String? _subtitleFor(BloodPressureReading reading) {
   final parts = <String>[
     if (reading.pulse != null) '${reading.pulse} bpm',
     if (tags.isNotEmpty) tags.join(', ') else if (hasNote) 'Note added',
+    if (reading.source == ReadingSource.importedReport) 'Imported Report',
   ];
   if (parts.isEmpty) return null;
   return parts.join(' · ');

@@ -12,6 +12,8 @@ import 'package:vitality/features/onboarding/data/fake_user_profile_repository.d
 import 'package:vitality/features/onboarding/data/user_profile_providers.dart';
 import 'package:vitality/features/reminders/data/fake_notification_scheduler.dart';
 import 'package:vitality/features/reminders/data/reminder_providers.dart';
+import 'package:vitality/features/reports/data/report_providers.dart';
+import 'package:vitality/features/reports/domain/saved_report.dart';
 import 'package:vitality/features/settings/presentation/settings_controller.dart';
 
 /// See test/features/reminders/presentation/reminder_controller_test.dart
@@ -94,6 +96,16 @@ void main() {
       await container
           .read(bloodPressureRepositoryProvider)
           .addReading(systolic: 120, diastolic: 80, timestamp: DateTime.now());
+      final reportId = await container
+          .read(savedReportRepositoryProvider)
+          .add(
+            title: 'Scanned report',
+            documentType: ReportDocumentType.image,
+            pageCount: 1,
+            ocrStatus: OcrStatus.notProcessed,
+            source: ReportSource.scan,
+            localPagePaths: const [],
+          );
       final reminderId = (await _waitFor(
         container,
         () => container.read(remindersStreamProvider).value ?? const [],
@@ -114,6 +126,7 @@ void main() {
         (value) => value.isEmpty,
       );
       expect(scheduler.scheduledReminderIds, isEmpty);
+      expect(await container.read(savedReportRepositoryProvider).watchById(reportId).first, isNull);
       expect(await profileRepository.watchProfile(uid).first, isNull);
       expect(authRepository.currentUser, isNull);
     },

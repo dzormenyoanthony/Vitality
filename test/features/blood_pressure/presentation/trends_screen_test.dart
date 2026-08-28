@@ -30,6 +30,14 @@ void main() {
   testWidgets('shows non-diagnostic average and count copy for the default 7-day period', (
     tester,
   ) async {
+    // The average-status card sits below the stat grid; without a taller
+    // viewport the (lazy) ListView never builds it at the default 600px
+    // test-surface height — same reasoning as the export-button test below.
+    tester.view.physicalSize = const Size(400, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final repository = DriftBloodPressureRepository(db);
@@ -51,6 +59,10 @@ void main() {
 
     expect(find.textContaining('125 / 85'), findsOneWidget);
     expect(find.textContaining('on 2 of 7 days'), findsOneWidget);
+    // Average systolic 125 -> elevated; average diastolic 85 -> higher;
+    // overall: higher (PROJECT_SPEC.md §20, §23).
+    expect(find.text('Higher than the usual range'), findsOneWidget);
+    expect(find.textContaining('Average of 2 recorded readings'), findsOneWidget);
 
     await db.close();
   });

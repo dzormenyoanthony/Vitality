@@ -47,6 +47,7 @@ class SyncCoordinator {
   Future<void> syncAll(String uid) async {
     await _syncReadings(uid);
     await _syncReminders(uid);
+    await _syncReports(uid);
   }
 
   Future<void> _syncReadings(String uid) async {
@@ -72,6 +73,8 @@ class SyncCoordinator {
                     'measurementContexts': row.measurementContexts,
                     'bodyPosition': row.bodyPosition,
                     'cuffArm': row.cuffArm,
+                    'source': row.source,
+                    'sourceReportId': row.sourceReportId,
                     'createdAt': Timestamp.fromDate(row.createdAt),
                   },
                 ),
@@ -90,6 +93,8 @@ class SyncCoordinator {
                 measurementContexts: Value(data['measurementContexts'] as String?),
                 bodyPosition: Value(data['bodyPosition'] as String?),
                 cuffArm: Value(data['cuffArm'] as String?),
+                source: Value(data['source'] as String? ?? 'manual'),
+                sourceReportId: Value(data['sourceReportId'] as int?),
                 createdAt: (data['createdAt'] as Timestamp).toDate(),
                 updatedAt: (data['updatedAt'] as Timestamp).toDate(),
                 remoteId: Value(remoteId),
@@ -105,6 +110,8 @@ class SyncCoordinator {
             measurementContexts: Value(data['measurementContexts'] as String?),
             bodyPosition: Value(data['bodyPosition'] as String?),
             cuffArm: Value(data['cuffArm'] as String?),
+            source: Value(data['source'] as String? ?? 'manual'),
+            sourceReportId: Value(data['sourceReportId'] as int?),
             updatedAt: Value((data['updatedAt'] as Timestamp).toDate()),
           ),
         ),
@@ -181,6 +188,87 @@ class SyncCoordinator {
       );
     } catch (error, stackTrace) {
       AppLogger.error('Failed to sync reminders', error: error, stackTrace: stackTrace);
+    }
+  }
+
+  /// Reconciles saved-report *metadata* only (title, OCR status, extracted/
+  /// confirmed readings, page count, storage references) — the original
+  /// page files themselves live in Firebase Storage
+  /// (`report_document_storage.dart`) and are referenced by
+  /// `storagePagePaths`, not duplicated into Firestore.
+  Future<void> _syncReports(String uid) async {
+    try {
+      final collection = _firestore.collection('users').doc(uid).collection('reports');
+      await _reconcileCollection(
+        collection: collection,
+        fetchLocal: () async {
+          final rows = await _db.select(_db.savedReports).get();
+          return rows
+              .map(
+                (row) => _SyncRow(
+                  id: row.id,
+                  remoteId: row.remoteId,
+                  deletedAt: row.deletedAt,
+                  updatedAt: row.updatedAt,
+                  fields: {
+                    'title': row.title,
+                    'documentType': row.documentType,
+                    'reportDate': row.reportDate == null ? null : Timestamp.fromDate(row.reportDate!),
+                    'pageCount': row.pageCount,
+                    'ocrStatus': row.ocrStatus,
+                    'extractedReadingsJson': row.extractedReadingsJson,
+                    'confirmedReadingsJson': row.confirmedReadingsJson,
+                    'source': row.source,
+                    'storagePagePaths': row.storagePagePaths,
+                    'createdAt': Timestamp.fromDate(row.createdAt),
+                  },
+                ),
+              )
+              .toList();
+        },
+        insertLocal: (data, remoteId) => _db
+            .into(_db.savedReports)
+            .insert(
+              SavedReportsCompanion.insert(
+                title: data['title'] as String,
+                documentType: data['documentType'] as String,
+                reportDate: Value((data['reportDate'] as Timestamp?)?.toDate()),
+                pageCount: data['pageCount'] as int,
+                ocrStatus: data['ocrStatus'] as String,
+                extractedReadingsJson: Value(data['extractedReadingsJson'] as String? ?? '[]'),
+                confirmedReadingsJson: Value(data['confirmedReadingsJson'] as String? ?? '[]'),
+                source: data['source'] as String,
+                // No local copies of the page files exist yet on this
+                // device — the report viewer falls back to Storage/an
+                // "unavailable offline" state until they're downloaded.
+                localPagePaths: '',
+                storagePagePaths: Value(data['storagePagePaths'] as String?),
+                createdAt: (data['createdAt'] as Timestamp).toDate(),
+                updatedAt: (data['updatedAt'] as Timestamp).toDate(),
+                remoteId: Value(remoteId),
+              ),
+            ),
+        updateLocal: (id, data) => (_db.update(_db.savedReports)..where((r) => r.id.equals(id))).write(
+          SavedReportsCompanion(
+            title: Value(data['title'] as String),
+            documentType: Value(data['documentType'] as String),
+            reportDate: Value((data['reportDate'] as Timestamp?)?.toDate()),
+            pageCount: Value(data['pageCount'] as int),
+            ocrStatus: Value(data['ocrStatus'] as String),
+            extractedReadingsJson: Value(data['extractedReadingsJson'] as String? ?? '[]'),
+            confirmedReadingsJson: Value(data['confirmedReadingsJson'] as String? ?? '[]'),
+            source: Value(data['source'] as String),
+            storagePagePaths: Value(data['storagePagePaths'] as String?),
+            updatedAt: Value((data['updatedAt'] as Timestamp).toDate()),
+          ),
+        ),
+        setLocalRemoteId: (id, remoteId) => (_db.update(_db.savedReports)..where((r) => r.id.equals(id))).write(
+          SavedReportsCompanion(remoteId: Value(remoteId)),
+        ),
+        hardDeleteLocal: (id) => (_db.delete(_db.savedReports)..where((r) => r.id.equals(id))).go(),
+      );
+    } catch (error, stackTrace) {
+      AppLogger.error('Failed to sync reports', error: error, stackTrace: stackTrace);
     }
   }
 

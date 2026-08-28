@@ -10,7 +10,9 @@ import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
+import '../domain/bp_classification_service.dart';
 import '../domain/same_time_comparison.dart';
+import 'bp_status_badge.dart';
 import 'measurement_context_label.dart';
 
 const _weekdayNames = [
@@ -121,6 +123,10 @@ class _ReadingDetailBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final comparison = sameTimeOfDayReadings(allReadings, reading);
+    final classification = BPClassificationService.classify(
+      systolic: reading.systolic,
+      diastolic: reading.diastolic,
+    );
 
     return ListView(
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -131,6 +137,11 @@ class _ReadingDetailBody extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.sm),
         _BigReading(reading: reading),
+        const SizedBox(height: AppSpacing.sm),
+        BPStatusBadge(
+          classification: classification,
+          onExplain: () => showBpExplanationSheet(context, classification),
+        ),
         const SizedBox(height: AppSpacing.lg),
         const Divider(height: 1),
         if (reading.pulse != null) ...[
@@ -152,10 +163,10 @@ class _ReadingDetailBody extends StatelessWidget {
           ),
           const Divider(height: 1),
         ],
-        // Every reading today is manually entered — the scan/import path
-        // (PROJECT_SPEC.md's BP Report Scanning section) isn't built yet,
-        // so this is accurate rather than a placeholder for that feature.
-        const _DetailRow(label: 'Entered', value: 'Manually'),
+        _DetailRow(
+          label: 'Entered',
+          value: reading.source == ReadingSource.importedReport ? 'Imported Report' : 'Manually',
+        ),
         const Divider(height: 1),
         if (reading.notes != null && reading.notes!.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),

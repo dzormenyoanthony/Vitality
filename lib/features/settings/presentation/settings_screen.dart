@@ -40,6 +40,10 @@ class SettingsScreen extends ConsumerWidget {
                 const SizedBox(height: AppSpacing.sm),
                 const _PreferencesCard(),
                 const SizedBox(height: AppSpacing.lg),
+                Text('Data', style: Theme.of(context).textTheme.titleMedium),
+                const SizedBox(height: AppSpacing.sm),
+                const _DataCard(),
+                const SizedBox(height: AppSpacing.lg),
                 Text('Account', style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: AppSpacing.sm),
                 _AccountCard(uid: uid),
@@ -179,6 +183,23 @@ class _PreferencesCard extends ConsumerWidget {
             onTap: () => context.push(AppRoutes.reminders),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _DataCard extends StatelessWidget {
+  const _DataCard();
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.description_outlined),
+        title: const Text('Saved reports'),
+        subtitle: const Text('Scanned or imported BP reports'),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => context.push(AppRoutes.savedReports),
       ),
     );
   }

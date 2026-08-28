@@ -81,6 +81,7 @@ void main() {
     expect(find.text('LATEST READING'), findsOneWidget);
     expect(find.text('118'), findsOneWidget);
     expect(find.text('76'), findsOneWidget);
+    expect(find.text('Looks good'), findsOneWidget);
     expect(find.textContaining('LAST 7 DAYS'), findsOneWidget);
     expect(find.text('7-DAY AVERAGE'), findsOneWidget);
     expect(find.text('30-DAY AVERAGE'), findsOneWidget);

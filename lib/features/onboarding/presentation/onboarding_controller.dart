@@ -28,3 +28,22 @@ class OnboardingController extends AsyncNotifier<void> {
 final onboardingControllerProvider = AsyncNotifierProvider<OnboardingController, void>(
   OnboardingController.new,
 );
+
+/// Holds the preferred name collected by the pre-auth onboarding carousel
+/// until account creation exists to attach it to. In-memory only (no
+/// SharedPreferences): if the app is killed mid-flow, the user simply
+/// starts the carousel again on next launch, which is an acceptable
+/// restart of an incomplete signup rather than data that needs to survive.
+class PendingProfileNameNotifier extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void set(String name) => state = name;
+
+  void clear() => state = null;
+}
+
+final pendingProfileNameProvider =
+    NotifierProvider<PendingProfileNameNotifier, String?>(
+      PendingProfileNameNotifier.new,
+    );
