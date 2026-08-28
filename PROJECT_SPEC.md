@@ -609,20 +609,48 @@ Exact pricing and subscription plans will be determined separately.
 
 # 28. Reports and Data Export
 
-A future approved feature may allow users to generate reports from their recorded data.
+Vitaly implements two distinct exports; do not conflate them:
 
-Potential report contents include:
+**Trends PDF summary** (Section 11) — a non-diagnostic PDF of a selected
+Trends period (summary sentences plus the individual readings in that
+period), shared via the system share sheet. This was already approved and
+implemented before the full data export below.
 
-- selected date range
-- recorded readings
-- simple averages
-- simple trends
-- measurement frequency
-- user-entered notes
+**Full data export** — approved scope, implemented as a single ZIP package
+so scanned/saved report files (images/PDFs, which a CSV cannot contain) can
+travel alongside the reading data:
 
-Reports should clearly indicate that the information is based on user-recorded measurements and is not a medical diagnosis.
+```text
+vitaly_data_export_YYYY-MM-DD.zip
+│
+├── vitaly_bp_readings_YYYY-MM-DD.csv
+│
+└── scanned_reports/
+    ├── report_<id>.<ext>              (single-page report)
+    └── report_<id>_page_<n>.<ext>     (multi-page report)
+```
 
-PDF or CSV export must not be implemented until the export format, privacy handling, and technical requirements are approved.
+The CSV contains exactly: Date, Time, Systolic (mmHg), Diastolic (mmHg),
+Pulse (bpm) if available, Notes if available, Measurement Context if
+available, Reading Source ("Manual Entry" or "Imported Report"), and
+Related Report ID (the `scanned_reports/report_<id>...` this reading came
+from, when applicable — ties a CSV row back to its original document).
+
+`scanned_reports/` contains every saved report file belonging to the
+signed-in user, read from local storage only — never another user's files,
+and never anything from Firebase Storage. Each file's original extension is
+preserved as stored on-device. A report file that can't be read (missing,
+not yet synced to this device) is left out of the ZIP and the user is told
+which one before the export completes — never silently dropped.
+
+Export flow: user selects "Export data" in Settings → Vitaly collects
+approved BP readings → generates the CSV → retrieves the user's saved
+report files → packages both into one ZIP
+(`vitaly_data_export_YYYY-MM-DD.zip`) → opens the native system Share/Save
+flow.
+
+This is a copy of the user's own data for their own use (e.g. sharing with
+a clinician) — it must not be presented as, or contain, a diagnosis.
 
 ---
 
@@ -1761,30 +1789,39 @@ A phased rollout (e.g. internal testing, closed beta, public release) is expecte
 
 # 39. Roadmap and Future Phases
 
-Features explicitly deferred beyond the MVP, pending future approval, include:
+Features still deferred, pending future approval, include:
 
 - medication tracking (Section 18)
-- PDF/CSV reports and data export (Section 28)
 - caregiver or family features (Section 27)
 - advanced trend analysis and extended historical analytics (Section 27)
-- concerning-reading classification against an approved medical standard (Section 14)
 
-None of these should be implemented ahead of the MVP without explicit approval of their respective scope, sources, and safety review, consistent with the caution expressed throughout Sections 13–16.
+Two items originally listed here have since been approved and implemented,
+and are no longer deferred:
+
+- concerning-reading classification against an approved (versioned)
+  reference-range standard (Section 14; see the BP Reading Status & Range
+  Classification feature spec below)
+- PDF and full ZIP data export (Section 28)
+
+None of the still-deferred items should be implemented ahead of explicit approval of their respective scope, sources, and safety review, consistent with the caution expressed throughout Sections 13–16.
 
 ---
 
 # 40. Open Questions and Risks
 
-The following remain open and must be resolved before the relevant implementation work begins:
+**Resolved:**
 
-- **Authentication provider** — not yet selected (Section 20)
-- **Backend provider and database architecture** — not yet selected (Section 21)
-- **Local storage technology** — not yet selected (Section 22)
-- **State management package** — not yet selected (Section 32)
-- **Accepted input validation ranges** — not yet approved (Section 7)
-- **Concerning-reading classification standard, if pursued** — not yet approved, and may remain out of scope for MVP (Section 14)
-- **Authoritative sources for educational content** — not yet identified (Sections 15–16)
-- **Export format and privacy handling for reports** — not yet approved (Section 28)
-- **Legal/privacy requirements per launch market** — not yet reviewed (Section 25)
+- **Authentication provider** — Firebase Authentication (email/password and Google Sign-In), implemented and verified live (Section 20).
+- **Backend provider and database architecture** — Firebase: Cloud Firestore (sync) and Firebase Storage (scanned report files) (Section 21).
+- **Local storage technology** — Drift (SQLite), local-first with Firestore sync; schema currently at v5 (Section 22).
+- **State management package** — Riverpod, used consistently throughout (Section 32).
+- **Accepted input validation ranges** — implemented in `ReadingValidator`: systolic 60–260 mmHg, diastolic 30–150 mmHg, pulse 30–220 bpm, worded as application-accepted ranges rather than diagnostic thresholds (Section 7).
+- **Concerning-reading classification standard** — pursued and implemented as `BPClassificationService` against versioned (v1) reference ranges, categorizing systolic/diastolic independently and taking the higher-severity category; see the full BP Reading Status & Range Classification feature spec below (Sections 17–32 of that feature spec, referenced from Section 14).
+- **Authoritative sources for educational content** — existing articles cite the American Heart Association (heart.org) (Sections 15–16).
+- **Export format and privacy handling for reports** — approved and implemented: a non-diagnostic Trends-summary PDF, and a full data export (BP readings CSV + the user's own saved report files) packaged as one ZIP and shared via the system Share/Save flow (Section 28).
+
+**Still open — must be resolved before the relevant work begins:**
+
+- **Legal/privacy requirements per launch market** — not yet reviewed; no market-specific legal review has been performed (Section 25).
 
 **Key risk:** because Vitaly touches health data and hypertension-adjacent language, the primary product risk is scope creep into diagnostic or treatment territory — through trend language, classification labels, or educational content — without the explicit review process described in Sections 12–16. All contributors should treat that boundary as a hard constraint, not a style preference.

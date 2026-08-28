@@ -9,6 +9,11 @@ abstract interface class BloodPressureRepository {
 
   Stream<BloodPressureReading?> watchById(int id);
 
+  /// A one-shot snapshot of every reading, newest first, for a single
+  /// non-reactive read (e.g. data export) rather than opening a new live
+  /// subscription. Mirrors `SavedReportRepository.getAll()`.
+  Future<List<BloodPressureReading>> getAll();
+
   Future<int> addReading({
     required int systolic,
     required int diastolic,

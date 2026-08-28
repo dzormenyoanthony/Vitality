@@ -134,6 +134,40 @@ void main() {
     await db.close();
   });
 
+  testWidgets('shows an Export data entry in the Data section', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final scheduler = FakeNotificationScheduler();
+    addTearDown(scheduler.dispose);
+    final authRepository = FakeAuthRepository();
+    addTearDown(authRepository.dispose);
+    final profileRepository = FakeUserProfileRepository();
+    addTearDown(profileRepository.dispose);
+    final user = await authRepository.signUp(email: 'a@b.com', password: 'password123');
+    await profileRepository.createProfile(uid: user.uid, displayName: 'Ada');
+    final prefs = await mockPrefs();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          notificationSchedulerProvider.overrideWithValue(scheduler),
+          authRepositoryProvider.overrideWithValue(authRepository),
+          userProfileRepositoryProvider.overrideWithValue(profileRepository),
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
+        child: const MaterialApp(home: SettingsScreen()),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    expect(find.text('Export data'), findsOneWidget);
+    expect(find.text('BP readings (CSV) and saved report files, as a ZIP'), findsOneWidget);
+
+    await db.close();
+  });
+
   testWidgets('cancelling the delete-account dialog keeps the account', (tester) async {
     // The Account section (with "Delete account") sits below the fold at
     // the default test surface size once the Data section is included —

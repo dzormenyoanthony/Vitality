@@ -9,6 +9,8 @@ import '../../../core/theme/theme_mode_provider.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../../authentication/data/auth_providers.dart';
 import '../../authentication/domain/credentials_validator.dart';
+import '../../data_export/data/data_export_providers.dart';
+import '../../data_export/presentation/data_export_share.dart';
 import '../../onboarding/data/user_profile_providers.dart';
 import 'settings_controller.dart';
 
@@ -188,18 +190,87 @@ class _PreferencesCard extends ConsumerWidget {
   }
 }
 
-class _DataCard extends StatelessWidget {
+class _DataCard extends ConsumerStatefulWidget {
   const _DataCard();
+
+  @override
+  ConsumerState<_DataCard> createState() => _DataCardState();
+}
+
+class _DataCardState extends ConsumerState<_DataCard> {
+  bool _isExporting = false;
+
+  Future<void> _exportData() async {
+    setState(() => _isExporting = true);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final result = await ref.read(dataExportServiceProvider).buildExport();
+      if (!mounted) return;
+
+      if (result.hasMissingFiles) {
+        final proceed = await showDialog<bool>(
+          context: context,
+          builder: (dialogContext) => AlertDialog(
+            title: const Text('Some report files are unavailable'),
+            content: Text(
+              "These report files couldn't be found on this device and will "
+              'be left out of the export:\n\n'
+              '${result.missingReportFiles.join('\n')}\n\n'
+              'The rest of your export will still be included. Continue?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(false),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.of(dialogContext).pop(true),
+                child: const Text('Continue'),
+              ),
+            ],
+          ),
+        );
+        if (proceed != true || !mounted) return;
+      }
+
+      await shareDataExport(result);
+    } catch (_) {
+      if (!mounted) return;
+      messenger.showSnackBar(
+        const SnackBar(content: Text("Couldn't prepare your export. Please try again.")),
+      );
+    } finally {
+      if (mounted) setState(() => _isExporting = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      child: ListTile(
-        leading: const Icon(Icons.description_outlined),
-        title: const Text('Saved reports'),
-        subtitle: const Text('Scanned or imported BP reports'),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () => context.push(AppRoutes.savedReports),
+      child: Column(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.description_outlined),
+            title: const Text('Saved reports'),
+            subtitle: const Text('Scanned or imported BP reports'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.savedReports),
+          ),
+          const Divider(height: 1),
+          ListTile(
+            leading: const Icon(Icons.ios_share_outlined),
+            title: const Text('Export data'),
+            subtitle: const Text('BP readings (CSV) and saved report files, as a ZIP'),
+            trailing: _isExporting
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Icon(Icons.chevron_right),
+            onTap: _isExporting ? null : _exportData,
+          ),
+        ],
       ),
     );
   }

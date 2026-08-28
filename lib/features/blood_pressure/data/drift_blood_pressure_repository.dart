@@ -68,6 +68,15 @@ class DriftBloodPressureRepository implements BloodPressureRepository {
   }
 
   @override
+  Future<List<BloodPressureReading>> getAll() async {
+    final query = _db.select(_db.readings)
+      ..where((r) => r.deletedAt.isNull())
+      ..orderBy([(r) => OrderingTerm.desc(r.timestamp)]);
+    final rows = await query.get();
+    return rows.map(_toDomain).toList();
+  }
+
+  @override
   Future<int> addReading({
     required int systolic,
     required int diastolic,

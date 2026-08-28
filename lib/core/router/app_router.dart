@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,9 +26,18 @@ import '../../features/reports/presentation/saved_reports_screen.dart';
 import '../../features/settings/presentation/settings_screen.dart';
 import '../../features/splash/presentation/splash_screen.dart';
 import '../constants/app_routes.dart';
+import '../theme/app_theme.dart';
 import '../widgets/main_shell.dart';
 import 'auth_gate_provider.dart';
 import 'splash_min_duration_provider.dart';
+
+/// Locks a route's entire subtree to the light theme regardless of the
+/// user's theme preference (system/light/dark). Applied to the whole
+/// pre-auth flow — onboarding, name collection, sign up, sign in, forgot
+/// password — per explicit product direction: those screens are a fixed
+/// brand moment and must never render in dark mode, even when the rest of
+/// the app (from Dashboard onward) follows [themeModeProvider] normally.
+Widget _lightLocked(Widget child) => Theme(data: AppTheme.light(), child: child);
 
 /// Bridges Riverpod's [authGateProvider] and [splashMinDurationElapsedProvider]
 /// to go_router's `refreshListenable` so `redirect:` re-runs whenever
@@ -141,27 +150,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.signIn,
         name: AppRoutes.signIn,
-        builder: (context, state) => const SignInScreen(),
+        builder: (context, state) => _lightLocked(const SignInScreen()),
       ),
       GoRoute(
         path: AppRoutes.signUp,
         name: AppRoutes.signUp,
-        builder: (context, state) => const SignUpScreen(),
+        builder: (context, state) => _lightLocked(const SignUpScreen()),
       ),
       GoRoute(
         path: AppRoutes.forgotPassword,
         name: AppRoutes.forgotPassword,
-        builder: (context, state) => const ForgotPasswordScreen(),
+        builder: (context, state) => _lightLocked(const ForgotPasswordScreen()),
       ),
       GoRoute(
         path: AppRoutes.onboarding,
         name: AppRoutes.onboarding,
-        builder: (context, state) => const OnboardingScreen(),
+        builder: (context, state) => _lightLocked(const OnboardingScreen()),
       ),
       GoRoute(
         path: AppRoutes.onboardingProfile,
         name: AppRoutes.onboardingProfile,
-        builder: (context, state) => const OnboardingCompleteProfileScreen(),
+        builder: (context, state) =>
+            _lightLocked(const OnboardingCompleteProfileScreen()),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
