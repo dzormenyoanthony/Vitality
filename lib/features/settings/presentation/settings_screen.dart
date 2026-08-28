@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/theme/app_colors.dart';
+import '../../../core/theme/larger_numbers_provider.dart';
 import '../../../core/theme/theme_mode_provider.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../../authentication/data/auth_providers.dart';
@@ -15,42 +17,96 @@ import '../../onboarding/data/user_profile_providers.dart';
 import 'settings_controller.dart';
 
 /// Profile and settings (PROJECT_SPEC.md §24): preferred name, account
-/// email, theme preference, a link into reminder management, sign out, and
-/// account deletion. Privacy-policy content and email editing are
-/// intentionally out of scope — the former needs a legal/market review that
-/// hasn't happened yet (§25, §40), the latter needs a re-authentication
-/// flow this phase doesn't build.
+/// email, theme preference, a link into reminder management, saved
+/// reports/data export, sign out, and account deletion.
+///
+/// Visual design matches `design_references/Settings.png`, with two
+/// deliberate deviations from it, both pre-existing product decisions:
+/// email editing stays out of scope (needs a re-authentication flow this
+/// phase doesn't build — see [_ProfileCard]), and the Data section (Saved
+/// reports, Export data) is kept even though the reference predates it,
+/// since removing it would delete working functionality. "Manage
+/// reminders" is likewise kept as a small supplementary link, styled to
+/// stay out of the way of the card the reference actually specifies.
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final uid = ref.watch(authStateChangesProvider).value?.uid;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Settings')),
+      backgroundColor: theme.colorScheme.surface,
       body: uid == null
           ? const LoadingIndicator()
-          : ListView(
-              padding: const EdgeInsets.all(AppSpacing.lg),
-              children: [
-                Text('Profile', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: AppSpacing.sm),
-                _ProfileCard(uid: uid),
-                const SizedBox(height: AppSpacing.lg),
-                Text('Preferences', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: AppSpacing.sm),
-                const _PreferencesCard(),
-                const SizedBox(height: AppSpacing.lg),
-                Text('Data', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: AppSpacing.sm),
-                const _DataCard(),
-                const SizedBox(height: AppSpacing.lg),
-                Text('Account', style: Theme.of(context).textTheme.titleMedium),
-                const SizedBox(height: AppSpacing.sm),
-                _AccountCard(uid: uid),
-              ],
+          : SafeArea(
+              child: ListView(
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.lg,
+                  AppSpacing.md,
+                  AppSpacing.lg,
+                  AppSpacing.xl,
+                ),
+                children: [
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back),
+                        tooltip: 'Back',
+                        onPressed: () {
+                          if (context.canPop()) {
+                            context.pop();
+                          } else {
+                            context.go(AppRoutes.dashboard);
+                          }
+                        },
+                      ),
+                      Expanded(
+                        child: Text('Settings', style: theme.textTheme.headlineMedium),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  const _SectionLabel('PROFILE', color: AppColors.dashboardAccentTeal),
+                  const SizedBox(height: AppSpacing.sm),
+                  _ProfileCard(uid: uid),
+                  const SizedBox(height: AppSpacing.lg),
+                  const _SectionLabel('APPEARANCE', color: AppColors.dashboardAccentTeal),
+                  const SizedBox(height: AppSpacing.sm),
+                  const _AppearanceCard(),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Manage reminders'),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: () => context.push(AppRoutes.reminders),
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  const _SectionLabel('DATA', color: AppColors.dashboardAccentTeal),
+                  const SizedBox(height: AppSpacing.sm),
+                  const _DataCard(),
+                  const SizedBox(height: AppSpacing.lg),
+                  const _SectionLabel('ACCOUNT', color: AppColors.dashboardAccentCoral),
+                  const SizedBox(height: AppSpacing.sm),
+                  _AccountSection(uid: uid),
+                ],
+              ),
             ),
+    );
+  }
+}
+
+class _SectionLabel extends StatelessWidget {
+  const _SectionLabel(this.text, {required this.color});
+
+  final String text;
+  final Color color;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: Theme.of(context).textTheme.labelSmall?.copyWith(color: color),
     );
   }
 }
@@ -84,6 +140,8 @@ class _ProfileCardState extends ConsumerState<_ProfileCard> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final email = ref.watch(authStateChangesProvider).value?.email;
     final profile = ref.watch(userProfileStreamProvider(widget.uid)).value;
     final saveState = ref.watch(settingsControllerProvider);
@@ -94,33 +152,67 @@ class _ProfileCardState extends ConsumerState<_ProfileCard> {
       _nameLoadedFromProfile = true;
     }
 
+    final displayName = profile?.displayName ?? '';
+    final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : '?';
+
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (email != null) ...[
-                Text('Email', style: Theme.of(context).textTheme.labelMedium),
-                const SizedBox(height: AppSpacing.xs),
-                Text(email, style: Theme.of(context).textTheme.bodyLarge),
-                const SizedBox(height: AppSpacing.md),
-              ],
               Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: TextFormField(
-                      controller: _nameController,
-                      enabled: !isSaving,
-                      decoration: const InputDecoration(labelText: 'Preferred name'),
-                      validator: CredentialsValidator.validatePreferredName,
+                  CircleAvatar(
+                    radius: 28,
+                    backgroundColor: accents.mintBackground,
+                    child: Text(
+                      initial,
+                      style: theme.textTheme.headlineSmall?.copyWith(
+                        color: accents.mintForeground,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  IconButton(
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayName.isEmpty ? '—' : displayName,
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
+                        ),
+                        if (email != null)
+                          Text(
+                            email,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.lg),
+              Text('Preferred name', style: theme.textTheme.bodySmall),
+              const SizedBox(height: AppSpacing.xs),
+              TextFormField(
+                controller: _nameController,
+                enabled: !isSaving,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    borderSide: const BorderSide(color: AppColors.onboardingFieldBorder),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                    borderSide: const BorderSide(color: AppColors.onboardingFieldBorder),
+                  ),
+                  suffixIcon: IconButton(
                     tooltip: 'Save name',
                     icon: isSaving
                         ? const SizedBox(
@@ -128,16 +220,46 @@ class _ProfileCardState extends ConsumerState<_ProfileCard> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                        : const Icon(Icons.check),
+                        : const Icon(Icons.edit_outlined, color: AppColors.dashboardAccentTeal),
                     onPressed: isSaving ? null : _save,
                   ),
-                ],
+                ),
+                validator: CredentialsValidator.validatePreferredName,
               ),
               if (saveState.hasError) ...[
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   friendlyMessage(saveState.error!),
-                  style: TextStyle(color: Theme.of(context).colorScheme.error),
+                  style: TextStyle(color: theme.colorScheme.error),
+                ),
+              ],
+              if (email != null) ...[
+                const SizedBox(height: AppSpacing.md),
+                Text('Email', style: theme.textTheme.bodySmall),
+                const SizedBox(height: AppSpacing.xs),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.md,
+                  ),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColors.onboardingFieldBorder),
+                    borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+                  ),
+                  // Deliberately no edit affordance here (unlike the name
+                  // field above) — changing the sign-in email needs a
+                  // re-authentication flow this phase doesn't build, so
+                  // showing an edit icon that does nothing would be fake
+                  // functionality (CLAUDE.md §3).
+                  child: Text(email, style: theme.textTheme.bodyLarge),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'Used for sign-in and export receipts only. Readings stay on this device.',
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
                 ),
               ],
             ],
@@ -148,43 +270,143 @@ class _ProfileCardState extends ConsumerState<_ProfileCard> {
   }
 }
 
-class _PreferencesCard extends ConsumerWidget {
-  const _PreferencesCard();
+class _AppearanceCard extends ConsumerWidget {
+  const _AppearanceCard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final themeMode = ref.watch(themeModeProvider);
+    final largerNumbers = ref.watch(largerNumbersProvider);
+    final systemIsDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
+    final helperText = switch (themeMode) {
+      ThemeMode.system =>
+        'System follows your Android theme, currently ${systemIsDark ? 'dark' : 'light'}.',
+      ThemeMode.light => 'Using light theme.',
+      ThemeMode.dark => 'Using dark theme.',
+    };
 
     return Card(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(AppSpacing.md),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.md),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Text('Theme', style: Theme.of(context).textTheme.labelMedium),
-                const SizedBox(height: AppSpacing.sm),
-                SegmentedButton<ThemeMode>(
-                  segments: const [
-                    ButtonSegment(value: ThemeMode.system, label: Text('System')),
-                    ButtonSegment(value: ThemeMode.light, label: Text('Light')),
-                    ButtonSegment(value: ThemeMode.dark, label: Text('Dark')),
-                  ],
-                  selected: {themeMode},
-                  onSelectionChanged: (selection) =>
-                      ref.read(themeModeProvider.notifier).setThemeMode(selection.first),
+                Expanded(
+                  child: _ThemeOptionCard(
+                    icon: Icons.desktop_windows_outlined,
+                    label: 'System',
+                    selected: themeMode == ThemeMode.system,
+                    onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.system),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: _ThemeOptionCard(
+                    icon: Icons.wb_sunny_outlined,
+                    label: 'Light',
+                    selected: themeMode == ThemeMode.light,
+                    onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light),
+                  ),
+                ),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(
+                  child: _ThemeOptionCard(
+                    icon: Icons.dark_mode_outlined,
+                    label: 'Dark',
+                    selected: themeMode == ThemeMode.dark,
+                    onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark),
+                  ),
                 ),
               ],
             ),
+            const SizedBox(height: AppSpacing.md),
+            const Divider(height: 1),
+            const SizedBox(height: AppSpacing.md),
+            Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Larger numbers', style: theme.textTheme.titleMedium),
+                      Text(
+                        'Increase the size of reading values',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Switch(
+                  value: largerNumbers,
+                  onChanged: (value) => ref.read(largerNumbersProvider.notifier).setEnabled(value),
+                ),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              helperText,
+              style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ThemeOptionCard extends StatelessWidget {
+  const _ThemeOptionCard({
+    required this.icon,
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
+
+    return Semantics(
+      button: true,
+      selected: selected,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+        child: Container(
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+          decoration: BoxDecoration(
+            color: selected ? accents.mintBackground : theme.colorScheme.surface,
+            borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
+            border: Border.all(
+              color: selected ? accents.mintForeground : AppColors.onboardingFieldBorder,
+              width: selected ? 2 : 1,
+            ),
           ),
-          const Divider(height: 1),
-          ListTile(
-            title: const Text('Manage reminders'),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => context.push(AppRoutes.reminders),
+          child: Column(
+            children: [
+              Icon(icon, color: selected ? accents.mintForeground : theme.colorScheme.onSurfaceVariant),
+              const SizedBox(height: AppSpacing.xs),
+              Text(
+                label,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: selected ? accents.mintForeground : theme.colorScheme.onSurfaceVariant,
+                  fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -276,8 +498,8 @@ class _DataCardState extends ConsumerState<_DataCard> {
   }
 }
 
-class _AccountCard extends ConsumerWidget {
-  const _AccountCard({required this.uid});
+class _AccountSection extends ConsumerWidget {
+  const _AccountSection({required this.uid});
 
   final String uid;
 
@@ -317,32 +539,50 @@ class _AccountCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
     final isBusy = ref.watch(settingsControllerProvider).isLoading;
-    final colorScheme = Theme.of(context).colorScheme;
 
-    return Card(
-      child: Column(
-        children: [
-          ListTile(
-            leading: const Icon(Icons.logout),
-            title: const Text('Sign out'),
-            onTap: isBusy ? null : () => ref.read(authRepositoryProvider).signOut(),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        OutlinedButton.icon(
+          onPressed: isBusy ? null : () => ref.read(authRepositoryProvider).signOut(),
+          style: OutlinedButton.styleFrom(
+            shape: const StadiumBorder(),
+            side: const BorderSide(color: AppColors.onboardingFieldBorder),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+            foregroundColor: theme.colorScheme.onSurface,
           ),
-          const Divider(height: 1),
-          ListTile(
-            leading: Icon(Icons.delete_forever, color: colorScheme.error),
-            title: Text('Delete account', style: TextStyle(color: colorScheme.error)),
-            trailing: isBusy
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : null,
-            onTap: isBusy ? null : () => _confirmDeleteAccount(context, ref),
+          icon: const Icon(Icons.logout),
+          label: const Text('Sign out'),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        FilledButton.icon(
+          onPressed: isBusy ? null : () => _confirmDeleteAccount(context, ref),
+          style: FilledButton.styleFrom(
+            backgroundColor: theme.colorScheme.errorContainer,
+            foregroundColor: theme.colorScheme.onErrorContainer,
+            shape: const StadiumBorder(),
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
           ),
-        ],
-      ),
+          icon: isBusy
+              ? SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: theme.colorScheme.onErrorContainer,
+                  ),
+                )
+              : const Icon(Icons.delete_outline),
+          label: const Text('Delete account'),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(
+          'Deleting removes your profile and every stored reading. This cannot be undone.',
+          style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+        ),
+      ],
     );
   }
 }

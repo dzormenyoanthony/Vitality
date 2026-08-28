@@ -49,8 +49,11 @@ void main() {
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 100));
 
-    expect(find.text('a@b.com'), findsOneWidget);
-    expect(find.text('Ada'), findsOneWidget);
+    // The email and name each appear twice now — once in the profile
+    // header row, once in their own field below it
+    // (design_references/Settings.png).
+    expect(find.text('a@b.com'), findsAtLeastNWidgets(1));
+    expect(find.text('Ada'), findsAtLeastNWidgets(1));
 
     await db.close();
   });
@@ -94,7 +97,7 @@ void main() {
     await db.close();
   });
 
-  testWidgets('selecting a theme segment updates the selection', (tester) async {
+  testWidgets('selecting a theme option updates the selection', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final scheduler = FakeNotificationScheduler();
@@ -125,16 +128,21 @@ void main() {
     await tester.tap(find.text('Dark'));
     await tester.pump();
 
-    final segmentedButton = tester.widget<SegmentedButton<ThemeMode>>(
-      find.byType(SegmentedButton<ThemeMode>),
-    );
-    expect(segmentedButton.selected, {ThemeMode.dark});
     expect(prefs.getString('theme_mode'), 'dark');
 
     await db.close();
   });
 
   testWidgets('shows an Export data entry in the Data section', (tester) async {
+    // The Data section sits below the fold at the default test surface
+    // size now that the profile header/avatar and the redesigned
+    // Appearance card push it further down — see the identical note on
+    // the delete-account tests below.
+    tester.view.physicalSize = const Size(400, 2200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
     final scheduler = FakeNotificationScheduler();
@@ -173,7 +181,7 @@ void main() {
     // the default test surface size once the Data section is included —
     // a taller surface avoids needing to scroll a list that isn't fully
     // built yet.
-    tester.view.physicalSize = const Size(400, 1400);
+    tester.view.physicalSize = const Size(400, 2200);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
@@ -218,7 +226,7 @@ void main() {
   });
 
   testWidgets('confirming the delete-account dialog deletes the account', (tester) async {
-    tester.view.physicalSize = const Size(400, 1400);
+    tester.view.physicalSize = const Size(400, 2200);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
