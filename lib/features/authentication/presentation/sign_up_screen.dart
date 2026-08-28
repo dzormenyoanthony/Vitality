@@ -338,8 +338,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               onPressed: isLoading ? null : _submit,
                               iconAlignment: IconAlignment.end,
                               style: FilledButton.styleFrom(
-                                backgroundColor: AppColors.actionAccent,
-                                foregroundColor: Colors.black,
+                                backgroundColor: AppColors.signUpAccentCoral,
+                                foregroundColor: AppColors.onboardingHeadline,
                                 shape: const StadiumBorder(),
                                 padding: const EdgeInsets.symmetric(
                                   vertical: AppSpacing.md,
@@ -353,12 +353,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                       height: 20,
                                       child: CircularProgressIndicator(
                                         strokeWidth: 2,
-                                        color: Colors.black,
+                                        color: AppColors.onboardingHeadline,
                                       ),
                                     )
                                   : const Icon(
                                       Icons.arrow_forward,
-                                      color: Colors.black,
+                                      color: AppColors.onboardingHeadline,
                                     ),
                               label: const Text('Create account'),
                             ),
@@ -441,6 +441,18 @@ class _HeroHeader extends StatelessWidget {
               const Positioned.fill(
                 child: ColoredBox(color: AppColors.heroFill),
               ),
+              // A large, mostly off-screen circle whose bottom-right arc
+              // creates the lighter-teal "quarter pill" filling the top-left
+              // of the header — matching the reference exactly. Painted
+              // before the coral/peach circles so it sits behind them.
+              Positioned(
+                top: -width * 0.3,
+                left: -width * 0.3,
+                child: _Circle(
+                  diameter: width * 1.15,
+                  color: AppColors.dashboardAccentTeal,
+                ),
+              ),
               // Decorative circles, painted over the background but
               // *behind* the text below — matching the reference, where
               // the headline stays fully legible even though the coral
@@ -450,7 +462,7 @@ class _HeroHeader extends StatelessWidget {
                 right: -width * 0.1,
                 child: _Circle(
                   diameter: width * 0.46,
-                  color: AppColors.dashboardAccentCoral,
+                  color: AppColors.signUpAccentCoral,
                 ),
               ),
               Positioned(
@@ -458,7 +470,7 @@ class _HeroHeader extends StatelessWidget {
                 right: width * 0.03,
                 child: _Circle(
                   diameter: width * 0.22,
-                  color: AppColors.onboardingIllustrationCircleBright2,
+                  color: AppColors.signUpAccentPeach,
                 ),
               ),
               Positioned(

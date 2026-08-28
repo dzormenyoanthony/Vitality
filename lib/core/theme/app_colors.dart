@@ -107,6 +107,15 @@ abstract final class AppColors {
   /// palette as Onboarding 1 of 3); only the field border is new.
   static const Color onboardingFieldBorder = Color(0xFF566A65);
 
+  /// Create Account hero header's decorative circles and CTA button,
+  /// sampled from `design_references/Create Account screen.png` — a
+  /// brighter coral/peach than the shared [dashboardAccentCoral]/
+  /// [actionAccent] (which are correct for their own contexts elsewhere),
+  /// so this screen gets its own dedicated values instead of drifting the
+  /// shared ones.
+  static const Color signUpAccentCoral = Color(0xFFFF7A5C);
+  static const Color signUpAccentPeach = Color(0xFFF6C99F);
+
   /// Saved Reports "document locker" hero card, sampled from
   /// `design_references/My document locker.png` (gradient reuses
   /// [dashboardAccentTeal] → [heroFill], already a close pixel match).
