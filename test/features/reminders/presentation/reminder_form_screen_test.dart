@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:vitality/features/reminders/presentation/reminder_form_screen.dart';
 
+import '../../../support/pump_app.dart';
+
 void main() {
   testWidgets('shows a validation error when the label is empty', (tester) async {
     // The form is taller than the default test viewport now that it has a
@@ -13,7 +15,13 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: ReminderFormScreen())),
+      const ProviderScope(
+        child: MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: ReminderFormScreen(),
+        ),
+      ),
     );
 
     await tester.tap(find.widgetWithText(FilledButton, 'Save'));
@@ -24,7 +32,13 @@ void main() {
 
   testWidgets('shows a validation error when no day is selected', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: ReminderFormScreen())),
+      const ProviderScope(
+        child: MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: ReminderFormScreen(),
+        ),
+      ),
     );
 
     await tester.enterText(find.widgetWithText(TextFormField, 'Label'), 'Evening reading');
@@ -36,7 +50,13 @@ void main() {
 
   testWidgets('"Every day" selects all seven day chips', (tester) async {
     await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: ReminderFormScreen())),
+      const ProviderScope(
+        child: MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: ReminderFormScreen(),
+        ),
+      ),
     );
 
     await tester.tap(find.text('Every day'));
@@ -56,7 +76,13 @@ void main() {
     addTearDown(tester.view.reset);
 
     await tester.pumpWidget(
-      const ProviderScope(child: MaterialApp(home: ReminderFormScreen())),
+      const ProviderScope(
+        child: MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: ReminderFormScreen(),
+        ),
+      ),
     );
 
     expect(find.text('Not set'), findsNWidgets(2));

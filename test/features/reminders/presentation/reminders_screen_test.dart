@@ -10,6 +10,8 @@ import 'package:vitality/features/reminders/data/fake_notification_scheduler.dar
 import 'package:vitality/features/reminders/data/reminder_providers.dart';
 import 'package:vitality/features/reminders/presentation/reminders_screen.dart';
 
+import '../../../support/pump_app.dart';
+
 void main() {
   testWidgets('shows the empty state when there are no reminders', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
@@ -23,7 +25,11 @@ void main() {
           appDatabaseProvider.overrideWithValue(db),
           notificationSchedulerProvider.overrideWithValue(scheduler),
         ],
-        child: const MaterialApp(home: RemindersScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: RemindersScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -52,7 +58,11 @@ void main() {
           appDatabaseProvider.overrideWithValue(db),
           notificationSchedulerProvider.overrideWithValue(scheduler),
         ],
-        child: const MaterialApp(home: RemindersScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: RemindersScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -83,7 +93,11 @@ void main() {
           appDatabaseProvider.overrideWithValue(db),
           notificationSchedulerProvider.overrideWithValue(scheduler),
         ],
-        child: const MaterialApp(home: RemindersScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: RemindersScreen(),
+        ),
       ),
     );
     await tester.pump();

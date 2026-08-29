@@ -62,6 +62,10 @@
   "@commonChange": {
     "description": "Generic label for a control that opens an editor for an adjacent value."
   },
+  "commonNotSet": "Not set",
+  "@commonNotSet": {
+    "description": "Placeholder shown where an optional value has not been chosen."
+  },
   "commonSaving": "Saving",
   "@commonSaving": {
     "description": "Accessibility label for an in-progress save spinner."
@@ -374,6 +378,72 @@
   "@reminderCreatedSnackbar": {
     "description": "Confirmation snackbar shown after a reminder is created."
   },
+
+  "remindersTitle": "Reminders",
+  "@remindersTitle": { "description": "Header of the Reminders screen." },
+  "remindersEveryDay": "Every day",
+  "@remindersEveryDay": { "description": "Days-summary text / preset button meaning all seven days." },
+  "remindersIntro": "Reminders prompt you to measure. Vitaly never asks you to change medication or treatment.",
+  "@remindersIntro": {
+    "description": "Intro line on the Reminders screen (PROJECT_SPEC.md §13, §17). Approved wording; any change needs the §37 review."
+  },
+  "remindersEmpty": "No reminders yet.",
+  "@remindersEmpty": { "description": "Shown on the Reminders screen when the user has no reminders." },
+  "remindersAddButton": "Add reminder",
+  "@remindersAddButton": { "description": "Button that opens the inline new-reminder card / the reminder form." },
+  "remindersFooter": "Notifications are delivered by Android. Silent hours are respected. Status colours describe delivery only, never your readings.",
+  "@remindersFooter": {
+    "description": "Footer note on the Reminders screen (PROJECT_SPEC.md §23). Approved wording; any change needs the §37 review."
+  },
+  "remindersNotificationsOffPrefix": "System notifications for Vitaly are switched off. ",
+  "@remindersNotificationsOffPrefix": { "description": "Leading text of the notifications-disabled banner; followed by the settings link." },
+  "remindersOpenAndroidSettings": "Open Android settings",
+  "@remindersOpenAndroidSettings": { "description": "Link in the notifications-disabled banner that opens the OS notification settings." },
+  "remindersDeleteTitle": "Delete this reminder?",
+  "@remindersDeleteTitle": { "description": "Confirmation dialog title for deleting a reminder." },
+  "remindersDeleteBody": "\"{label}\" will no longer remind you.",
+  "@remindersDeleteBody": {
+    "description": "Confirmation dialog body for deleting a reminder.",
+    "placeholders": { "label": { "type": "String", "example": "Morning reading" } }
+  },
+  "remindersStatusOff": "Off",
+  "@remindersStatusOff": { "description": "Status word for a disabled reminder, shown after the days summary." },
+  "remindersStatusDelivering": "delivering",
+  "@remindersStatusDelivering": { "description": "Status word for an active reminder with no quiet hours." },
+  "remindersStatusSilenced": "silenced {range}",
+  "@remindersStatusSilenced": {
+    "description": "Status fragment for an active reminder whose time falls in its quiet-hours window.",
+    "placeholders": { "range": { "type": "String", "example": "22:00–07:00" } }
+  },
+  "remindersNewReminderLabel": "NEW REMINDER",
+  "@remindersNewReminderLabel": { "description": "Eyebrow label on the inline quick-add reminder card." },
+  "remindersRepeatLabel": "REPEAT",
+  "@remindersRepeatLabel": { "description": "Eyebrow label above the repeat-day selector in the quick-add card." },
+
+  "reminderFormTitleAdd": "Add reminder",
+  "@reminderFormTitleAdd": { "description": "App bar title of the reminder form when creating." },
+  "reminderFormTitleEdit": "Edit reminder",
+  "@reminderFormTitleEdit": { "description": "App bar title of the reminder form when editing." },
+  "reminderFormLabelField": "Label",
+  "@reminderFormLabelField": { "description": "Field label for the reminder's name." },
+  "reminderFormLabelRequired": "Enter a label.",
+  "@reminderFormLabelRequired": { "description": "Validation message when the reminder label is empty." },
+  "reminderFormTimeLabel": "Time",
+  "@reminderFormTimeLabel": { "description": "Row label for the reminder's time-of-day." },
+  "reminderFormRepeatOn": "Repeat on",
+  "@reminderFormRepeatOn": { "description": "Heading above the weekday selector on the reminder form." },
+  "reminderFormQuietHours": "Quiet hours (optional)",
+  "@reminderFormQuietHours": { "description": "Heading above the optional quiet-hours fields." },
+  "reminderFormQuietHoursHelp": "If this reminder's time falls in this window, it's delivered silently instead of not at all.",
+  "@reminderFormQuietHoursHelp": { "description": "Explains what quiet hours do on the reminder form." },
+  "reminderFormQuietFrom": "From",
+  "@reminderFormQuietFrom": { "description": "Label for the quiet-hours start time." },
+  "reminderFormQuietUntil": "Until",
+  "@reminderFormQuietUntil": { "description": "Label for the quiet-hours end time." },
+  "reminderFormClearQuietHours": "Clear quiet hours",
+  "@reminderFormClearQuietHours": { "description": "Button that removes the quiet-hours window." },
+  "reminderFormSelectDay": "Select at least one day.",
+  "@reminderFormSelectDay": { "description": "Validation message when no repeat day is selected." },
 
   "dashboardScanFabTooltip": "Scan BP report",
   "@dashboardScanFabTooltip": {

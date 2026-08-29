@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/reminder.dart';
 import 'reminder_controller.dart';
 import 'weekday_label.dart';
@@ -107,12 +108,13 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final saveState = ref.watch(reminderControllerProvider);
     final isSaving = saveState.isLoading;
     final showDaysError = _selectedDays.isEmpty;
 
     return Scaffold(
-      appBar: AppBar(title: Text(_isEditing ? 'Edit reminder' : 'Add reminder')),
+      appBar: AppBar(title: Text(_isEditing ? l10n.reminderFormTitleEdit : l10n.reminderFormTitleAdd)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -124,35 +126,36 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
                 TextFormField(
                   controller: _labelController,
                   enabled: !isSaving,
-                  decoration: const InputDecoration(labelText: 'Label'),
-                  validator: (value) =>
-                      (value == null || value.trim().isEmpty) ? 'Enter a label.' : null,
+                  decoration: InputDecoration(labelText: l10n.reminderFormLabelField),
+                  validator: (value) => (value == null || value.trim().isEmpty)
+                      ? l10n.reminderFormLabelRequired
+                      : null,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 ListTile(
                   contentPadding: EdgeInsets.zero,
-                  title: const Text('Time'),
-                  subtitle: Text(formatTimeOfDay(_time.hour, _time.minute)),
+                  title: Text(l10n.reminderFormTimeLabel),
+                  subtitle: Text(formatReminderTime(context, _time.hour, _time.minute)),
                   trailing: const Icon(Icons.access_time),
                   onTap: isSaving ? null : _pickTime,
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Text('Repeat on', style: Theme.of(context).textTheme.titleMedium),
+                Text(l10n.reminderFormRepeatOn, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: AppSpacing.sm),
                 Wrap(
                   spacing: AppSpacing.sm,
                   children: [
-                    for (final day in weekdayShortLabels.entries)
+                    for (var weekday = 1; weekday <= 7; weekday++)
                       FilterChip(
-                        label: Text(day.value),
-                        selected: _selectedDays.contains(day.key),
+                        label: Text(weekdayShortLabel(context, weekday)),
+                        selected: _selectedDays.contains(weekday),
                         onSelected: isSaving
                             ? null
                             : (selected) => setState(() {
                                 if (selected) {
-                                  _selectedDays.add(day.key);
+                                  _selectedDays.add(weekday);
                                 } else {
-                                  _selectedDays.remove(day.key);
+                                  _selectedDays.remove(weekday);
                                 }
                               }),
                       ),
@@ -163,15 +166,14 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
                   alignment: Alignment.centerLeft,
                   child: TextButton(
                     onPressed: isSaving ? null : () => setState(() => _selectedDays = {1, 2, 3, 4, 5, 6, 7}),
-                    child: const Text('Every day'),
+                    child: Text(l10n.remindersEveryDay),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
-                Text('Quiet hours (optional)', style: Theme.of(context).textTheme.titleMedium),
+                Text(l10n.reminderFormQuietHours, style: Theme.of(context).textTheme.titleMedium),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
-                  "If this reminder's time falls in this window, it's delivered "
-                  'silently instead of not at all.',
+                  l10n.reminderFormQuietHoursHelp,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
                 const SizedBox(height: AppSpacing.sm),
@@ -180,11 +182,11 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
                     Expanded(
                       child: ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('From'),
+                        title: Text(l10n.reminderFormQuietFrom),
                         subtitle: Text(
                           _quietHoursStart == null
-                              ? 'Not set'
-                              : formatTimeOfDay(_quietHoursStart!.hour, _quietHoursStart!.minute),
+                              ? l10n.commonNotSet
+                              : formatReminderTime(context, _quietHoursStart!.hour, _quietHoursStart!.minute),
                         ),
                         onTap: isSaving ? null : _pickQuietHoursStart,
                       ),
@@ -192,11 +194,11 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
                     Expanded(
                       child: ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: const Text('Until'),
+                        title: Text(l10n.reminderFormQuietUntil),
                         subtitle: Text(
                           _quietHoursEnd == null
-                              ? 'Not set'
-                              : formatTimeOfDay(_quietHoursEnd!.hour, _quietHoursEnd!.minute),
+                              ? l10n.commonNotSet
+                              : formatReminderTime(context, _quietHoursEnd!.hour, _quietHoursEnd!.minute),
                         ),
                         onTap: isSaving ? null : _pickQuietHoursEnd,
                       ),
@@ -213,14 +215,14 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
                               _quietHoursStart = null;
                               _quietHoursEnd = null;
                             }),
-                      child: const Text('Clear quiet hours'),
+                      child: Text(l10n.reminderFormClearQuietHours),
                     ),
                   ),
                 if (showDaysError) ...[
                   Padding(
                     padding: const EdgeInsets.only(bottom: AppSpacing.sm),
                     child: Text(
-                      'Select at least one day.',
+                      l10n.reminderFormSelectDay,
                       style: TextStyle(color: Theme.of(context).colorScheme.error),
                     ),
                   ),
@@ -243,7 +245,7 @@ class _ReminderFormScreenState extends ConsumerState<ReminderFormScreen> {
                           height: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : Text(_isEditing ? 'Save changes' : 'Save'),
+                      : Text(_isEditing ? l10n.recordSaveChanges : l10n.commonSave),
                 ),
               ],
             ),

@@ -6,18 +6,15 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/reminder.dart';
 import '../data/reminder_providers.dart';
 import 'reminder_controller.dart';
 import 'weekday_label.dart';
-
-const _dayInitials = {1: 'M', 2: 'T', 3: 'W', 4: 'T', 5: 'F', 6: 'S', 7: 'S'};
-
-String _twoDigitTime(int hour, int minute) =>
-    '${hour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')}';
 
 /// List of measurement reminders (PROJECT_SPEC.md §17).
 ///
@@ -60,6 +57,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> with WidgetsB
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final remindersState = ref.watch(remindersStreamProvider);
     final notificationsEnabled = ref.watch(notificationsEnabledProvider);
 
@@ -81,17 +79,16 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> with WidgetsB
                     IconButton(
                       onPressed: () => context.pop(),
                       icon: const Icon(Icons.arrow_back),
-                      tooltip: 'Back',
+                      tooltip: l10n.commonBack,
                     ),
-                    Text('Reminders', style: theme.textTheme.headlineMedium),
+                    Text(l10n.remindersTitle, style: theme.textTheme.headlineMedium),
                   ],
                 ),
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.md),
                 child: Text(
-                  'Reminders prompt you to measure. Vitaly never asks you to '
-                  'change medication or treatment.',
+                  l10n.remindersIntro,
                   style: theme.textTheme.bodyLarge?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -102,7 +99,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> with WidgetsB
                 Padding(
                   padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Text(
-                    'No reminders yet.',
+                    l10n.remindersEmpty,
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
@@ -118,7 +115,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> with WidgetsB
                 child: TextButton.icon(
                   onPressed: () => setState(() => _showAddForm = !_showAddForm),
                   icon: const Icon(Icons.add),
-                  label: const Text('Add reminder'),
+                  label: Text(l10n.remindersAddButton),
                   style: TextButton.styleFrom(foregroundColor: AppColors.dashboardAccentTeal),
                 ),
               ),
@@ -147,9 +144,7 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> with WidgetsB
               Padding(
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 child: Text(
-                  'Notifications are delivered by Android. Silent hours are '
-                  'respected. Status colours describe delivery only, never '
-                  'your readings.',
+                  l10n.remindersFooter,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -169,6 +164,7 @@ class _NotificationsOffBanner extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     // The coral accent pair (not Material's saturated error/errorContainer)
     // — attention-getting without reading as a harsh alarm, and already
     // tuned for both light and dark mode elsewhere in the app.
@@ -196,9 +192,9 @@ class _NotificationsOffBanner extends ConsumerWidget {
               TextSpan(
                 style: theme.textTheme.bodyMedium?.copyWith(color: accents.coralForeground),
                 children: [
-                  const TextSpan(text: 'System notifications for Vitaly are switched off. '),
+                  TextSpan(text: l10n.remindersNotificationsOffPrefix),
                   TextSpan(
-                    text: 'Open Android settings',
+                    text: l10n.remindersOpenAndroidSettings,
                     style: const TextStyle(
                       color: AppColors.dashboardAccentTeal,
                       fontWeight: FontWeight.w600,
@@ -222,19 +218,20 @@ class _ReminderRow extends ConsumerWidget {
   final Reminder reminder;
 
   Future<bool> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete this reminder?'),
-        content: Text('"${reminder.label}" will no longer remind you.'),
+        title: Text(l10n.remindersDeleteTitle),
+        content: Text(l10n.remindersDeleteBody(reminder.label)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -247,25 +244,29 @@ class _ReminderRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final enabled = reminder.enabled;
     final hasQuietHours = reminder.quietHoursStart != null && reminder.quietHoursEnd != null;
+    final days = daysSummary(context, l10n, reminder.daysOfWeek);
 
     final String statusText;
     Color? dotColor;
     if (!enabled) {
-      statusText = '${daysSummary(reminder.daysOfWeek)} · Off';
+      statusText = '$days · ${l10n.remindersStatusOff}';
     } else {
-      final timeOfDayLabel = reminder.hour < 12 ? 'Morning' : 'Evening';
+      final timeOfDayLabel = reminder.hour < 12 ? l10n.contextMorning : l10n.contextEvening;
       if (hasQuietHours) {
         final start = reminder.quietHoursStart!;
         final end = reminder.quietHoursEnd!;
+        final range =
+            '${formatClock(context, hour: start.$1, minute: start.$2)}–'
+            '${formatClock(context, hour: end.$1, minute: end.$2)}';
         statusText =
-            '${daysSummary(reminder.daysOfWeek)} · $timeOfDayLabel · '
-            'silenced ${_twoDigitTime(start.$1, start.$2)}–${_twoDigitTime(end.$1, end.$2)}';
+            '$days · $timeOfDayLabel · ${l10n.remindersStatusSilenced(range)}';
         dotColor = AppColors.remindersSilencedDot;
       } else {
-        statusText = '${daysSummary(reminder.daysOfWeek)} · $timeOfDayLabel · delivering';
+        statusText = '$days · $timeOfDayLabel · ${l10n.remindersStatusDelivering}';
         dotColor = AppColors.remindersDeliveringDot;
       }
     }
@@ -291,7 +292,7 @@ class _ReminderRow extends ConsumerWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      _twoDigitTime(reminder.hour, reminder.minute),
+                      formatClock(context, hour: reminder.hour, minute: reminder.minute),
                       style: theme.textTheme.headlineMedium?.copyWith(
                         color: enabled
                             ? theme.colorScheme.onSurface
@@ -369,10 +370,13 @@ class _NewReminderCardState extends ConsumerState<_NewReminderCard> {
 
   Future<void> _save() async {
     setState(() => _isSaving = true);
+    final l10n = AppLocalizations.of(context);
     await ref
         .read(reminderControllerProvider.notifier)
         .save(
-          label: _time.hour < 12 ? 'Morning reading' : 'Evening reading',
+          label: _time.hour < 12
+              ? l10n.reminderDefaultLabelMorning
+              : l10n.reminderDefaultLabelEvening,
           hour: _time.hour,
           minute: _time.minute,
           daysOfWeek: _selectedDays,
@@ -386,6 +390,8 @@ class _NewReminderCardState extends ConsumerState<_NewReminderCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
+    final materialL10n = MaterialLocalizations.of(context);
     const accent = AppColors.dashboardAccentTeal;
 
     return Container(
@@ -398,7 +404,7 @@ class _NewReminderCardState extends ConsumerState<_NewReminderCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'NEW REMINDER',
+            l10n.remindersNewReminderLabel,
             style: theme.textTheme.labelMedium?.copyWith(color: accent),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -429,13 +435,13 @@ class _NewReminderCardState extends ConsumerState<_NewReminderCard> {
               Column(
                 children: [
                   _PeriodPill(
-                    label: 'AM',
+                    label: materialL10n.anteMeridiemAbbreviation,
                     selected: _time.period == DayPeriod.am,
                     onTap: _isSaving ? null : () => _setPeriod(DayPeriod.am),
                   ),
                   const SizedBox(height: AppSpacing.xs),
                   _PeriodPill(
-                    label: 'PM',
+                    label: materialL10n.postMeridiemAbbreviation,
                     selected: _time.period == DayPeriod.pm,
                     onTap: _isSaving ? null : () => _setPeriod(DayPeriod.pm),
                   ),
@@ -444,25 +450,25 @@ class _NewReminderCardState extends ConsumerState<_NewReminderCard> {
             ],
           ),
           const SizedBox(height: AppSpacing.md),
-          Text('REPEAT', style: theme.textTheme.labelMedium?.copyWith(color: accent)),
+          Text(l10n.remindersRepeatLabel, style: theme.textTheme.labelMedium?.copyWith(color: accent)),
           const SizedBox(height: AppSpacing.sm),
           Row(
             children: [
-              for (final day in _dayInitials.entries) ...[
+              for (var weekday = 1; weekday <= 7; weekday++) ...[
                 _DayCircle(
-                  label: day.value,
-                  selected: _selectedDays.contains(day.key),
+                  label: weekdayNarrowLabel(context, weekday),
+                  selected: _selectedDays.contains(weekday),
                   onTap: _isSaving
                       ? null
                       : () => setState(() {
-                          if (_selectedDays.contains(day.key)) {
-                            _selectedDays.remove(day.key);
+                          if (_selectedDays.contains(weekday)) {
+                            _selectedDays.remove(weekday);
                           } else {
-                            _selectedDays.add(day.key);
+                            _selectedDays.add(weekday);
                           }
                         }),
                 ),
-                if (day.key != 7) const SizedBox(width: AppSpacing.xs),
+                if (weekday != 7) const SizedBox(width: AppSpacing.xs),
               ],
             ],
           ),
@@ -475,7 +481,7 @@ class _NewReminderCardState extends ConsumerState<_NewReminderCard> {
                 TextButton(
                   onPressed: _isSaving ? null : widget.onDone,
                   style: TextButton.styleFrom(foregroundColor: accent),
-                  child: const Text('Cancel'),
+                  child: Text(l10n.commonCancel),
                 ),
                 TextButton(
                   onPressed: _isSaving || _selectedDays.isEmpty ? null : _save,
@@ -486,7 +492,7 @@ class _NewReminderCardState extends ConsumerState<_NewReminderCard> {
                           height: 16,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                      : const Text('Save', style: TextStyle(fontWeight: FontWeight.w700)),
+                      : Text(l10n.commonSave, style: const TextStyle(fontWeight: FontWeight.w700)),
                 ),
               ],
             ),

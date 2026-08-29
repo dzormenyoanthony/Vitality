@@ -55,6 +55,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonChange => 'Change';
 
   @override
+  String get commonNotSet => 'Not set';
+
+  @override
   String get commonSaving => 'Saving';
 
   @override
@@ -291,6 +294,95 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reminderCreatedSnackbar => 'Reminder created.';
+
+  @override
+  String get remindersTitle => 'Reminders';
+
+  @override
+  String get remindersEveryDay => 'Every day';
+
+  @override
+  String get remindersIntro =>
+      'Reminders prompt you to measure. Vitaly never asks you to change medication or treatment.';
+
+  @override
+  String get remindersEmpty => 'No reminders yet.';
+
+  @override
+  String get remindersAddButton => 'Add reminder';
+
+  @override
+  String get remindersFooter =>
+      'Notifications are delivered by Android. Silent hours are respected. Status colours describe delivery only, never your readings.';
+
+  @override
+  String get remindersNotificationsOffPrefix =>
+      'System notifications for Vitaly are switched off. ';
+
+  @override
+  String get remindersOpenAndroidSettings => 'Open Android settings';
+
+  @override
+  String get remindersDeleteTitle => 'Delete this reminder?';
+
+  @override
+  String remindersDeleteBody(String label) {
+    return '\"$label\" will no longer remind you.';
+  }
+
+  @override
+  String get remindersStatusOff => 'Off';
+
+  @override
+  String get remindersStatusDelivering => 'delivering';
+
+  @override
+  String remindersStatusSilenced(String range) {
+    return 'silenced $range';
+  }
+
+  @override
+  String get remindersNewReminderLabel => 'NEW REMINDER';
+
+  @override
+  String get remindersRepeatLabel => 'REPEAT';
+
+  @override
+  String get reminderFormTitleAdd => 'Add reminder';
+
+  @override
+  String get reminderFormTitleEdit => 'Edit reminder';
+
+  @override
+  String get reminderFormLabelField => 'Label';
+
+  @override
+  String get reminderFormLabelRequired => 'Enter a label.';
+
+  @override
+  String get reminderFormTimeLabel => 'Time';
+
+  @override
+  String get reminderFormRepeatOn => 'Repeat on';
+
+  @override
+  String get reminderFormQuietHours => 'Quiet hours (optional)';
+
+  @override
+  String get reminderFormQuietHoursHelp =>
+      'If this reminder\'s time falls in this window, it\'s delivered silently instead of not at all.';
+
+  @override
+  String get reminderFormQuietFrom => 'From';
+
+  @override
+  String get reminderFormQuietUntil => 'Until';
+
+  @override
+  String get reminderFormClearQuietHours => 'Clear quiet hours';
+
+  @override
+  String get reminderFormSelectDay => 'Select at least one day.';
 
   @override
   String get dashboardScanFabTooltip => 'Scan BP report';

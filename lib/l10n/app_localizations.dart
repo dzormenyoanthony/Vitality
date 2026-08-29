@@ -184,6 +184,12 @@ abstract class AppLocalizations {
   /// **'Change'**
   String get commonChange;
 
+  /// Placeholder shown where an optional value has not been chosen.
+  ///
+  /// In en, this message translates to:
+  /// **'Not set'**
+  String get commonNotSet;
+
   /// Accessibility label for an in-progress save spinner.
   ///
   /// In en, this message translates to:
@@ -639,6 +645,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reminder created.'**
   String get reminderCreatedSnackbar;
+
+  /// Header of the Reminders screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get remindersTitle;
+
+  /// Days-summary text / preset button meaning all seven days.
+  ///
+  /// In en, this message translates to:
+  /// **'Every day'**
+  String get remindersEveryDay;
+
+  /// Intro line on the Reminders screen (PROJECT_SPEC.md §13, §17). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders prompt you to measure. Vitaly never asks you to change medication or treatment.'**
+  String get remindersIntro;
+
+  /// Shown on the Reminders screen when the user has no reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders yet.'**
+  String get remindersEmpty;
+
+  /// Button that opens the inline new-reminder card / the reminder form.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reminder'**
+  String get remindersAddButton;
+
+  /// Footer note on the Reminders screen (PROJECT_SPEC.md §23). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are delivered by Android. Silent hours are respected. Status colours describe delivery only, never your readings.'**
+  String get remindersFooter;
+
+  /// Leading text of the notifications-disabled banner; followed by the settings link.
+  ///
+  /// In en, this message translates to:
+  /// **'System notifications for Vitaly are switched off. '**
+  String get remindersNotificationsOffPrefix;
+
+  /// Link in the notifications-disabled banner that opens the OS notification settings.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Android settings'**
+  String get remindersOpenAndroidSettings;
+
+  /// Confirmation dialog title for deleting a reminder.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this reminder?'**
+  String get remindersDeleteTitle;
+
+  /// Confirmation dialog body for deleting a reminder.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{label}\" will no longer remind you.'**
+  String remindersDeleteBody(String label);
+
+  /// Status word for a disabled reminder, shown after the days summary.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get remindersStatusOff;
+
+  /// Status word for an active reminder with no quiet hours.
+  ///
+  /// In en, this message translates to:
+  /// **'delivering'**
+  String get remindersStatusDelivering;
+
+  /// Status fragment for an active reminder whose time falls in its quiet-hours window.
+  ///
+  /// In en, this message translates to:
+  /// **'silenced {range}'**
+  String remindersStatusSilenced(String range);
+
+  /// Eyebrow label on the inline quick-add reminder card.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW REMINDER'**
+  String get remindersNewReminderLabel;
+
+  /// Eyebrow label above the repeat-day selector in the quick-add card.
+  ///
+  /// In en, this message translates to:
+  /// **'REPEAT'**
+  String get remindersRepeatLabel;
+
+  /// App bar title of the reminder form when creating.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reminder'**
+  String get reminderFormTitleAdd;
+
+  /// App bar title of the reminder form when editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit reminder'**
+  String get reminderFormTitleEdit;
+
+  /// Field label for the reminder's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Label'**
+  String get reminderFormLabelField;
+
+  /// Validation message when the reminder label is empty.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a label.'**
+  String get reminderFormLabelRequired;
+
+  /// Row label for the reminder's time-of-day.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get reminderFormTimeLabel;
+
+  /// Heading above the weekday selector on the reminder form.
+  ///
+  /// In en, this message translates to:
+  /// **'Repeat on'**
+  String get reminderFormRepeatOn;
+
+  /// Heading above the optional quiet-hours fields.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiet hours (optional)'**
+  String get reminderFormQuietHours;
+
+  /// Explains what quiet hours do on the reminder form.
+  ///
+  /// In en, this message translates to:
+  /// **'If this reminder\'s time falls in this window, it\'s delivered silently instead of not at all.'**
+  String get reminderFormQuietHoursHelp;
+
+  /// Label for the quiet-hours start time.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get reminderFormQuietFrom;
+
+  /// Label for the quiet-hours end time.
+  ///
+  /// In en, this message translates to:
+  /// **'Until'**
+  String get reminderFormQuietUntil;
+
+  /// Button that removes the quiet-hours window.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear quiet hours'**
+  String get reminderFormClearQuietHours;
+
+  /// Validation message when no repeat day is selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Select at least one day.'**
+  String get reminderFormSelectDay;
 
   /// Tooltip on the dashboard's document-scanner FAB.
   ///
