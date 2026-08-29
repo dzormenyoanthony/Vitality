@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -13,6 +14,8 @@ import 'package:timezone/data/latest.dart' as tz_data;
 
 import 'l10n/app_localizations.dart';
 
+import 'core/analytics/analytics_providers.dart';
+import 'core/analytics/firebase_analytics_service.dart';
 import 'core/constants/app_routes.dart';
 import 'core/router/app_router.dart';
 import 'core/router/auth_gate_provider.dart';
@@ -81,6 +84,9 @@ Future<void> main() async {
         overrides: [
           notificationSchedulerProvider.overrideWithValue(
             notificationScheduler,
+          ),
+          analyticsServiceProvider.overrideWithValue(
+            FirebaseAnalyticsService(FirebaseAnalytics.instance),
           ),
           sharedPreferencesProvider.overrideWithValue(sharedPreferences),
           appDatabaseProvider.overrideWithValue(db),
@@ -162,6 +168,8 @@ class _VitalyAppState extends ConsumerState<VitalyApp>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // PROJECT_SPEC.md §26 "app opened". Also fired on each resume below.
+    ref.read(analyticsServiceProvider).logAppOpened();
   }
 
   @override
@@ -176,6 +184,7 @@ class _VitalyAppState extends ConsumerState<VitalyApp>
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state != AppLifecycleState.resumed) return;
+    ref.read(analyticsServiceProvider).logAppOpened();
     final gate = ref.read(authGateProvider);
     if (gate is AuthGateReady) {
       ref.read(syncCoordinatorProvider).syncAll(gate.uid);

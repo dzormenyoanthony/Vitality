@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/analytics/analytics_providers.dart';
 import '../../../core/errors/failure.dart';
 import '../../onboarding/data/user_profile_providers.dart';
 import '../../onboarding/presentation/onboarding_controller.dart';
@@ -54,6 +55,8 @@ class SignUpController extends AsyncNotifier<void> {
         );
         await profileRepository.completeOnboarding(user.uid);
         ref.read(pendingProfileNameProvider.notifier).clear();
+        // PROJECT_SPEC.md §26 — onboarding completed (pre-auth carousel path).
+        ref.read(analyticsServiceProvider).logOnboardingCompleted();
       }
     });
   }

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import 'package:vitality/core/analytics/analytics_providers.dart';
 import 'package:vitality/features/blood_pressure/data/app_database.dart';
 import 'package:vitality/features/blood_pressure/data/blood_pressure_providers.dart';
 import 'package:vitality/features/reports/data/report_document_storage.dart';
@@ -12,6 +13,7 @@ import 'package:vitality/features/reports/domain/saved_report.dart';
 import 'package:vitality/features/reports/domain/text_recognition_service.dart';
 import 'package:vitality/features/reports/presentation/review_extracted_screen.dart';
 
+import '../../../support/fake_analytics_service.dart';
 import '../../../support/pump_app.dart';
 
 class _FakeTextRecognitionService implements TextRecognitionService {
@@ -185,6 +187,7 @@ void main() {
   testWidgets('confirming a detected reading adds it to BP History as an imported reading', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
     addTearDown(db.close);
+    final analytics = FakeAnalyticsService();
     final fakeOcr = _FakeTextRecognitionService({'/tmp/page_0.jpg': '136/84 mmHg'});
 
     final router = GoRouter(
@@ -210,6 +213,7 @@ void main() {
           appDatabaseProvider.overrideWithValue(db),
           textRecognitionServiceProvider.overrideWithValue(fakeOcr),
           reportDocumentStorageProvider.overrideWithValue(_FakeReportDocumentStorage()),
+          analyticsServiceProvider.overrideWithValue(analytics),
         ],
         child: MaterialApp.router(
           localizationsDelegates: localizationWrappers,
@@ -236,6 +240,9 @@ void main() {
     expect(readings.single.diastolic, 84);
     expect(readings.single.source, 'importedReport');
     expect(readings.single.sourceReportId, reports.single.id);
+
+    // PROJECT_SPEC.md §26 — reading recorded, tagged as imported, no values.
+    expect(analytics.events, ['bp_reading_recorded:imported=true']);
 
     await db.close();
   });

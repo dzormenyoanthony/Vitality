@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/analytics/analytics_providers.dart';
 import '../data/reminder_providers.dart';
 
 /// Saves, enables/disables, and deletes reminders, orchestrating the
@@ -39,6 +40,8 @@ class ReminderController extends AsyncNotifier<void> {
           quietHoursStart: quietHoursStart,
           quietHoursEnd: quietHoursEnd,
         );
+        // PROJECT_SPEC.md §26 — a new reminder was created (not an edit).
+        ref.read(analyticsServiceProvider).logReminderCreated();
         final granted = await scheduler.requestPermission();
         if (granted) {
           final reminder = await repository.watchById(id).first;

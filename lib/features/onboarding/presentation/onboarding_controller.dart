@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/analytics/analytics_providers.dart';
 import '../data/user_profile_providers.dart';
 
 /// Saves the preferred name and marks onboarding complete. The router's
@@ -21,6 +22,8 @@ class OnboardingController extends AsyncNotifier<void> {
       final repository = ref.read(userProfileRepositoryProvider);
       await repository.createProfile(uid: uid, displayName: displayName);
       await repository.completeOnboarding(uid);
+      // PROJECT_SPEC.md §26 — onboarding completed (Google/legacy path).
+      ref.read(analyticsServiceProvider).logOnboardingCompleted();
     });
   }
 }

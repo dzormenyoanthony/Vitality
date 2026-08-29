@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/analytics/analytics_providers.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
@@ -16,16 +17,32 @@ import 'education_providers.dart';
 /// The "How to take a reading at home" article gets the richer numbered-step
 /// + illustrated cuff-placement layout from `design_references/Measure
 /// well.png`; every other article keeps the plain flowing-paragraph layout.
-class ArticleDetailScreen extends ConsumerWidget {
+class ArticleDetailScreen extends ConsumerStatefulWidget {
   const ArticleDetailScreen({required this.articleId, super.key});
 
   final String articleId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<ArticleDetailScreen> createState() =>
+      _ArticleDetailScreenState();
+}
+
+class _ArticleDetailScreenState extends ConsumerState<ArticleDetailScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // PROJECT_SPEC.md §26 — educational content opened. The id is a stable
+    // content slug, not personal or health data.
+    ref
+        .read(analyticsServiceProvider)
+        .logEducationalContentOpened(articleId: widget.articleId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    final article = ref.watch(articleByIdProvider(articleId));
+    final article = ref.watch(articleByIdProvider(widget.articleId));
 
     if (article == null) {
       return Scaffold(

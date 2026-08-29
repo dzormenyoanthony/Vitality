@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/analytics/analytics_providers.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
 
@@ -36,6 +37,8 @@ class RecordBpController extends AsyncNotifier<void> {
           bodyPosition: bodyPosition,
           cuffArm: cuffArm,
         );
+        // PROJECT_SPEC.md §26 — reading recorded; no values are sent.
+        ref.read(analyticsServiceProvider).logBpReadingRecorded(imported: false);
       } else {
         await repository.updateReading(
           id: existingId,

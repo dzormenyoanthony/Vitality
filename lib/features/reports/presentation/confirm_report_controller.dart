@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/analytics/analytics_providers.dart';
 import '../../blood_pressure/data/blood_pressure_providers.dart';
 import '../../blood_pressure/data/blood_pressure_reading.dart';
 import '../data/report_providers.dart';
@@ -59,6 +60,7 @@ class ConfirmReportController extends AsyncNotifier<void> {
       );
 
       final bloodPressureRepository = ref.read(bloodPressureRepositoryProvider);
+      final analytics = ref.read(analyticsServiceProvider);
       for (final reading in confirmedReadings) {
         if (!selectedForHistoryIds.contains(reading.id)) continue;
         await bloodPressureRepository.addReading(
@@ -69,6 +71,8 @@ class ConfirmReportController extends AsyncNotifier<void> {
           source: ReadingSource.importedReport,
           sourceReportId: id,
         );
+        // PROJECT_SPEC.md §26 — reading recorded; no values are sent.
+        analytics.logBpReadingRecorded(imported: true);
       }
 
       // Best-effort: never block confirming on the network. `SyncCoordinator`
