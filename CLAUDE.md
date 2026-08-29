@@ -267,11 +267,25 @@ Before considering a task complete, run:
 flutter analyze
 ```
 
-and relevant tests:
+relevant tests:
 
 ```bash
 flutter test
 ```
+
+and the localization guardrail (PROJECT_SPEC.md §36 — no hard-coded
+user-facing strings in `lib/`):
+
+```bash
+dart run tool/check_hardcoded_strings.dart
+```
+
+New user-facing copy must be a key in `lib/l10n/app_en.arb`, accessed via
+`AppLocalizations.of(context)` (or an `AppLocalizations` threaded into a
+domain helper). Regenerate with `flutter gen-l10n` after editing the ARB.
+Medical-safety wording (PROJECT_SPEC.md §12–14, §21, §24, §27, §29) is
+pinned by `test/l10n/medical_safety_wording_test.dart`; changing those
+strings still requires the §37 non-diagnostic-scope review.
 
 Fix errors and meaningful warnings introduced by the implementation.
 
