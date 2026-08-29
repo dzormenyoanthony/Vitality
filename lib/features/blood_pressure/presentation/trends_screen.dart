@@ -628,11 +628,12 @@ class _AverageStatusCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final classification = BPClassificationService.classify(
       systolic: stats.avgSystolic!.round(),
       diastolic: stats.avgDiastolic!.round(),
     );
-    final movementLine = categoryMovementLine(stats);
+    final movementLine = categoryMovementLine(l10n, stats);
 
     return Card(
       child: Padding(
@@ -720,7 +721,7 @@ class _ExportButton extends StatelessWidget {
   }
 
   Future<void> _exportPdf(BuildContext context) async {
-    final bytes = await buildTrendSummaryPdf(stats);
+    final bytes = await buildTrendSummaryPdf(AppLocalizations.of(context), stats);
     if (!context.mounted) return;
     await Printing.sharePdf(bytes: bytes, filename: 'vitaly-trend-summary.pdf');
   }

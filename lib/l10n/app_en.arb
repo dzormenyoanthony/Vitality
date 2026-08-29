@@ -680,6 +680,158 @@
   "measureWellDiagramReadingUnit": "82  mmHg",
   "@measureWellDiagramReadingUnit": { "description": "Fixed illustrative device readout (diastolic value + unit) on the cuff-placement diagram." },
 
+  "bpCategoryLooksGood": "Looks good",
+  "@bpCategoryLooksGood": {
+    "description": "Non-diagnostic status label for the NORMAL BP category (PROJECT_SPEC.md §21, §29). Approved wording; any change needs clinical/§37 review."
+  },
+  "bpCategoryWorthKeepingAnEyeOn": "Worth keeping an eye on",
+  "@bpCategoryWorthKeepingAnEyeOn": {
+    "description": "Non-diagnostic status label for the ELEVATED BP category (PROJECT_SPEC.md §21, §29). Approved wording; any change needs clinical/§37 review."
+  },
+  "bpCategoryHigherThanUsual": "Higher than the usual range",
+  "@bpCategoryHigherThanUsual": {
+    "description": "Non-diagnostic status label for the HIGHER BP category (PROJECT_SPEC.md §21, §29). Approved wording; any change needs clinical/§37 review."
+  },
+  "bpCategoryReadingIsHigh": "This reading is high",
+  "@bpCategoryReadingIsHigh": {
+    "description": "Non-diagnostic status label for the HIGH BP category (PROJECT_SPEC.md §21, §29). Approved wording; any change needs clinical/§37 review."
+  },
+  "bpCategoryNameNormal": "normal",
+  "@bpCategoryNameNormal": { "description": "Lowercase category noun for the category-movement sentence." },
+  "bpCategoryNameElevated": "elevated",
+  "@bpCategoryNameElevated": { "description": "Lowercase category noun for the category-movement sentence." },
+  "bpCategoryNameHigher": "higher",
+  "@bpCategoryNameHigher": { "description": "Lowercase category noun for the category-movement sentence." },
+  "bpCategoryNameHigh": "high",
+  "@bpCategoryNameHigh": { "description": "Lowercase category noun for the category-movement sentence." },
+  "bpExplanation": "Your recorded blood pressure was {systolic}/{diastolic} mmHg. The systolic value falls within the {systolicRange} range and the diastolic value falls within the {diastolicRange} range. This classification describes this recorded reading. It is not a diagnosis.",
+  "@bpExplanation": {
+    "description": "\"Why am I seeing this?\" explanation, generated from the classification data (PROJECT_SPEC.md §24). Approved wording; any change needs clinical/§37 review.",
+    "placeholders": {
+      "systolic": { "type": "int" },
+      "diastolic": { "type": "int" },
+      "systolicRange": { "type": "String", "example": "130–139" },
+      "diastolicRange": { "type": "String", "example": "80–89" }
+    }
+  },
+  "bpWhyAmISeeingThis": "Why am I seeing this?",
+  "@bpWhyAmISeeingThis": {
+    "description": "Title of the classification explanation bottom sheet (PROJECT_SPEC.md §24)."
+  },
+  "bpStatusSemanticsLabel": "Status: {status}",
+  "@bpStatusSemanticsLabel": {
+    "description": "Screen-reader label for a non-interactive status badge.",
+    "placeholders": { "status": { "type": "String", "example": "Looks good" } }
+  },
+  "bpStatusSemanticsLabelInteractive": "Status: {status}. Why am I seeing this?",
+  "@bpStatusSemanticsLabelInteractive": {
+    "description": "Screen-reader label for a status badge that opens the explanation sheet.",
+    "placeholders": { "status": { "type": "String", "example": "This reading is high" } }
+  },
+
+  "trendSummaryAvgSystolic": "Your average systolic reading over the last {period} was {value} mmHg.",
+  "@trendSummaryAvgSystolic": {
+    "description": "Trend summary sentence (PROJECT_SPEC.md §12). Approved non-diagnostic wording; any change needs the §37 review.",
+    "placeholders": {
+      "period": { "type": "String", "example": "7 days" },
+      "value": { "type": "int" }
+    }
+  },
+  "trendSummaryAvgDiastolic": "Your average diastolic reading over the last {period} was {value} mmHg.",
+  "@trendSummaryAvgDiastolic": {
+    "description": "Trend summary sentence (PROJECT_SPEC.md §12). Approved non-diagnostic wording; any change needs the §37 review.",
+    "placeholders": {
+      "period": { "type": "String", "example": "30 days" },
+      "value": { "type": "int" }
+    }
+  },
+  "trendSummaryAvgPulse": "Your average pulse over the last {period} was {value} bpm.",
+  "@trendSummaryAvgPulse": {
+    "description": "Trend summary sentence (PROJECT_SPEC.md §12). Approved non-diagnostic wording; any change needs the §37 review.",
+    "placeholders": {
+      "period": { "type": "String", "example": "90 days" },
+      "value": { "type": "int" }
+    }
+  },
+  "trendSummaryAverageStatus": "{count, plural, =1{Average status (1 reading): {status}.} other{Average status ({count} readings): {status}.}}",
+  "@trendSummaryAverageStatus": {
+    "description": "Trend summary line stating the classification of the period average (PROJECT_SPEC.md §12, §23). Approved wording; any change needs the §37 review.",
+    "placeholders": {
+      "count": { "type": "int" },
+      "status": { "type": "String", "example": "Higher than the usual range" }
+    }
+  },
+  "trendSummaryReadingCount": "{count, plural, =1{You recorded 1 reading during this period.} other{You recorded {count} readings during this period.}}",
+  "@trendSummaryReadingCount": {
+    "description": "Trend summary line stating how many readings were recorded (PROJECT_SPEC.md §12). Approved wording; any change needs the §37 review.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "trendSummaryPeriodAll": "available history",
+  "@trendSummaryPeriodAll": {
+    "description": "Phrase used in place of a fixed window when the trend period is 'all history' (PROJECT_SPEC.md §12)."
+  },
+  "trendCategoryMovement": "Your average recorded reading moved from the {previous} category to the {current} category.",
+  "@trendCategoryMovement": {
+    "description": "Category-movement sentence (PROJECT_SPEC.md §27) — always phrased as a category change, never a health improvement/decline. Approved wording; any change needs the §37 review.",
+    "placeholders": {
+      "previous": { "type": "String", "example": "higher" },
+      "current": { "type": "String", "example": "elevated" }
+    }
+  },
+  "trendFrequencySame": "You recorded the same number of readings as last period.",
+  "@trendFrequencySame": {
+    "description": "Trend frequency comparison (PROJECT_SPEC.md §12). Approved wording; any change needs the §37 review."
+  },
+  "trendFrequencyFewer": "You recorded fewer readings this period than last.",
+  "@trendFrequencyFewer": {
+    "description": "Trend frequency comparison (PROJECT_SPEC.md §12). Approved wording; any change needs the §37 review."
+  },
+  "trendFrequencyMore": "You recorded more readings this period than last.",
+  "@trendFrequencyMore": {
+    "description": "Trend frequency comparison (PROJECT_SPEC.md §12). Approved wording; any change needs the §37 review."
+  },
+
+  "trendPdfTitle": "Vitaly - Trend Summary",
+  "@trendPdfTitle": { "description": "Top-level header of the exported Trends PDF." },
+  "trendPdfGenerated": "Generated {date}",
+  "@trendPdfGenerated": {
+    "description": "Timestamp line at the top of the exported Trends PDF.",
+    "placeholders": { "date": { "type": "String", "example": "2026-08-22" } }
+  },
+  "trendPdfReadingsHeader": "Readings in this period",
+  "@trendPdfReadingsHeader": { "description": "Section header above the reading table in the exported Trends PDF." },
+  "trendPdfColDate": "Date",
+  "@trendPdfColDate": { "description": "Trends PDF reading-table column header." },
+  "trendPdfColTime": "Time",
+  "@trendPdfColTime": { "description": "Trends PDF reading-table column header." },
+  "trendPdfColSystolic": "Systolic",
+  "@trendPdfColSystolic": { "description": "Trends PDF reading-table column header." },
+  "trendPdfColDiastolic": "Diastolic",
+  "@trendPdfColDiastolic": { "description": "Trends PDF reading-table column header." },
+  "trendPdfColPulse": "Pulse",
+  "@trendPdfColPulse": { "description": "Trends PDF reading-table column header." },
+  "trendPdfDisclaimer": "This is a record of self-reported home readings. It does not diagnose or interpret your blood pressure. Share it with your healthcare professional.",
+  "@trendPdfDisclaimer": {
+    "description": "Non-diagnostic disclaimer in the exported Trends PDF (PROJECT_SPEC.md §12, §28). Approved wording; any change needs the §37 review."
+  },
+
+  "loggingInsightMorningGap": "You logged {morningDays} of the last 7 mornings and {eveningDays} evenings. A morning reminder would even out the record.",
+  "@loggingInsightMorningGap": {
+    "description": "Dashboard nudge shown when mornings are underrepresented, derived only from logging counts (PROJECT_SPEC.md §12-14) — never a comment on reading values.",
+    "placeholders": {
+      "morningDays": { "type": "int" },
+      "eveningDays": { "type": "int" }
+    }
+  },
+  "loggingInsightEveningGap": "You logged {eveningDays} of the last 7 evenings and {morningDays} mornings. An evening reminder would even out the record.",
+  "@loggingInsightEveningGap": {
+    "description": "Dashboard nudge shown when evenings are underrepresented, derived only from logging counts (PROJECT_SPEC.md §12-14) — never a comment on reading values.",
+    "placeholders": {
+      "eveningDays": { "type": "int" },
+      "morningDays": { "type": "int" }
+    }
+  },
+
   "dashboardScanFabTooltip": "Scan BP report",
   "@dashboardScanFabTooltip": {
     "description": "Tooltip on the dashboard's document-scanner FAB."

@@ -1,17 +1,28 @@
 import '../../blood_pressure/data/blood_pressure_reading.dart';
 
+/// Which time-of-day is underrepresented in the last 7 days.
+enum LoggingInsightKind { morningGap, eveningGap }
+
 /// A rule-based nudge derived purely from counts of the user's own logged
 /// data — never a comment on what their numbers mean (PROJECT_SPEC.md
 /// §12-14). Suggests a reminder time when one time-of-day is
 /// underrepresented over the last 7 days.
+///
+/// The user-facing sentence is built by the presentation layer from
+/// [kind], [morningDays], and [eveningDays] — this class deliberately
+/// carries no reading values.
 final class LoggingInsight {
   const LoggingInsight({
-    required this.message,
+    required this.kind,
+    required this.morningDays,
+    required this.eveningDays,
     required this.suggestedHour,
     required this.suggestedMinute,
   });
 
-  final String message;
+  final LoggingInsightKind kind;
+  final int morningDays;
+  final int eveningDays;
   final int suggestedHour;
   final int suggestedMinute;
 }
@@ -41,18 +52,18 @@ LoggingInsight? computeLoggingInsight(List<BloodPressureReading> readings, DateT
 
   if (morningDays <= eveningDays - 2) {
     return LoggingInsight(
-      message:
-          'You logged $morningDays of the last 7 mornings and $eveningDays '
-          'evenings. A morning reminder would even out the record.',
+      kind: LoggingInsightKind.morningGap,
+      morningDays: morningDays,
+      eveningDays: eveningDays,
       suggestedHour: 7,
       suggestedMinute: 30,
     );
   }
   if (eveningDays <= morningDays - 2) {
     return LoggingInsight(
-      message:
-          'You logged $eveningDays of the last 7 evenings and $morningDays '
-          'mornings. An evening reminder would even out the record.',
+      kind: LoggingInsightKind.eveningGap,
+      morningDays: morningDays,
+      eveningDays: eveningDays,
       suggestedHour: 20,
       suggestedMinute: 0,
     );

@@ -355,7 +355,16 @@ class _InsightCardState extends ConsumerState<_InsightCard> {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            widget.insight.message,
+            switch (widget.insight.kind) {
+              LoggingInsightKind.morningGap => l10n.loggingInsightMorningGap(
+                widget.insight.morningDays,
+                widget.insight.eveningDays,
+              ),
+              LoggingInsightKind.eveningGap => l10n.loggingInsightEveningGap(
+                widget.insight.eveningDays,
+                widget.insight.morningDays,
+              ),
+            },
             style: TextStyle(color: theme.colorScheme.onSurface),
           ),
           const SizedBox(height: AppSpacing.md),

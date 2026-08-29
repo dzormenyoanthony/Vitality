@@ -3,8 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vitality/features/blood_pressure/data/blood_pressure_reading.dart';
 import 'package:vitality/features/blood_pressure/domain/trend_calculator.dart';
 import 'package:vitality/features/blood_pressure/presentation/trend_pdf_export.dart';
+import 'package:vitality/l10n/app_localizations.dart';
+
+import '../../../support/pump_app.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  late AppLocalizations l10n;
+  setUpAll(() async => l10n = await loadAppLocalizations());
   test('produces non-empty PDF bytes starting with the PDF magic header', () async {
     final now = DateTime(2026, 8, 23);
     final reading = BloodPressureReading(
@@ -18,7 +24,7 @@ void main() {
     );
     final stats = TrendCalculator.compute([reading], TrendPeriod.sevenDays, now);
 
-    final bytes = await buildTrendSummaryPdf(stats);
+    final bytes = await buildTrendSummaryPdf(l10n, stats);
 
     expect(bytes, isNotEmpty);
     // PDF files start with "%PDF-".
@@ -29,7 +35,7 @@ void main() {
     final now = DateTime(2026, 8, 23);
     final stats = TrendCalculator.compute([], TrendPeriod.sevenDays, now);
 
-    final bytes = await buildTrendSummaryPdf(stats);
+    final bytes = await buildTrendSummaryPdf(l10n, stats);
 
     expect(bytes, isNotEmpty);
   });

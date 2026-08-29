@@ -667,6 +667,150 @@ class AppLocalizationsEn extends AppLocalizations {
   String get measureWellDiagramReadingUnit => '82  mmHg';
 
   @override
+  String get bpCategoryLooksGood => 'Looks good';
+
+  @override
+  String get bpCategoryWorthKeepingAnEyeOn => 'Worth keeping an eye on';
+
+  @override
+  String get bpCategoryHigherThanUsual => 'Higher than the usual range';
+
+  @override
+  String get bpCategoryReadingIsHigh => 'This reading is high';
+
+  @override
+  String get bpCategoryNameNormal => 'normal';
+
+  @override
+  String get bpCategoryNameElevated => 'elevated';
+
+  @override
+  String get bpCategoryNameHigher => 'higher';
+
+  @override
+  String get bpCategoryNameHigh => 'high';
+
+  @override
+  String bpExplanation(
+    int systolic,
+    int diastolic,
+    String systolicRange,
+    String diastolicRange,
+  ) {
+    return 'Your recorded blood pressure was $systolic/$diastolic mmHg. The systolic value falls within the $systolicRange range and the diastolic value falls within the $diastolicRange range. This classification describes this recorded reading. It is not a diagnosis.';
+  }
+
+  @override
+  String get bpWhyAmISeeingThis => 'Why am I seeing this?';
+
+  @override
+  String bpStatusSemanticsLabel(String status) {
+    return 'Status: $status';
+  }
+
+  @override
+  String bpStatusSemanticsLabelInteractive(String status) {
+    return 'Status: $status. Why am I seeing this?';
+  }
+
+  @override
+  String trendSummaryAvgSystolic(String period, int value) {
+    return 'Your average systolic reading over the last $period was $value mmHg.';
+  }
+
+  @override
+  String trendSummaryAvgDiastolic(String period, int value) {
+    return 'Your average diastolic reading over the last $period was $value mmHg.';
+  }
+
+  @override
+  String trendSummaryAvgPulse(String period, int value) {
+    return 'Your average pulse over the last $period was $value bpm.';
+  }
+
+  @override
+  String trendSummaryAverageStatus(int count, String status) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Average status ($count readings): $status.',
+      one: 'Average status (1 reading): $status.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String trendSummaryReadingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'You recorded $count readings during this period.',
+      one: 'You recorded 1 reading during this period.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get trendSummaryPeriodAll => 'available history';
+
+  @override
+  String trendCategoryMovement(String previous, String current) {
+    return 'Your average recorded reading moved from the $previous category to the $current category.';
+  }
+
+  @override
+  String get trendFrequencySame =>
+      'You recorded the same number of readings as last period.';
+
+  @override
+  String get trendFrequencyFewer =>
+      'You recorded fewer readings this period than last.';
+
+  @override
+  String get trendFrequencyMore =>
+      'You recorded more readings this period than last.';
+
+  @override
+  String get trendPdfTitle => 'Vitaly - Trend Summary';
+
+  @override
+  String trendPdfGenerated(String date) {
+    return 'Generated $date';
+  }
+
+  @override
+  String get trendPdfReadingsHeader => 'Readings in this period';
+
+  @override
+  String get trendPdfColDate => 'Date';
+
+  @override
+  String get trendPdfColTime => 'Time';
+
+  @override
+  String get trendPdfColSystolic => 'Systolic';
+
+  @override
+  String get trendPdfColDiastolic => 'Diastolic';
+
+  @override
+  String get trendPdfColPulse => 'Pulse';
+
+  @override
+  String get trendPdfDisclaimer =>
+      'This is a record of self-reported home readings. It does not diagnose or interpret your blood pressure. Share it with your healthcare professional.';
+
+  @override
+  String loggingInsightMorningGap(int morningDays, int eveningDays) {
+    return 'You logged $morningDays of the last 7 mornings and $eveningDays evenings. A morning reminder would even out the record.';
+  }
+
+  @override
+  String loggingInsightEveningGap(int eveningDays, int morningDays) {
+    return 'You logged $eveningDays of the last 7 evenings and $morningDays mornings. An evening reminder would even out the record.';
+  }
+
+  @override
   String get dashboardScanFabTooltip => 'Scan BP report';
 
   @override

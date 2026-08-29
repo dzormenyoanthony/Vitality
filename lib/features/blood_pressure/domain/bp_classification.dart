@@ -1,23 +1,31 @@
+import '../../../l10n/app_localizations.dart';
+
 /// A non-diagnostic status category for a recorded blood-pressure reading
 /// or average (PROJECT_SPEC.md §18-21). This describes the RECORDED
 /// VALUE, never the user's medical condition — see the approved wording in
-/// [BPCategory.label] and §29's approved/avoid language lists.
+/// [BPCategoryLabel.label] and §29's approved/avoid language lists.
 ///
 /// Ordered by severity, lowest first — [index] doubles as the severity
 /// rank used to pick "the higher applicable category" when systolic and
 /// diastolic fall into different categories (§20).
-enum BPCategory {
-  normal,
-  elevated,
-  higher,
-  high;
+enum BPCategory { normal, elevated, higher, high }
 
+extension BPCategoryLabel on BPCategory {
   /// The approved, non-diagnostic display label (PROJECT_SPEC.md §21, §29).
-  String get label => switch (this) {
-    BPCategory.normal => 'Looks good',
-    BPCategory.elevated => 'Worth keeping an eye on',
-    BPCategory.higher => 'Higher than the usual range',
-    BPCategory.high => 'This reading is high',
+  String label(AppLocalizations l10n) => switch (this) {
+    BPCategory.normal => l10n.bpCategoryLooksGood,
+    BPCategory.elevated => l10n.bpCategoryWorthKeepingAnEyeOn,
+    BPCategory.higher => l10n.bpCategoryHigherThanUsual,
+    BPCategory.high => l10n.bpCategoryReadingIsHigh,
+  };
+
+  /// Lowercase category noun for the trends category-movement sentence
+  /// (PROJECT_SPEC.md §27).
+  String noun(AppLocalizations l10n) => switch (this) {
+    BPCategory.normal => l10n.bpCategoryNameNormal,
+    BPCategory.elevated => l10n.bpCategoryNameElevated,
+    BPCategory.higher => l10n.bpCategoryNameHigher,
+    BPCategory.high => l10n.bpCategoryNameHigh,
   };
 }
 
@@ -49,9 +57,10 @@ final class BPClassification {
   /// Generates the "Why am I seeing this?" explanation from this
   /// classification's own data (PROJECT_SPEC.md §24) — never a diagnosis,
   /// always describing the recorded reading.
-  String get explanation =>
-      'Your recorded blood pressure was $systolic/$diastolic mmHg. '
-      'The systolic value falls within the $systolicRangeLabel range and '
-      'the diastolic value falls within the $diastolicRangeLabel range. '
-      'This classification describes this recorded reading. It is not a diagnosis.';
+  String explanation(AppLocalizations l10n) => l10n.bpExplanation(
+    systolic,
+    diastolic,
+    systolicRangeLabel,
+    diastolicRangeLabel,
+  );
 }

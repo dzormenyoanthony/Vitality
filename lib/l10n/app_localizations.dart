@@ -1276,6 +1276,209 @@ abstract class AppLocalizations {
   /// **'82  mmHg'**
   String get measureWellDiagramReadingUnit;
 
+  /// Non-diagnostic status label for the NORMAL BP category (PROJECT_SPEC.md §21, §29). Approved wording; any change needs clinical/§37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Looks good'**
+  String get bpCategoryLooksGood;
+
+  /// Non-diagnostic status label for the ELEVATED BP category (PROJECT_SPEC.md §21, §29). Approved wording; any change needs clinical/§37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Worth keeping an eye on'**
+  String get bpCategoryWorthKeepingAnEyeOn;
+
+  /// Non-diagnostic status label for the HIGHER BP category (PROJECT_SPEC.md §21, §29). Approved wording; any change needs clinical/§37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Higher than the usual range'**
+  String get bpCategoryHigherThanUsual;
+
+  /// Non-diagnostic status label for the HIGH BP category (PROJECT_SPEC.md §21, §29). Approved wording; any change needs clinical/§37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'This reading is high'**
+  String get bpCategoryReadingIsHigh;
+
+  /// Lowercase category noun for the category-movement sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'normal'**
+  String get bpCategoryNameNormal;
+
+  /// Lowercase category noun for the category-movement sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'elevated'**
+  String get bpCategoryNameElevated;
+
+  /// Lowercase category noun for the category-movement sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'higher'**
+  String get bpCategoryNameHigher;
+
+  /// Lowercase category noun for the category-movement sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'high'**
+  String get bpCategoryNameHigh;
+
+  /// "Why am I seeing this?" explanation, generated from the classification data (PROJECT_SPEC.md §24). Approved wording; any change needs clinical/§37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Your recorded blood pressure was {systolic}/{diastolic} mmHg. The systolic value falls within the {systolicRange} range and the diastolic value falls within the {diastolicRange} range. This classification describes this recorded reading. It is not a diagnosis.'**
+  String bpExplanation(
+    int systolic,
+    int diastolic,
+    String systolicRange,
+    String diastolicRange,
+  );
+
+  /// Title of the classification explanation bottom sheet (PROJECT_SPEC.md §24).
+  ///
+  /// In en, this message translates to:
+  /// **'Why am I seeing this?'**
+  String get bpWhyAmISeeingThis;
+
+  /// Screen-reader label for a non-interactive status badge.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: {status}'**
+  String bpStatusSemanticsLabel(String status);
+
+  /// Screen-reader label for a status badge that opens the explanation sheet.
+  ///
+  /// In en, this message translates to:
+  /// **'Status: {status}. Why am I seeing this?'**
+  String bpStatusSemanticsLabelInteractive(String status);
+
+  /// Trend summary sentence (PROJECT_SPEC.md §12). Approved non-diagnostic wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Your average systolic reading over the last {period} was {value} mmHg.'**
+  String trendSummaryAvgSystolic(String period, int value);
+
+  /// Trend summary sentence (PROJECT_SPEC.md §12). Approved non-diagnostic wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Your average diastolic reading over the last {period} was {value} mmHg.'**
+  String trendSummaryAvgDiastolic(String period, int value);
+
+  /// Trend summary sentence (PROJECT_SPEC.md §12). Approved non-diagnostic wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Your average pulse over the last {period} was {value} bpm.'**
+  String trendSummaryAvgPulse(String period, int value);
+
+  /// Trend summary line stating the classification of the period average (PROJECT_SPEC.md §12, §23). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Average status (1 reading): {status}.} other{Average status ({count} readings): {status}.}}'**
+  String trendSummaryAverageStatus(int count, String status);
+
+  /// Trend summary line stating how many readings were recorded (PROJECT_SPEC.md §12). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{You recorded 1 reading during this period.} other{You recorded {count} readings during this period.}}'**
+  String trendSummaryReadingCount(int count);
+
+  /// Phrase used in place of a fixed window when the trend period is 'all history' (PROJECT_SPEC.md §12).
+  ///
+  /// In en, this message translates to:
+  /// **'available history'**
+  String get trendSummaryPeriodAll;
+
+  /// Category-movement sentence (PROJECT_SPEC.md §27) — always phrased as a category change, never a health improvement/decline. Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Your average recorded reading moved from the {previous} category to the {current} category.'**
+  String trendCategoryMovement(String previous, String current);
+
+  /// Trend frequency comparison (PROJECT_SPEC.md §12). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'You recorded the same number of readings as last period.'**
+  String get trendFrequencySame;
+
+  /// Trend frequency comparison (PROJECT_SPEC.md §12). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'You recorded fewer readings this period than last.'**
+  String get trendFrequencyFewer;
+
+  /// Trend frequency comparison (PROJECT_SPEC.md §12). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'You recorded more readings this period than last.'**
+  String get trendFrequencyMore;
+
+  /// Top-level header of the exported Trends PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Vitaly - Trend Summary'**
+  String get trendPdfTitle;
+
+  /// Timestamp line at the top of the exported Trends PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated {date}'**
+  String trendPdfGenerated(String date);
+
+  /// Section header above the reading table in the exported Trends PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Readings in this period'**
+  String get trendPdfReadingsHeader;
+
+  /// Trends PDF reading-table column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get trendPdfColDate;
+
+  /// Trends PDF reading-table column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get trendPdfColTime;
+
+  /// Trends PDF reading-table column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic'**
+  String get trendPdfColSystolic;
+
+  /// Trends PDF reading-table column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Diastolic'**
+  String get trendPdfColDiastolic;
+
+  /// Trends PDF reading-table column header.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse'**
+  String get trendPdfColPulse;
+
+  /// Non-diagnostic disclaimer in the exported Trends PDF (PROJECT_SPEC.md §12, §28). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'This is a record of self-reported home readings. It does not diagnose or interpret your blood pressure. Share it with your healthcare professional.'**
+  String get trendPdfDisclaimer;
+
+  /// Dashboard nudge shown when mornings are underrepresented, derived only from logging counts (PROJECT_SPEC.md §12-14) — never a comment on reading values.
+  ///
+  /// In en, this message translates to:
+  /// **'You logged {morningDays} of the last 7 mornings and {eveningDays} evenings. A morning reminder would even out the record.'**
+  String loggingInsightMorningGap(int morningDays, int eveningDays);
+
+  /// Dashboard nudge shown when evenings are underrepresented, derived only from logging counts (PROJECT_SPEC.md §12-14) — never a comment on reading values.
+  ///
+  /// In en, this message translates to:
+  /// **'You logged {eveningDays} of the last 7 evenings and {morningDays} mornings. An evening reminder would even out the record.'**
+  String loggingInsightEveningGap(int eveningDays, int morningDays);
+
   /// Tooltip on the dashboard's document-scanner FAB.
   ///
   /// In en, this message translates to:

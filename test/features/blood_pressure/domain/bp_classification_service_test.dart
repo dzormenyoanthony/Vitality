@@ -1,12 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:vitality/l10n/app_localizations.dart';
 
 import 'package:vitality/features/blood_pressure/domain/bp_classification.dart';
 import 'package:vitality/features/blood_pressure/domain/bp_classification_service.dart';
+
+import '../../../support/pump_app.dart';
 
 BPCategory _classify(int systolic, int diastolic) =>
     BPClassificationService.classify(systolic: systolic, diastolic: diastolic).category;
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  late AppLocalizations l10n;
+  setUpAll(() async => l10n = await loadAppLocalizations());
+
   group('BPClassificationService.classify', () {
     // The exact boundary values mandated by PROJECT_SPEC.md §32.
     test('boundary values match the spec exactly', () {
@@ -70,24 +77,25 @@ void main() {
     });
 
     test('label text matches the approved non-diagnostic wording', () {
-      expect(BPCategory.normal.label, 'Looks good');
-      expect(BPCategory.elevated.label, 'Worth keeping an eye on');
-      expect(BPCategory.higher.label, 'Higher than the usual range');
-      expect(BPCategory.high.label, 'This reading is high');
+      expect(BPCategory.normal.label(l10n), 'Looks good');
+      expect(BPCategory.elevated.label(l10n), 'Worth keeping an eye on');
+      expect(BPCategory.higher.label(l10n), 'Higher than the usual range');
+      expect(BPCategory.high.label(l10n), 'This reading is high');
     });
 
     test('explanation is generated from the classification data and is non-diagnostic', () {
       final classification = BPClassificationService.classify(systolic: 136, diastolic: 84);
+      final explanation = classification.explanation(l10n);
 
-      expect(classification.explanation, contains('136/84 mmHg'));
-      expect(classification.explanation, contains('not a diagnosis'));
+      expect(explanation, contains('136/84 mmHg'));
+      expect(explanation, contains('not a diagnosis'));
       for (final forbidden in [
         'hypertension',
         'you have',
         'you are unhealthy',
         'you need medication',
       ]) {
-        expect(classification.explanation.toLowerCase(), isNot(contains(forbidden)));
+        expect(explanation.toLowerCase(), isNot(contains(forbidden)));
       }
     });
   });

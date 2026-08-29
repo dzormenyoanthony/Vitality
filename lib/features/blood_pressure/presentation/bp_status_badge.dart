@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../domain/bp_classification.dart';
 
 /// Displays a [BPClassification]'s category consistently everywhere it
@@ -40,9 +41,10 @@ class BPStatusBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final colors = theme.extension<BPStatusColors>() ?? BPStatusColors.light;
     final (background, foreground, icon) = _stylesFor(classification.category, colors);
-    final label = classification.category.label;
+    final label = classification.category.label(l10n);
 
     final content = Row(
       mainAxisSize: MainAxisSize.min,
@@ -72,10 +74,10 @@ class BPStatusBadge extends StatelessWidget {
     );
 
     if (onExplain == null) {
-      return Semantics(label: 'Status: $label', child: badge);
+      return Semantics(label: l10n.bpStatusSemanticsLabel(label), child: badge);
     }
     return Semantics(
-      label: 'Status: $label. Why am I seeing this?',
+      label: l10n.bpStatusSemanticsLabelInteractive(label),
       button: true,
       child: InkWell(borderRadius: BorderRadius.circular(999), onTap: onExplain, child: badge),
     );
@@ -89,17 +91,20 @@ void showBpExplanationSheet(BuildContext context, BPClassification classificatio
   showModalBottomSheet<void>(
     context: context,
     showDragHandle: true,
-    builder: (context) => Padding(
-      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Why am I seeing this?', style: Theme.of(context).textTheme.titleLarge),
-          const SizedBox(height: 12),
-          Text(classification.explanation, style: Theme.of(context).textTheme.bodyLarge),
-        ],
-      ),
-    ),
+    builder: (context) {
+      final l10n = AppLocalizations.of(context);
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(l10n.bpWhyAmISeeingThis, style: Theme.of(context).textTheme.titleLarge),
+            const SizedBox(height: 12),
+            Text(classification.explanation(l10n), style: Theme.of(context).textTheme.bodyLarge),
+          ],
+        ),
+      );
+    },
   );
 }

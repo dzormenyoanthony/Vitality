@@ -3,6 +3,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vitality/features/blood_pressure/data/blood_pressure_reading.dart';
 import 'package:vitality/features/blood_pressure/domain/trend_calculator.dart';
 import 'package:vitality/features/blood_pressure/domain/trend_summary_lines.dart';
+import 'package:vitality/l10n/app_localizations.dart';
+
+import '../../../support/pump_app.dart';
 
 BloodPressureReading _reading({
   required int systolic,
@@ -20,6 +23,9 @@ BloodPressureReading _reading({
 }
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  late AppLocalizations l10n;
+  setUpAll(() async => l10n = await loadAppLocalizations());
   final now = DateTime(2026, 2, 1);
 
   group('categoryMovementLine', () {
@@ -29,7 +35,7 @@ void main() {
         TrendPeriod.sevenDays,
         now,
       );
-      expect(categoryMovementLine(stats), isNull);
+      expect(categoryMovementLine(l10n, stats), isNull);
     });
 
     test('is null when the category has not changed', () {
@@ -38,7 +44,7 @@ void main() {
         _reading(systolic: 112, diastolic: 72, timestamp: now.subtract(const Duration(days: 10))),
       ];
       final stats = TrendCalculator.compute(readings, TrendPeriod.sevenDays, now);
-      expect(categoryMovementLine(stats), isNull);
+      expect(categoryMovementLine(l10n, stats), isNull);
     });
 
     test('describes a category change using category names, never a diagnosis', () {
@@ -48,7 +54,7 @@ void main() {
       ];
       final stats = TrendCalculator.compute(readings, TrendPeriod.sevenDays, now);
 
-      final line = categoryMovementLine(stats);
+      final line = categoryMovementLine(l10n, stats);
       expect(line, isNotNull);
       expect(line, contains('higher category'));
       expect(line, contains('elevated category'));
@@ -66,7 +72,7 @@ void main() {
       ];
       final stats = TrendCalculator.compute(readings, TrendPeriod.sevenDays, now);
 
-      final lines = trendSummaryLines(stats);
+      final lines = trendSummaryLines(l10n, stats);
 
       expect(lines.any((l) => l.contains('moved from')), isTrue);
     });
@@ -78,7 +84,7 @@ void main() {
         now,
       );
 
-      final lines = trendSummaryLines(stats);
+      final lines = trendSummaryLines(l10n, stats);
 
       expect(lines.any((l) => l.contains('Average status') && l.contains('Higher than the usual range')), isTrue);
     });
@@ -90,7 +96,7 @@ void main() {
         now,
       );
 
-      final combined = trendSummaryLines(stats).join(' ').toLowerCase();
+      final combined = trendSummaryLines(l10n, stats).join(' ').toLowerCase();
       for (final forbidden in [
         'hypertension',
         'you have',

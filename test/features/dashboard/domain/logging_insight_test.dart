@@ -26,7 +26,7 @@ void main() {
     final insight = computeLoggingInsight(readings, now);
     expect(insight, isNotNull);
     expect(insight!.suggestedHour, 7);
-    expect(insight.message, contains('evenings'));
+    expect(insight.kind, LoggingInsightKind.morningGap);
   });
 
   test('suggests an evening reminder when mornings dominate', () {
@@ -39,7 +39,7 @@ void main() {
     final insight = computeLoggingInsight(readings, now);
     expect(insight, isNotNull);
     expect(insight!.suggestedHour, 20);
-    expect(insight.message, contains('mornings'));
+    expect(insight.kind, LoggingInsightKind.eveningGap);
   });
 
   test('returns null when morning/evening logging is balanced', () {
@@ -50,13 +50,17 @@ void main() {
     expect(computeLoggingInsight(readings, now), isNull);
   });
 
-  test('never mentions the reading values themselves', () {
+  test('carries only logging counts, never reading values (PROJECT_SPEC.md §12-14)', () {
+    // The class exposes day counts and a suggested time — there is no
+    // field that could carry a systolic/diastolic value, so the UI copy
+    // built from it cannot comment on the numbers.
     final readings = [
       for (var i = 0; i < 5; i++) _reading(DateTime(now.year, now.month, now.day - i, 20)),
     ];
     final insight = computeLoggingInsight(readings, now);
     expect(insight, isNotNull);
-    expect(insight!.message, isNot(contains('mmHg')));
-    expect(insight.message, isNot(contains('120')));
+    expect(insight!.morningDays + insight.eveningDays, greaterThan(0));
+    expect(insight.morningDays, lessThanOrEqualTo(7));
+    expect(insight.eveningDays, lessThanOrEqualTo(7));
   });
 }
