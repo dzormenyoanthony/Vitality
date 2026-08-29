@@ -83,7 +83,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         keyboardType: TextInputType.emailAddress,
                         autofillHints: const [AutofillHints.email],
                         decoration: InputDecoration(labelText: l10n.forgotPasswordEmailLabel),
-                        validator: CredentialsValidator.validateEmail,
+                        validator: (v) => CredentialsValidator.validateEmail(l10n, v),
                         onFieldSubmitted: (_) => _submit(),
                       ),
                       const SizedBox(height: AppSpacing.md),

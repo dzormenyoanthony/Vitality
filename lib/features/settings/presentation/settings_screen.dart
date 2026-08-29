@@ -227,7 +227,7 @@ class _ProfileCardState extends ConsumerState<_ProfileCard> {
                     onPressed: isSaving ? null : _save,
                   ),
                 ),
-                validator: CredentialsValidator.validatePreferredName,
+                validator: (v) => CredentialsValidator.validatePreferredName(l10n, v),
               ),
               if (saveState.hasError) ...[
                 const SizedBox(height: AppSpacing.xs),

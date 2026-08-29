@@ -811,6 +811,61 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get validationSystolicRequired => 'Enter a systolic value.';
+
+  @override
+  String get validationSystolicWholeNumber =>
+      'Systolic must be a whole number.';
+
+  @override
+  String validationSystolicRange(int min, int max) {
+    return 'Systolic must be between $min and $max mmHg.';
+  }
+
+  @override
+  String get validationDiastolicRequired => 'Enter a diastolic value.';
+
+  @override
+  String get validationDiastolicWholeNumber =>
+      'Diastolic must be a whole number.';
+
+  @override
+  String validationDiastolicRange(int min, int max) {
+    return 'Diastolic must be between $min and $max mmHg.';
+  }
+
+  @override
+  String get validationPulseWholeNumber => 'Pulse must be a whole number.';
+
+  @override
+  String validationPulseRange(int min, int max) {
+    return 'Pulse must be between $min and $max bpm.';
+  }
+
+  @override
+  String get validationEmailRequired => 'Enter your email address.';
+
+  @override
+  String get validationEmailInvalid => 'Enter a valid email address.';
+
+  @override
+  String get validationPasswordRequired => 'Enter your password.';
+
+  @override
+  String validationPasswordTooShort(int min) {
+    return 'Password must be at least $min characters.';
+  }
+
+  @override
+  String get validationConfirmPasswordRequired => 'Confirm your password.';
+
+  @override
+  String get validationPasswordsDoNotMatch => 'Passwords do not match.';
+
+  @override
+  String get validationPreferredNameRequired => 'Enter a preferred name.';
+
+  @override
   String get dashboardScanFabTooltip => 'Scan BP report';
 
   @override

@@ -1479,6 +1479,96 @@ abstract class AppLocalizations {
   /// **'You logged {eveningDays} of the last 7 evenings and {morningDays} mornings. An evening reminder would even out the record.'**
   String loggingInsightEveningGap(int eveningDays, int morningDays);
 
+  /// Record-reading form validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a systolic value.'**
+  String get validationSystolicRequired;
+
+  /// Record-reading form validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic must be a whole number.'**
+  String get validationSystolicWholeNumber;
+
+  /// Record-reading form validation; the range is an input check, not a diagnostic threshold (PROJECT_SPEC.md §7).
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic must be between {min} and {max} mmHg.'**
+  String validationSystolicRange(int min, int max);
+
+  /// Record-reading form validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a diastolic value.'**
+  String get validationDiastolicRequired;
+
+  /// Record-reading form validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Diastolic must be a whole number.'**
+  String get validationDiastolicWholeNumber;
+
+  /// Record-reading form validation; the range is an input check, not a diagnostic threshold (PROJECT_SPEC.md §7).
+  ///
+  /// In en, this message translates to:
+  /// **'Diastolic must be between {min} and {max} mmHg.'**
+  String validationDiastolicRange(int min, int max);
+
+  /// Record-reading form validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse must be a whole number.'**
+  String get validationPulseWholeNumber;
+
+  /// Record-reading form validation for the optional pulse field.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse must be between {min} and {max} bpm.'**
+  String validationPulseRange(int min, int max);
+
+  /// Auth form validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email address.'**
+  String get validationEmailRequired;
+
+  /// Auth form validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid email address.'**
+  String get validationEmailInvalid;
+
+  /// Auth form validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your password.'**
+  String get validationPasswordRequired;
+
+  /// Auth form validation for the minimum password length.
+  ///
+  /// In en, this message translates to:
+  /// **'Password must be at least {min} characters.'**
+  String validationPasswordTooShort(int min);
+
+  /// Create-account form validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm your password.'**
+  String get validationConfirmPasswordRequired;
+
+  /// Create-account form validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Passwords do not match.'**
+  String get validationPasswordsDoNotMatch;
+
+  /// Preferred-name form validation.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a preferred name.'**
+  String get validationPreferredNameRequired;
+
   /// Tooltip on the dashboard's document-scanner FAB.
   ///
   /// In en, this message translates to:

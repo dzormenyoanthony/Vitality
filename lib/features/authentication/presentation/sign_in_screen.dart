@@ -211,7 +211,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                             ),
                             prefixIcon: const Icon(Icons.mail_outline),
                           ),
-                          validator: CredentialsValidator.validateEmail,
+                          validator: (v) => CredentialsValidator.validateEmail(l10n, v),
                         ),
                         const SizedBox(height: AppSpacing.md),
                         TextFormField(
@@ -266,7 +266,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                               ),
                             ),
                           ),
-                          validator: CredentialsValidator.validatePassword,
+                          validator: (v) => CredentialsValidator.validatePassword(l10n, v),
                           onFieldSubmitted: (_) => _submit(),
                         ),
                         Row(

@@ -1,3 +1,5 @@
+import '../../../l10n/app_localizations.dart';
+
 /// Input-validation bounds for a blood-pressure reading (PROJECT_SPEC.md
 /// §7). These are acceptance ranges for the app's input form, not
 /// diagnostic thresholds — messages must never imply a medical conclusion.
@@ -9,36 +11,36 @@ abstract final class ReadingValidator {
   static const int minPulse = 30;
   static const int maxPulse = 220;
 
-  static String? validateSystolic(String? value) {
+  static String? validateSystolic(AppLocalizations l10n, String? value) {
     final text = value?.trim() ?? '';
-    if (text.isEmpty) return 'Enter a systolic value.';
+    if (text.isEmpty) return l10n.validationSystolicRequired;
     final parsed = int.tryParse(text);
-    if (parsed == null) return 'Systolic must be a whole number.';
+    if (parsed == null) return l10n.validationSystolicWholeNumber;
     if (parsed < minSystolic || parsed > maxSystolic) {
-      return 'Systolic must be between $minSystolic and $maxSystolic mmHg.';
+      return l10n.validationSystolicRange(minSystolic, maxSystolic);
     }
     return null;
   }
 
-  static String? validateDiastolic(String? value) {
+  static String? validateDiastolic(AppLocalizations l10n, String? value) {
     final text = value?.trim() ?? '';
-    if (text.isEmpty) return 'Enter a diastolic value.';
+    if (text.isEmpty) return l10n.validationDiastolicRequired;
     final parsed = int.tryParse(text);
-    if (parsed == null) return 'Diastolic must be a whole number.';
+    if (parsed == null) return l10n.validationDiastolicWholeNumber;
     if (parsed < minDiastolic || parsed > maxDiastolic) {
-      return 'Diastolic must be between $minDiastolic and $maxDiastolic mmHg.';
+      return l10n.validationDiastolicRange(minDiastolic, maxDiastolic);
     }
     return null;
   }
 
   /// Pulse is optional — an empty value is valid.
-  static String? validatePulse(String? value) {
+  static String? validatePulse(AppLocalizations l10n, String? value) {
     final text = value?.trim() ?? '';
     if (text.isEmpty) return null;
     final parsed = int.tryParse(text);
-    if (parsed == null) return 'Pulse must be a whole number.';
+    if (parsed == null) return l10n.validationPulseWholeNumber;
     if (parsed < minPulse || parsed > maxPulse) {
-      return 'Pulse must be between $minPulse and $maxPulse bpm.';
+      return l10n.validationPulseRange(minPulse, maxPulse);
     }
     return null;
   }

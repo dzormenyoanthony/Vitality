@@ -107,7 +107,7 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                         borderSide: const BorderSide(color: AppColors.onboardingAccent, width: 2),
                       ),
                     ),
-                    validator: CredentialsValidator.validatePreferredName,
+                    validator: (v) => CredentialsValidator.validatePreferredName(l10n, v),
                     onFieldSubmitted: (_) => _submit(),
                   ),
                   const SizedBox(height: AppSpacing.sm),

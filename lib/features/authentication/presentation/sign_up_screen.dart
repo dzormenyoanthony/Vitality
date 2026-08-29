@@ -197,7 +197,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                     FloatingLabelBehavior.always,
                                 prefixIcon: const Icon(Icons.mail_outline),
                               ),
-                              validator: CredentialsValidator.validateEmail,
+                              validator: (v) => CredentialsValidator.validateEmail(l10n, v),
                             ),
                             const SizedBox(height: AppSpacing.md),
                             TextFormField(
@@ -226,7 +226,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                   ),
                                 ),
                               ),
-                              validator: CredentialsValidator.validatePassword,
+                              validator: (v) => CredentialsValidator.validatePassword(l10n, v),
                             ),
                             const SizedBox(height: AppSpacing.md),
                             TextFormField(
@@ -257,6 +257,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               ),
                               validator: (value) =>
                                   CredentialsValidator.validateConfirmPassword(
+                                    l10n,
                                     value,
                                     _passwordController.text,
                                   ),

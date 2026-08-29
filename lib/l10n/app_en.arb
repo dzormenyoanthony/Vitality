@@ -832,6 +832,49 @@
     }
   },
 
+  "validationSystolicRequired": "Enter a systolic value.",
+  "@validationSystolicRequired": { "description": "Record-reading form validation." },
+  "validationSystolicWholeNumber": "Systolic must be a whole number.",
+  "@validationSystolicWholeNumber": { "description": "Record-reading form validation." },
+  "validationSystolicRange": "Systolic must be between {min} and {max} mmHg.",
+  "@validationSystolicRange": {
+    "description": "Record-reading form validation; the range is an input check, not a diagnostic threshold (PROJECT_SPEC.md §7).",
+    "placeholders": { "min": { "type": "int" }, "max": { "type": "int" } }
+  },
+  "validationDiastolicRequired": "Enter a diastolic value.",
+  "@validationDiastolicRequired": { "description": "Record-reading form validation." },
+  "validationDiastolicWholeNumber": "Diastolic must be a whole number.",
+  "@validationDiastolicWholeNumber": { "description": "Record-reading form validation." },
+  "validationDiastolicRange": "Diastolic must be between {min} and {max} mmHg.",
+  "@validationDiastolicRange": {
+    "description": "Record-reading form validation; the range is an input check, not a diagnostic threshold (PROJECT_SPEC.md §7).",
+    "placeholders": { "min": { "type": "int" }, "max": { "type": "int" } }
+  },
+  "validationPulseWholeNumber": "Pulse must be a whole number.",
+  "@validationPulseWholeNumber": { "description": "Record-reading form validation." },
+  "validationPulseRange": "Pulse must be between {min} and {max} bpm.",
+  "@validationPulseRange": {
+    "description": "Record-reading form validation for the optional pulse field.",
+    "placeholders": { "min": { "type": "int" }, "max": { "type": "int" } }
+  },
+  "validationEmailRequired": "Enter your email address.",
+  "@validationEmailRequired": { "description": "Auth form validation." },
+  "validationEmailInvalid": "Enter a valid email address.",
+  "@validationEmailInvalid": { "description": "Auth form validation." },
+  "validationPasswordRequired": "Enter your password.",
+  "@validationPasswordRequired": { "description": "Auth form validation." },
+  "validationPasswordTooShort": "Password must be at least {min} characters.",
+  "@validationPasswordTooShort": {
+    "description": "Auth form validation for the minimum password length.",
+    "placeholders": { "min": { "type": "int" } }
+  },
+  "validationConfirmPasswordRequired": "Confirm your password.",
+  "@validationConfirmPasswordRequired": { "description": "Create-account form validation." },
+  "validationPasswordsDoNotMatch": "Passwords do not match.",
+  "@validationPasswordsDoNotMatch": { "description": "Create-account form validation." },
+  "validationPreferredNameRequired": "Enter a preferred name.",
+  "@validationPreferredNameRequired": { "description": "Preferred-name form validation." },
+
   "dashboardScanFabTooltip": "Scan BP report",
   "@dashboardScanFabTooltip": {
     "description": "Tooltip on the dashboard's document-scanner FAB."
