@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/article.dart';
+import 'article_category_label.dart';
 import 'education_providers.dart';
 
 /// A single educational article (PROJECT_SPEC.md §15, §16). General
@@ -21,28 +24,27 @@ class ArticleDetailScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final article = ref.watch(articleByIdProvider(articleId));
 
     if (article == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text('Learn')),
-        body: const Center(child: Text('This article is no longer available.')),
+        appBar: AppBar(title: Text(l10n.educationTitle)),
+        body: Center(child: Text(l10n.articleNotFound)),
       );
     }
 
-    final reviewed = article.reviewed;
-    final reviewedLabel = '${_monthName(reviewed.month)} ${reviewed.year}';
+    final reviewedLabel = formatMonthYearFull(context, article.reviewed);
 
     return Scaffold(
-      appBar: AppBar(title: Text(article.category.label)),
+      appBar: AppBar(title: Text(article.category.label(l10n))),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.lg),
         children: [
           Text(article.title, style: theme.textTheme.headlineMedium),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            '${article.readTimeMinutes} min read · Reviewed $reviewedLabel · '
-            'General information',
+            l10n.articleDetailMetaLine(article.readTimeMinutes, reviewedLabel),
             style: theme.textTheme.bodySmall,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -54,32 +56,13 @@ class ArticleDetailScreen extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
             ],
           const SizedBox(height: AppSpacing.sm),
-          Text('Source: ${article.source}', style: theme.textTheme.bodySmall),
+          Text(l10n.articleSourceLine(article.source), style: theme.textTheme.bodySmall),
           const SizedBox(height: AppSpacing.xs),
-          Text(
-            'This is general information, not personalized medical advice. '
-            'If you feel unwell, contact a clinician or emergency services.',
-            style: theme.textTheme.bodyMedium,
-          ),
+          Text(l10n.articleDisclaimer, style: theme.textTheme.bodyMedium),
         ],
       ),
     );
   }
-
-  static String _monthName(int month) => const [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ][month - 1];
 }
 
 /// The intro paragraph is [article.body]'s first entry, verbatim. The rest
@@ -89,28 +72,21 @@ class ArticleDetailScreen extends ConsumerWidget {
 /// just a closer visual match to `design_references/Measure well.png`.
 List<Widget> _measuringAtHomeBody(BuildContext context, Article article) {
   final theme = Theme.of(context);
+  final l10n = AppLocalizations.of(context);
   return [
     Text(article.body.first, style: theme.textTheme.bodyLarge),
     const SizedBox(height: AppSpacing.lg),
-    _SectionLabel('BEFORE YOU MEASURE'),
+    _SectionLabel(l10n.measureWellBeforeYouMeasure),
     const SizedBox(height: AppSpacing.sm),
-    const _NumberedStep(number: '01', text: 'Avoid caffeine, smoking and exercise for 30 minutes.'),
-    const _NumberedStep(number: '02', text: 'Empty your bladder, then sit quietly for five minutes.'),
-    const _NumberedStep(
-      number: '03',
-      text: 'Sit with your back supported and both feet flat on the floor.',
-    ),
+    _NumberedStep(number: '01', text: l10n.measureWellStep1),
+    _NumberedStep(number: '02', text: l10n.measureWellStep2),
+    _NumberedStep(number: '03', text: l10n.measureWellStep3),
     const SizedBox(height: AppSpacing.sm),
-    _SectionLabel('CUFF PLACEMENT'),
+    _SectionLabel(l10n.measureWellCuffPlacement),
     const SizedBox(height: AppSpacing.sm),
     const _CuffPlacementDiagram(),
     const SizedBox(height: AppSpacing.lg),
-    Text(
-      "Rest your arm on a table so the cuff sits level with your heart, with "
-      "the cuff's lower edge about 2 cm above the elbow crease, snug but not "
-      'tight, directly on skin rather than over clothing.',
-      style: theme.textTheme.bodyLarge,
-    ),
+    Text(l10n.measureWellCuffParagraph, style: theme.textTheme.bodyLarge),
     const SizedBox(height: AppSpacing.md),
     Text(article.body[3], style: theme.textTheme.bodyLarge),
     const SizedBox(height: AppSpacing.md),
@@ -176,6 +152,7 @@ class _CuffPlacementDiagram extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
 
     return Container(
@@ -200,7 +177,7 @@ class _CuffPlacementDiagram extends StatelessWidget {
                       _DashedLine(color: accents.mintForeground),
                       const SizedBox(width: AppSpacing.xs),
                       Text(
-                        'heart level',
+                        l10n.measureWellHeartLevel,
                         style: theme.textTheme.labelSmall?.copyWith(color: accents.mintForeground),
                       ),
                     ],
@@ -262,7 +239,7 @@ class _CuffPlacementDiagram extends StatelessWidget {
                           style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
                         ),
                         Text(
-                          '82  mmHg',
+                          l10n.measureWellDiagramReadingUnit,
                           style: theme.textTheme.bodySmall?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -281,7 +258,7 @@ class _CuffPlacementDiagram extends StatelessWidget {
                       Container(width: 60, height: 1.5, color: theme.colorScheme.error),
                       const SizedBox(height: AppSpacing.xs),
                       Text(
-                        '2 cm above the elbow crease',
+                        l10n.measureWellElbowCallout,
                         maxLines: 1,
                         overflow: TextOverflow.visible,
                         style: theme.textTheme.labelSmall?.copyWith(color: theme.colorScheme.error),
@@ -294,7 +271,7 @@ class _CuffPlacementDiagram extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.md),
           Text(
-            'Cuff centred over the artery, level with the heart.',
+            l10n.measureWellDiagramCaption,
             style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
           ),
         ],

@@ -6,7 +6,9 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/article.dart';
+import 'article_category_label.dart';
 import 'education_providers.dart';
 
 /// Per-article icon, cycling through the same 4-accent palette used
@@ -36,6 +38,7 @@ class EducationScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final articles = ref.watch(articlesProvider);
     final byCategory = <ArticleCategory, List<Article>>{
@@ -54,21 +57,23 @@ class EducationScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.all(AppSpacing.lg),
           children: [
-            Text('Learn', style: theme.textTheme.headlineMedium),
+            Text(l10n.educationTitle, style: theme.textTheme.headlineMedium),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'General information about blood pressure and measurement. Not '
-              'advice about your own readings.',
+              l10n.educationIntro,
               style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             if (featured != null) ...[
               const SizedBox(height: AppSpacing.lg),
-              _FeaturedArticleCard(article: featured, categoryLabel: ArticleCategory.basics.label),
+              _FeaturedArticleCard(
+                article: featured,
+                categoryLabel: ArticleCategory.basics.label(l10n),
+              ),
             ],
             if (remainingBasics.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.lg),
               Text(
-                ArticleCategory.basics.label.toUpperCase(),
+                ArticleCategory.basics.label(l10n).toUpperCase(),
                 style: theme.textTheme.labelMedium?.copyWith(color: AppColors.dashboardAccentTeal),
               ),
               const Divider(height: AppSpacing.md),
@@ -85,7 +90,7 @@ class EducationScreen extends ConsumerWidget {
               if (byCategory[category]!.isNotEmpty) ...[
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  category.label.toUpperCase(),
+                  category.label(l10n).toUpperCase(),
                   style: theme.textTheme.labelMedium?.copyWith(color: AppColors.dashboardAccentTeal),
                 ),
                 const Divider(height: AppSpacing.md),
@@ -100,8 +105,7 @@ class EducationScreen extends ConsumerWidget {
               ],
             const SizedBox(height: AppSpacing.lg),
             Text(
-              'Sources listed on each article. If you feel unwell, contact a '
-              'clinician or emergency services.',
+              l10n.educationFooter,
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
           ],
@@ -120,6 +124,7 @@ class _FeaturedArticleCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
 
     return Material(
@@ -157,8 +162,10 @@ class _FeaturedArticleCard extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                '${article.readTimeMinutes} min read · Reviewed '
-                '${formatMonthYear(context, article.reviewed)}',
+                l10n.articleReviewedLine(
+                  article.readTimeMinutes,
+                  formatMonthYear(context, article.reviewed),
+                ),
                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
             ],
@@ -179,6 +186,7 @@ class _ArticleRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return InkWell(
       onTap: () => context.push(AppRoutes.educationArticlePath(article.id)),
@@ -204,7 +212,7 @@ class _ArticleRow extends StatelessWidget {
                   Text(article.title, style: theme.textTheme.titleMedium),
                   const SizedBox(height: 2),
                   Text(
-                    '${article.summary} · ${article.readTimeMinutes} min',
+                    l10n.articleRowSubtitle(article.summary, article.readTimeMinutes),
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                     ),

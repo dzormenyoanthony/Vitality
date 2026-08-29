@@ -594,6 +594,92 @@
   "reviewChangeDate": "Change date",
   "@reviewChangeDate": { "description": "Button in the reading editor that opens the date/time pickers." },
 
+  "articleCategoryBasics": "Basics",
+  "@articleCategoryBasics": { "description": "Education library section name." },
+  "articleCategoryMeasuringWell": "Measuring well",
+  "@articleCategoryMeasuringWell": { "description": "Education library section name." },
+  "articleCategoryWorkingWithClinician": "Working with your clinician",
+  "@articleCategoryWorkingWithClinician": { "description": "Education library section name." },
+
+  "educationTitle": "Learn",
+  "@educationTitle": { "description": "Header of the education library screen." },
+  "educationIntro": "General information about blood pressure and measurement. Not advice about your own readings.",
+  "@educationIntro": {
+    "description": "Intro line clarifying the education library is not personalized advice (PROJECT_SPEC.md §15). Approved wording; any change needs the §37 review."
+  },
+  "educationFooter": "Sources listed on each article. If you feel unwell, contact a clinician or emergency services.",
+  "@educationFooter": {
+    "description": "Footer note on the education library. Approved wording; any change needs the §37 review."
+  },
+  "articleReadTimeMinutes": "{minutes} min",
+  "@articleReadTimeMinutes": {
+    "description": "Compact read-time shown on an article row.",
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "articleRowSubtitle": "{summary} · {minutes} min",
+  "@articleRowSubtitle": {
+    "description": "Article row subtitle: one-line summary plus read time.",
+    "placeholders": {
+      "summary": { "type": "String", "example": "Two numbers, and what they mean." },
+      "minutes": { "type": "int" }
+    }
+  },
+  "articleReviewedLine": "{minutes} min read · Reviewed {date}",
+  "@articleReviewedLine": {
+    "description": "Metadata line on the featured article card.",
+    "placeholders": {
+      "minutes": { "type": "int" },
+      "date": { "type": "String", "example": "Aug 2026" }
+    }
+  },
+  "articleDetailMetaLine": "{minutes} min read · Reviewed {date} · General information",
+  "@articleDetailMetaLine": {
+    "description": "Metadata line under an article's title on the detail screen.",
+    "placeholders": {
+      "minutes": { "type": "int" },
+      "date": { "type": "String", "example": "August 2026" }
+    }
+  },
+  "articleNotFound": "This article is no longer available.",
+  "@articleNotFound": { "description": "Shown when an article detail screen is opened for a missing article." },
+  "articleSourceLine": "Source: {source}",
+  "@articleSourceLine": {
+    "description": "Attribution line at the foot of an article.",
+    "placeholders": { "source": { "type": "String", "example": "American Heart Association — heart.org" } }
+  },
+  "articleDisclaimer": "This is general information, not personalized medical advice. If you feel unwell, contact a clinician or emergency services.",
+  "@articleDisclaimer": {
+    "description": "Closing disclaimer on every article (PROJECT_SPEC.md §15). Approved wording; any change needs the §37 review."
+  },
+  "measureWellBeforeYouMeasure": "BEFORE YOU MEASURE",
+  "@measureWellBeforeYouMeasure": { "description": "Section label in the 'how to measure at home' article." },
+  "measureWellStep1": "Avoid caffeine, smoking and exercise for 30 minutes.",
+  "@measureWellStep1": {
+    "description": "Measurement-technique step (PROJECT_SPEC.md §16). Approved content; any change needs the §37 review."
+  },
+  "measureWellStep2": "Empty your bladder, then sit quietly for five minutes.",
+  "@measureWellStep2": {
+    "description": "Measurement-technique step (PROJECT_SPEC.md §16). Approved content; any change needs the §37 review."
+  },
+  "measureWellStep3": "Sit with your back supported and both feet flat on the floor.",
+  "@measureWellStep3": {
+    "description": "Measurement-technique step (PROJECT_SPEC.md §16). Approved content; any change needs the §37 review."
+  },
+  "measureWellCuffPlacement": "CUFF PLACEMENT",
+  "@measureWellCuffPlacement": { "description": "Section label in the 'how to measure at home' article." },
+  "measureWellCuffParagraph": "Rest your arm on a table so the cuff sits level with your heart, with the cuff's lower edge about 2 cm above the elbow crease, snug but not tight, directly on skin rather than over clothing.",
+  "@measureWellCuffParagraph": {
+    "description": "Measurement-technique guidance (PROJECT_SPEC.md §16). Approved content; any change needs the §37 review."
+  },
+  "measureWellHeartLevel": "heart level",
+  "@measureWellHeartLevel": { "description": "Callout label on the cuff-placement diagram." },
+  "measureWellElbowCallout": "2 cm above the elbow crease",
+  "@measureWellElbowCallout": { "description": "Callout label on the cuff-placement diagram." },
+  "measureWellDiagramCaption": "Cuff centred over the artery, level with the heart.",
+  "@measureWellDiagramCaption": { "description": "Caption under the cuff-placement diagram." },
+  "measureWellDiagramReadingUnit": "82  mmHg",
+  "@measureWellDiagramReadingUnit": { "description": "Fixed illustrative device readout (diastolic value + unit) on the cuff-placement diagram." },
+
   "dashboardScanFabTooltip": "Scan BP report",
   "@dashboardScanFabTooltip": {
     "description": "Tooltip on the dashboard's document-scanner FAB."

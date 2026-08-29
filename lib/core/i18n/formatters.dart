@@ -54,6 +54,10 @@ String formatWeekdayDayMonth(BuildContext context, DateTime dt) =>
 String formatMonthYear(BuildContext context, DateTime dt) =>
     DateFormat.yMMM(_locale(context)).format(dt);
 
+/// `August 2026` — full month name and year.
+String formatMonthYearFull(BuildContext context, DateTime dt) =>
+    DateFormat('MMMM y', _locale(context)).format(dt);
+
 /// `Fri` — abbreviated weekday on its own.
 String formatWeekdayAbbrev(BuildContext context, DateTime dt) =>
     DateFormat.E(_locale(context)).format(dt);

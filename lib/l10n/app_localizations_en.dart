@@ -579,6 +579,94 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reviewChangeDate => 'Change date';
 
   @override
+  String get articleCategoryBasics => 'Basics';
+
+  @override
+  String get articleCategoryMeasuringWell => 'Measuring well';
+
+  @override
+  String get articleCategoryWorkingWithClinician =>
+      'Working with your clinician';
+
+  @override
+  String get educationTitle => 'Learn';
+
+  @override
+  String get educationIntro =>
+      'General information about blood pressure and measurement. Not advice about your own readings.';
+
+  @override
+  String get educationFooter =>
+      'Sources listed on each article. If you feel unwell, contact a clinician or emergency services.';
+
+  @override
+  String articleReadTimeMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String articleRowSubtitle(String summary, int minutes) {
+    return '$summary · $minutes min';
+  }
+
+  @override
+  String articleReviewedLine(int minutes, String date) {
+    return '$minutes min read · Reviewed $date';
+  }
+
+  @override
+  String articleDetailMetaLine(int minutes, String date) {
+    return '$minutes min read · Reviewed $date · General information';
+  }
+
+  @override
+  String get articleNotFound => 'This article is no longer available.';
+
+  @override
+  String articleSourceLine(String source) {
+    return 'Source: $source';
+  }
+
+  @override
+  String get articleDisclaimer =>
+      'This is general information, not personalized medical advice. If you feel unwell, contact a clinician or emergency services.';
+
+  @override
+  String get measureWellBeforeYouMeasure => 'BEFORE YOU MEASURE';
+
+  @override
+  String get measureWellStep1 =>
+      'Avoid caffeine, smoking and exercise for 30 minutes.';
+
+  @override
+  String get measureWellStep2 =>
+      'Empty your bladder, then sit quietly for five minutes.';
+
+  @override
+  String get measureWellStep3 =>
+      'Sit with your back supported and both feet flat on the floor.';
+
+  @override
+  String get measureWellCuffPlacement => 'CUFF PLACEMENT';
+
+  @override
+  String get measureWellCuffParagraph =>
+      'Rest your arm on a table so the cuff sits level with your heart, with the cuff\'s lower edge about 2 cm above the elbow crease, snug but not tight, directly on skin rather than over clothing.';
+
+  @override
+  String get measureWellHeartLevel => 'heart level';
+
+  @override
+  String get measureWellElbowCallout => '2 cm above the elbow crease';
+
+  @override
+  String get measureWellDiagramCaption =>
+      'Cuff centred over the artery, level with the heart.';
+
+  @override
+  String get measureWellDiagramReadingUnit => '82  mmHg';
+
+  @override
   String get dashboardScanFabTooltip => 'Scan BP report';
 
   @override

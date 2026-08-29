@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vitality/features/education/data/article_repository.dart';
 import 'package:vitality/features/education/presentation/article_detail_screen.dart';
 
+import '../../../support/pump_app.dart';
+
 void main() {
   testWidgets('renders the article title, source, and safety footer', (tester) async {
     final article = ArticleRepository.all().first;
@@ -17,7 +19,11 @@ void main() {
 
     await tester.pumpWidget(
       ProviderScope(
-        child: MaterialApp(home: ArticleDetailScreen(articleId: article.id)),
+        child: MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: ArticleDetailScreen(articleId: article.id),
+        ),
       ),
     );
     await tester.pump();
@@ -30,7 +36,11 @@ void main() {
   testWidgets('shows a fallback message for an unknown article id', (tester) async {
     await tester.pumpWidget(
       const ProviderScope(
-        child: MaterialApp(home: ArticleDetailScreen(articleId: 'does-not-exist')),
+        child: MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: ArticleDetailScreen(articleId: 'does-not-exist'),
+        ),
       ),
     );
     await tester.pump();

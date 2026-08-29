@@ -5,6 +5,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:vitality/features/education/data/article_repository.dart';
 import 'package:vitality/features/education/presentation/education_screen.dart';
 
+import '../../../support/pump_app.dart';
+
 void main() {
   testWidgets('renders category headers and article titles', (tester) async {
     // The full article list is taller than the default test viewport;
@@ -15,7 +17,11 @@ void main() {
 
     await tester.pumpWidget(
       const ProviderScope(
-        child: MaterialApp(home: EducationScreen()),
+        child: MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: EducationScreen(),
+        ),
       ),
     );
     await tester.pump();

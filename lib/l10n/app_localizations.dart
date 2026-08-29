@@ -1138,6 +1138,144 @@ abstract class AppLocalizations {
   /// **'Change date'**
   String get reviewChangeDate;
 
+  /// Education library section name.
+  ///
+  /// In en, this message translates to:
+  /// **'Basics'**
+  String get articleCategoryBasics;
+
+  /// Education library section name.
+  ///
+  /// In en, this message translates to:
+  /// **'Measuring well'**
+  String get articleCategoryMeasuringWell;
+
+  /// Education library section name.
+  ///
+  /// In en, this message translates to:
+  /// **'Working with your clinician'**
+  String get articleCategoryWorkingWithClinician;
+
+  /// Header of the education library screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn'**
+  String get educationTitle;
+
+  /// Intro line clarifying the education library is not personalized advice (PROJECT_SPEC.md §15). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'General information about blood pressure and measurement. Not advice about your own readings.'**
+  String get educationIntro;
+
+  /// Footer note on the education library. Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Sources listed on each article. If you feel unwell, contact a clinician or emergency services.'**
+  String get educationFooter;
+
+  /// Compact read-time shown on an article row.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String articleReadTimeMinutes(int minutes);
+
+  /// Article row subtitle: one-line summary plus read time.
+  ///
+  /// In en, this message translates to:
+  /// **'{summary} · {minutes} min'**
+  String articleRowSubtitle(String summary, int minutes);
+
+  /// Metadata line on the featured article card.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min read · Reviewed {date}'**
+  String articleReviewedLine(int minutes, String date);
+
+  /// Metadata line under an article's title on the detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min read · Reviewed {date} · General information'**
+  String articleDetailMetaLine(int minutes, String date);
+
+  /// Shown when an article detail screen is opened for a missing article.
+  ///
+  /// In en, this message translates to:
+  /// **'This article is no longer available.'**
+  String get articleNotFound;
+
+  /// Attribution line at the foot of an article.
+  ///
+  /// In en, this message translates to:
+  /// **'Source: {source}'**
+  String articleSourceLine(String source);
+
+  /// Closing disclaimer on every article (PROJECT_SPEC.md §15). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'This is general information, not personalized medical advice. If you feel unwell, contact a clinician or emergency services.'**
+  String get articleDisclaimer;
+
+  /// Section label in the 'how to measure at home' article.
+  ///
+  /// In en, this message translates to:
+  /// **'BEFORE YOU MEASURE'**
+  String get measureWellBeforeYouMeasure;
+
+  /// Measurement-technique step (PROJECT_SPEC.md §16). Approved content; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Avoid caffeine, smoking and exercise for 30 minutes.'**
+  String get measureWellStep1;
+
+  /// Measurement-technique step (PROJECT_SPEC.md §16). Approved content; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Empty your bladder, then sit quietly for five minutes.'**
+  String get measureWellStep2;
+
+  /// Measurement-technique step (PROJECT_SPEC.md §16). Approved content; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Sit with your back supported and both feet flat on the floor.'**
+  String get measureWellStep3;
+
+  /// Section label in the 'how to measure at home' article.
+  ///
+  /// In en, this message translates to:
+  /// **'CUFF PLACEMENT'**
+  String get measureWellCuffPlacement;
+
+  /// Measurement-technique guidance (PROJECT_SPEC.md §16). Approved content; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Rest your arm on a table so the cuff sits level with your heart, with the cuff\'s lower edge about 2 cm above the elbow crease, snug but not tight, directly on skin rather than over clothing.'**
+  String get measureWellCuffParagraph;
+
+  /// Callout label on the cuff-placement diagram.
+  ///
+  /// In en, this message translates to:
+  /// **'heart level'**
+  String get measureWellHeartLevel;
+
+  /// Callout label on the cuff-placement diagram.
+  ///
+  /// In en, this message translates to:
+  /// **'2 cm above the elbow crease'**
+  String get measureWellElbowCallout;
+
+  /// Caption under the cuff-placement diagram.
+  ///
+  /// In en, this message translates to:
+  /// **'Cuff centred over the artery, level with the heart.'**
+  String get measureWellDiagramCaption;
+
+  /// Fixed illustrative device readout (diastolic value + unit) on the cuff-placement diagram.
+  ///
+  /// In en, this message translates to:
+  /// **'82  mmHg'**
+  String get measureWellDiagramReadingUnit;
+
   /// Tooltip on the dashboard's document-scanner FAB.
   ///
   /// In en, this message translates to:

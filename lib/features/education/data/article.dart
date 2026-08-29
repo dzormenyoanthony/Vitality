@@ -1,15 +1,7 @@
 /// Grouping used to organize the education library (PROJECT_SPEC.md §15,
 /// §16), mirroring the "Basics" / "Measuring well" / "Working with your
 /// clinician" sections in the approved design references.
-enum ArticleCategory {
-  basics('Basics'),
-  measuringWell('Measuring well'),
-  workingWithClinician('Working with your clinician');
-
-  const ArticleCategory(this.label);
-
-  final String label;
-}
+enum ArticleCategory { basics, measuringWell, workingWithClinician }
 
 /// A single piece of general educational content (PROJECT_SPEC.md §15,
 /// §16). Content is informational only — never personalized advice about a
