@@ -10,6 +10,8 @@ import 'package:vitality/features/blood_pressure/data/blood_pressure_providers.d
 import 'package:vitality/features/blood_pressure/data/blood_pressure_reading.dart';
 import 'package:vitality/features/blood_pressure/presentation/record_bp_screen.dart';
 
+import '../../../support/pump_app.dart';
+
 void main() {
   testWidgets('shows validation errors when required fields are empty', (
     tester,
@@ -27,7 +29,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: RecordBpScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: RecordBpScreen(),
+        ),
       ),
     );
 
@@ -51,7 +57,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: RecordBpScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: RecordBpScreen(),
+        ),
       ),
     );
 
@@ -72,7 +82,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: RecordBpScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: RecordBpScreen(),
+        ),
       ),
     );
 
@@ -92,7 +106,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: RecordBpScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: RecordBpScreen(),
+        ),
       ),
     );
 
@@ -119,7 +137,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: RecordBpScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: RecordBpScreen(),
+        ),
       ),
     );
 
@@ -158,7 +180,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: RecordBpScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: RecordBpScreen(),
+        ),
       ),
     );
 

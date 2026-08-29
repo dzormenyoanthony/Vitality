@@ -2,15 +2,6 @@ import '../data/blood_pressure_reading.dart';
 
 enum HistoryFilter { all, morning, evening, withNotes }
 
-extension HistoryFilterLabel on HistoryFilter {
-  String get label => switch (this) {
-    HistoryFilter.all => 'All',
-    HistoryFilter.morning => 'Morning',
-    HistoryFilter.evening => 'Evening',
-    HistoryFilter.withNotes => 'With notes',
-  };
-}
-
 bool _isMorning(BloodPressureReading r) {
   if (r.measurementContexts.contains(MeasurementContext.morning)) return true;
   if (r.measurementContexts.contains(MeasurementContext.evening)) return false;

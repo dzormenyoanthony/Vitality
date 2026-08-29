@@ -9,6 +9,8 @@ import 'package:vitality/features/blood_pressure/data/blood_pressure_reading.dar
 import 'package:vitality/features/blood_pressure/data/drift_blood_pressure_repository.dart';
 import 'package:vitality/features/blood_pressure/presentation/reading_detail_screen.dart';
 
+import '../../../support/pump_app.dart';
+
 // This covers rendering only. Interacting with the delete confirmation
 // dialog (any Navigator/dialog route change) combined with watching a live
 // Drift native stream reproducibly hangs flutter_test in this environment
@@ -37,7 +39,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: MaterialApp(home: ReadingDetailScreen(readingId: id)),
+        child: MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: ReadingDetailScreen(readingId: id),
+        ),
       ),
     );
     await tester.pump();
@@ -73,7 +79,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: MaterialApp(home: ReadingDetailScreen(readingId: id)),
+        child: MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: ReadingDetailScreen(readingId: id),
+        ),
       ),
     );
     await tester.pump();

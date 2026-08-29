@@ -10,6 +10,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
 import '../domain/bp_classification_service.dart';
@@ -37,6 +38,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final readingsState = ref.watch(readingsStreamProvider);
 
     return Scaffold(
@@ -46,7 +48,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         // tags collide across FABs on different screens.
         heroTag: 'history-fab',
         onPressed: () => context.push(AppRoutes.recordBp),
-        tooltip: 'Record BP',
+        tooltip: l10n.historyRecordFabTooltip,
         child: const Icon(Icons.add),
       ),
       body: SafeArea(
@@ -64,24 +66,24 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 children: [
                   Expanded(
                     child: Text(
-                      'History',
+                      l10n.navHistory,
                       style: theme.textTheme.headlineMedium,
                     ),
                   ),
                   IconButton(
                     tooltip: _newestFirst
-                        ? 'Sort: newest first'
-                        : 'Sort: oldest first',
+                        ? l10n.historySortNewestFirst
+                        : l10n.historySortOldestFirst,
                     icon: const Icon(Icons.filter_list),
                     onPressed: () =>
                         setState(() => _newestFirst = !_newestFirst),
                   ),
                   IconButton(
-                    tooltip: 'Export',
+                    tooltip: l10n.commonExport,
                     icon: const Icon(Icons.file_download_outlined),
                     onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Export isn't available yet."),
+                      SnackBar(
+                        content: Text(l10n.historyExportUnavailable),
                       ),
                     ),
                   ),
@@ -97,8 +99,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                 ),
                 data: (readings) {
                   if (readings.isEmpty) {
-                    return const EmptyView(
-                      message: 'No readings yet. Tap + to record your first blood pressure reading.',
+                    return EmptyView(
+                      message: l10n.historyEmpty,
                       icon: Icons.monitor_heart_outlined,
                     );
                   }
@@ -136,8 +138,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                       ),
                       Expanded(
                         child: ordered.isEmpty
-                            ? const EmptyView(
-                                message: 'No readings match this filter.',
+                            ? EmptyView(
+                                message: l10n.historyEmptyFiltered,
                                 icon: Icons.filter_alt_off_outlined,
                               )
                             : _HistoryList(
@@ -157,6 +159,13 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   }
 }
 
+String _filterLabel(AppLocalizations l10n, HistoryFilter filter) => switch (filter) {
+  HistoryFilter.all => l10n.historyFilterAll,
+  HistoryFilter.morning => l10n.contextMorning,
+  HistoryFilter.evening => l10n.contextEvening,
+  HistoryFilter.withNotes => l10n.historyFilterWithNotes,
+};
+
 class _HistoryFilterChip extends StatelessWidget {
   const _HistoryFilterChip({
     required this.filter,
@@ -171,6 +180,7 @@ class _HistoryFilterChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final (background, foreground) = switch (filter) {
       HistoryFilter.all => (accents.mintBackground, accents.mintForeground),
@@ -208,7 +218,7 @@ class _HistoryFilterChip extends StatelessWidget {
               vertical: AppSpacing.sm,
             ),
             child: Text(
-              filter.label,
+              _filterLabel(l10n, filter),
               style: theme.textTheme.bodyMedium?.copyWith(
                 color: foreground,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
@@ -288,11 +298,12 @@ class _DayHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final now = DateTime.now();
     final isToday =
         day.year == now.year && day.month == now.month && day.day == now.day;
     final base = formatWeekdayDayMonth(context, day).toUpperCase();
-    final label = isToday ? 'TODAY · $base' : base;
+    final label = isToday ? '${l10n.historyDayHeaderTodayPrefix} · $base' : base;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(
@@ -317,19 +328,20 @@ class _ReadingListTile extends ConsumerWidget {
   final BloodPressureReading reading;
 
   Future<bool> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete this reading?'),
-        content: const Text('This cannot be undone.'),
+        title: Text(l10n.historyDeleteTitle),
+        content: Text(l10n.commonCannotBeUndone),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -351,11 +363,12 @@ class _ReadingListTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final ts = reading.timestamp;
     final isMorning = ts.hour < 12;
     final timeLabel = formatTime(context, ts);
-    final subtitle = _subtitleFor(reading);
+    final subtitle = _subtitleFor(l10n, reading);
 
     return Column(
       children: [
@@ -428,7 +441,7 @@ class _ReadingListTile extends ConsumerWidget {
                             ),
                             const SizedBox(width: AppSpacing.xs),
                             Text(
-                              'mmHg',
+                              l10n.unitMmhg,
                               style: theme.textTheme.bodySmall?.copyWith(
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
@@ -475,17 +488,20 @@ class _ReadingListTile extends ConsumerWidget {
 /// "{pulse} bpm · {position, contexts}" (or "Note added" when there are no
 /// position/context tags but the reading does have a note) — purely
 /// descriptive metadata, never an interpretation (PROJECT_SPEC.md §12-14).
-String? _subtitleFor(BloodPressureReading reading) {
+String? _subtitleFor(AppLocalizations l10n, BloodPressureReading reading) {
   final tags = <String>[
-    if (reading.bodyPosition != null) reading.bodyPosition!.label,
-    ...reading.measurementContexts.map((c) => c.label),
+    if (reading.bodyPosition != null) reading.bodyPosition!.label(l10n),
+    ...reading.measurementContexts.map((c) => c.label(l10n)),
   ];
   final hasNote = reading.notes != null && reading.notes!.isNotEmpty;
 
   final parts = <String>[
-    if (reading.pulse != null) '${reading.pulse} bpm',
-    if (tags.isNotEmpty) tags.join(', ') else if (hasNote) 'Note added',
-    if (reading.source == ReadingSource.importedReport) 'Imported Report',
+    if (reading.pulse != null) l10n.historySubtitlePulse(reading.pulse!),
+    if (tags.isNotEmpty)
+      tags.join(', ')
+    else if (hasNote)
+      l10n.historySubtitleNoteAdded,
+    if (reading.source == ReadingSource.importedReport) l10n.importedReportTag,
   ];
   if (parts.isEmpty) return null;
   return parts.join(' · ');

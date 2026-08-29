@@ -172,6 +172,42 @@ abstract class AppLocalizations {
   /// **'Tomorrow'**
   String get commonTomorrow;
 
+  /// Dropdown option representing no selection.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get commonNone;
+
+  /// Generic label for a control that opens an editor for an adjacent value.
+  ///
+  /// In en, this message translates to:
+  /// **'Change'**
+  String get commonChange;
+
+  /// Accessibility label for an in-progress save spinner.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving'**
+  String get commonSaving;
+
+  /// Generic label for an export action.
+  ///
+  /// In en, this message translates to:
+  /// **'Export'**
+  String get commonExport;
+
+  /// Generic label/tooltip for an edit action.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get commonEdit;
+
+  /// Generic warning line in a destructive-confirmation dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'This cannot be undone.'**
+  String get commonCannotBeUndone;
+
   /// Blood-pressure unit. Held constant across locales per PROJECT_SPEC.md §36; keyed only so it is not a bare literal in the widget tree.
   ///
   /// In en, this message translates to:
@@ -747,6 +783,426 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'diastolic'**
   String get bpSeriesDiastolic;
+
+  /// Measurement-context tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get contextMorning;
+
+  /// Measurement-context tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening'**
+  String get contextEvening;
+
+  /// Measurement-context tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Before medication'**
+  String get contextBeforeMedication;
+
+  /// Measurement-context tag.
+  ///
+  /// In en, this message translates to:
+  /// **'After medication'**
+  String get contextAfterMedication;
+
+  /// Measurement-context tag.
+  ///
+  /// In en, this message translates to:
+  /// **'After exercise'**
+  String get contextAfterExercise;
+
+  /// Measurement-context tag.
+  ///
+  /// In en, this message translates to:
+  /// **'After meal'**
+  String get contextAfterMeal;
+
+  /// Measurement-context tag (unspecified).
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get contextOther;
+
+  /// Body-position option when recording a reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Sitting'**
+  String get bodyPositionSitting;
+
+  /// Body-position option when recording a reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Standing'**
+  String get bodyPositionStanding;
+
+  /// Body-position option when recording a reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Lying down'**
+  String get bodyPositionLying;
+
+  /// Cuff-arm option when recording a reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Left arm'**
+  String get cuffArmLeft;
+
+  /// Cuff-arm option when recording a reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Right arm'**
+  String get cuffArmRight;
+
+  /// App bar title of the record-reading screen when adding.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reading'**
+  String get recordBpTitleAdd;
+
+  /// App bar title of the record-reading screen when editing.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit reading'**
+  String get recordBpTitleEdit;
+
+  /// Section header above the systolic/diastolic fields.
+  ///
+  /// In en, this message translates to:
+  /// **'MEASUREMENT · REQUIRED'**
+  String get recordSectionRequired;
+
+  /// Section header above the optional fields.
+  ///
+  /// In en, this message translates to:
+  /// **'OPTIONAL'**
+  String get recordSectionOptional;
+
+  /// Field label for the systolic input.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic (mmHg)'**
+  String get recordSystolicLabel;
+
+  /// Field label for the diastolic input.
+  ///
+  /// In en, this message translates to:
+  /// **'Diastolic (mmHg)'**
+  String get recordDiastolicLabel;
+
+  /// Field label for the optional pulse input.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse (optional, bpm)'**
+  String get recordPulseLabel;
+
+  /// Field label for the optional cuff-arm dropdown.
+  ///
+  /// In en, this message translates to:
+  /// **'Cuff arm (optional)'**
+  String get recordCuffArmLabel;
+
+  /// Hint text for the optional free-text notes field.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get recordNotesHint;
+
+  /// Caption under the systolic/diastolic fields clarifying that the accepted range is an input check, not a medical assessment (PROJECT_SPEC.md §7).
+  ///
+  /// In en, this message translates to:
+  /// **'Accepted range {sysMin}–{sysMax} / {diaMin}–{diaMax} mmHg. Range limits are input checks, not an assessment.'**
+  String recordAcceptedRange(int sysMin, int sysMax, int diaMin, int diaMax);
+
+  /// Submit button when adding a new reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Save reading'**
+  String get recordSaveReading;
+
+  /// Submit button when editing an existing reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes'**
+  String get recordSaveChanges;
+
+  /// Source tag on a reading that came from a scanned/imported report (PROJECT_SPEC.md §12). Must stay distinguishable from a manually entered reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported Report'**
+  String get importedReportTag;
+
+  /// Tooltip on the History screen's add-reading FAB.
+  ///
+  /// In en, this message translates to:
+  /// **'Record BP'**
+  String get historyRecordFabTooltip;
+
+  /// Sort toggle tooltip; tapping switches to oldest first.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort: newest first'**
+  String get historySortNewestFirst;
+
+  /// Sort toggle tooltip; tapping switches to newest first.
+  ///
+  /// In en, this message translates to:
+  /// **'Sort: oldest first'**
+  String get historySortOldestFirst;
+
+  /// Snackbar shown when the History export button is tapped (feature not built here).
+  ///
+  /// In en, this message translates to:
+  /// **'Export isn\'t available yet.'**
+  String get historyExportUnavailable;
+
+  /// Empty state on the History screen.
+  ///
+  /// In en, this message translates to:
+  /// **'No readings yet. Tap + to record your first blood pressure reading.'**
+  String get historyEmpty;
+
+  /// Shown when a History filter matches none of the recorded readings.
+  ///
+  /// In en, this message translates to:
+  /// **'No readings match this filter.'**
+  String get historyEmptyFiltered;
+
+  /// History filter chip that shows every reading.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get historyFilterAll;
+
+  /// History filter chip limiting the list to readings that have a note.
+  ///
+  /// In en, this message translates to:
+  /// **'With notes'**
+  String get historyFilterWithNotes;
+
+  /// Uppercase prefix marking today's group in the History list.
+  ///
+  /// In en, this message translates to:
+  /// **'TODAY'**
+  String get historyDayHeaderTodayPrefix;
+
+  /// Confirmation dialog title for deleting a reading from History.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this reading?'**
+  String get historyDeleteTitle;
+
+  /// Pulse portion of a History row subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{pulse} bpm'**
+  String historySubtitlePulse(int pulse);
+
+  /// Shown in a History row subtitle when the only extra detail is a free-text note.
+  ///
+  /// In en, this message translates to:
+  /// **'Note added'**
+  String get historySubtitleNoteAdded;
+
+  /// App bar title of the single-reading detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading'**
+  String get readingDetailTitle;
+
+  /// Shown when a reading detail screen is opened for a reading that has been deleted.
+  ///
+  /// In en, this message translates to:
+  /// **'This reading no longer exists.'**
+  String get readingDetailNotFound;
+
+  /// Row label for the pulse value on the reading detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse'**
+  String get readingDetailPulseLabel;
+
+  /// Row label for the body-position value on the reading detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Body position'**
+  String get readingDetailBodyPositionLabel;
+
+  /// Row label for the cuff-arm value on the reading detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Cuff arm'**
+  String get readingDetailCuffArmLabel;
+
+  /// Row label for the measurement-context tags on the reading detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Context'**
+  String get readingDetailContextLabel;
+
+  /// Row label describing how the reading was entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Entered'**
+  String get readingDetailEnteredLabel;
+
+  /// Row value when a reading was typed in by hand (contrast with 'Imported Report').
+  ///
+  /// In en, this message translates to:
+  /// **'Manually'**
+  String get readingDetailEnteredManually;
+
+  /// Section label above the free-text note on the reading detail screen.
+  ///
+  /// In en, this message translates to:
+  /// **'NOTE'**
+  String get readingDetailNoteLabel;
+
+  /// Heading of the small comparison chart of the user's recent readings in the same morning/evening bucket.
+  ///
+  /// In en, this message translates to:
+  /// **'SAME TIME OF DAY, LAST {count}'**
+  String readingDetailSameTimeOfDayHeading(int count);
+
+  /// Caption under the same-time-of-day comparison chart when the bucket is morning.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic values, morning readings only.'**
+  String get readingDetailSameTimeOfDayCaptionMorning;
+
+  /// Caption under the same-time-of-day comparison chart when the bucket is evening.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic values, evening readings only.'**
+  String get readingDetailSameTimeOfDayCaptionEvening;
+
+  /// Empty state on the Trends screen for the selected period.
+  ///
+  /// In en, this message translates to:
+  /// **'No readings in this period yet.'**
+  String get trendsEmpty;
+
+  /// Compact label on a Trends period-selector chip.
+  ///
+  /// In en, this message translates to:
+  /// **'{period, select, sevenDays{7 d} thirtyDays{30 d} ninetyDays{90 d} oneYear{1 y} other{All}}'**
+  String trendsChipPeriod(String period);
+
+  /// Full name of a trend period, used in stat subtitles.
+  ///
+  /// In en, this message translates to:
+  /// **'{period, select, sevenDays{7 days} thirtyDays{30 days} ninetyDays{90 days} oneYear{1 year} other{All time}}'**
+  String trendsPeriodName(String period);
+
+  /// Label on the button that shares a PDF summary of the selected trend period.
+  ///
+  /// In en, this message translates to:
+  /// **'Export {period} summary (PDF)'**
+  String trendsExportButton(String period);
+
+  /// Adjective form of a trend period, interpolated into trendsExportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'{period, select, sevenDays{7-day} thirtyDays{30-day} ninetyDays{90-day} oneYear{1-year} other{all-time}}'**
+  String trendsExportPeriodName(String period);
+
+  /// Header above the systolic/diastolic line chart on Trends.
+  ///
+  /// In en, this message translates to:
+  /// **'SYSTOLIC / DIASTOLIC · mmHg'**
+  String get trendsChartHeader;
+
+  /// Chart legend label for the systolic line on Trends.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic'**
+  String get trendsLegendSystolic;
+
+  /// Chart legend label for the diastolic line on Trends.
+  ///
+  /// In en, this message translates to:
+  /// **'Diastolic'**
+  String get trendsLegendDiastolic;
+
+  /// Screen-reader description of the Trends systolic/diastolic chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood pressure trend chart. See the summary below for averages and reading count.'**
+  String get trendsChartSemantics;
+
+  /// Screen-reader description of the Trends pulse chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse trend chart. See the summary below for averages.'**
+  String get trendsPulseChartSemantics;
+
+  /// Heading above the optional pulse chart on Trends.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse'**
+  String get trendsPulseSectionTitle;
+
+  /// Stat-tile label for the period average.
+  ///
+  /// In en, this message translates to:
+  /// **'AVERAGE'**
+  String get trendsStatAverage;
+
+  /// Subtitle under the average stat tile.
+  ///
+  /// In en, this message translates to:
+  /// **'mmHg · {period}'**
+  String trendsStatAverageSubtitle(String period);
+
+  /// Stat-tile label for the reading count.
+  ///
+  /// In en, this message translates to:
+  /// **'READINGS'**
+  String get trendsStatReadings;
+
+  /// Subtitle under the readings stat tile: distinct days logged out of the period length.
+  ///
+  /// In en, this message translates to:
+  /// **'on {days} of {periodDays} days'**
+  String trendsStatReadingsSubtitle(int days, int periodDays);
+
+  /// Stat-tile label for the systolic min–max range.
+  ///
+  /// In en, this message translates to:
+  /// **'RANGE'**
+  String get trendsStatRange;
+
+  /// Subtitle under the range stat tile.
+  ///
+  /// In en, this message translates to:
+  /// **'systolic, mmHg'**
+  String get trendsStatRangeSubtitle;
+
+  /// Stat-tile label comparing mean systolic before and after noon.
+  ///
+  /// In en, this message translates to:
+  /// **'MORNING VS EVENING'**
+  String get trendsStatMorningEvening;
+
+  /// Subtitle under the morning-vs-evening stat tile.
+  ///
+  /// In en, this message translates to:
+  /// **'mean systolic'**
+  String get trendsStatMorningEveningSubtitle;
+
+  /// Frames the period average as a record, never a new measurement (PROJECT_SPEC.md §23). Wording is approved; keep it faithful when translating.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Average of 1 recorded reading} other{Average of {count} recorded readings}}'**
+  String trendsAverageOfReadings(int count);
+
+  /// Non-diagnostic disclaimer under the Trends stat grid (PROJECT_SPEC.md §12). Approved wording; any change needs the §37 non-diagnostic-scope review.
+  ///
+  /// In en, this message translates to:
+  /// **'Averages describe what you recorded. They are not an assessment of your blood pressure — share them with your clinician.'**
+  String get trendsDisclaimer;
 
   /// Shown full-screen when Firebase or another core service fails to initialize at launch.
   ///

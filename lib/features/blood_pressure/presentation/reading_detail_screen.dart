@@ -9,6 +9,7 @@ import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
 import '../domain/bp_classification_service.dart';
@@ -26,19 +27,20 @@ class ReadingDetailScreen extends ConsumerWidget {
   final int readingId;
 
   Future<void> _confirmDelete(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete this reading?'),
-        content: const Text('This cannot be undone.'),
+        title: Text(l10n.historyDeleteTitle),
+        content: Text(l10n.commonCannotBeUndone),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -59,15 +61,16 @@ class ReadingDetailScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final readingState = ref.watch(readingStreamProvider(readingId));
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Reading'),
+        title: Text(l10n.readingDetailTitle),
         actions: [
           if (readingState.value != null) ...[
             IconButton(
-              tooltip: 'Edit',
+              tooltip: l10n.commonEdit,
               icon: const Icon(Icons.edit_outlined),
               onPressed: () => context.push(
                 AppRoutes.recordBp,
@@ -75,7 +78,7 @@ class ReadingDetailScreen extends ConsumerWidget {
               ),
             ),
             IconButton(
-              tooltip: 'Delete',
+              tooltip: l10n.commonDelete,
               icon: const Icon(Icons.delete_outline),
               onPressed: () => _confirmDelete(context, ref),
             ),
@@ -90,7 +93,7 @@ class ReadingDetailScreen extends ConsumerWidget {
         ),
         data: (reading) {
           if (reading == null) {
-            return const ErrorView(message: 'This reading no longer exists.');
+            return ErrorView(message: l10n.readingDetailNotFound);
           }
           final allReadings = ref.watch(readingsStreamProvider).value ?? [reading];
           return _ReadingDetailBody(reading: reading, allReadings: allReadings);
@@ -109,6 +112,7 @@ class _ReadingDetailBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final comparison = sameTimeOfDayReadings(allReadings, reading);
     final classification = BPClassificationService.classify(
       systolic: reading.systolic,
@@ -132,33 +136,35 @@ class _ReadingDetailBody extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         const Divider(height: 1),
         if (reading.pulse != null) ...[
-          _DetailRow(label: 'Pulse', value: '${reading.pulse} bpm'),
+          _DetailRow(label: l10n.readingDetailPulseLabel, value: l10n.historySubtitlePulse(reading.pulse!)),
           const Divider(height: 1),
         ],
         if (reading.bodyPosition != null) ...[
-          _DetailRow(label: 'Body position', value: reading.bodyPosition!.label),
+          _DetailRow(label: l10n.readingDetailBodyPositionLabel, value: reading.bodyPosition!.label(l10n)),
           const Divider(height: 1),
         ],
         if (reading.cuffArm != null) ...[
-          _DetailRow(label: 'Cuff arm', value: reading.cuffArm!.label),
+          _DetailRow(label: l10n.readingDetailCuffArmLabel, value: reading.cuffArm!.label(l10n)),
           const Divider(height: 1),
         ],
         if (reading.measurementContexts.isNotEmpty) ...[
           _DetailRow(
-            label: 'Context',
-            value: reading.measurementContexts.map((c) => c.label).join(', '),
+            label: l10n.readingDetailContextLabel,
+            value: reading.measurementContexts.map((c) => c.label(l10n)).join(', '),
           ),
           const Divider(height: 1),
         ],
         _DetailRow(
-          label: 'Entered',
-          value: reading.source == ReadingSource.importedReport ? 'Imported Report' : 'Manually',
+          label: l10n.readingDetailEnteredLabel,
+          value: reading.source == ReadingSource.importedReport
+              ? l10n.importedReportTag
+              : l10n.readingDetailEnteredManually,
         ),
         const Divider(height: 1),
         if (reading.notes != null && reading.notes!.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.md),
           Text(
-            'NOTE',
+            l10n.readingDetailNoteLabel,
             style: theme.textTheme.labelMedium?.copyWith(color: AppColors.dashboardAccentTeal),
           ),
           const SizedBox(height: AppSpacing.xs),
@@ -213,7 +219,7 @@ class _BigReading extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 6),
             child: Text(
-              'mmHg',
+              AppLocalizations.of(context).unitMmhg,
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: theme.colorScheme.onSurfaceVariant,
               ),
@@ -237,6 +243,7 @@ class _SameTimeOfDayCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final isMorning = readings.last.timestamp.hour < 12 ||
         readings.last.measurementContexts.contains(MeasurementContext.morning);
     final maxSystolic = readings.map((r) => r.systolic).reduce((a, b) => a > b ? a : b);
@@ -251,7 +258,7 @@ class _SameTimeOfDayCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'SAME TIME OF DAY, LAST ${readings.length}',
+            l10n.readingDetailSameTimeOfDayHeading(readings.length),
             style: theme.textTheme.labelMedium?.copyWith(color: AppColors.dashboardAccentTeal),
           ),
           const SizedBox(height: AppSpacing.md),
@@ -290,7 +297,9 @@ class _SameTimeOfDayCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Systolic values, ${isMorning ? 'morning' : 'evening'} readings only.',
+            isMorning
+                ? l10n.readingDetailSameTimeOfDayCaptionMorning
+                : l10n.readingDetailSameTimeOfDayCaptionEvening,
             style: theme.textTheme.bodySmall,
           ),
         ],

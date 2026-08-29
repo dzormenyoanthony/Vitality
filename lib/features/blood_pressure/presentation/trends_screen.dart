@@ -10,6 +10,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
 import '../domain/bp_classification_service.dart';
@@ -49,6 +50,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final readingsState = ref.watch(readingsStreamProvider);
 
     return Scaffold(
@@ -63,7 +65,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
                 AppSpacing.lg,
                 AppSpacing.md,
               ),
-              child: Text('Trends', style: theme.textTheme.headlineMedium),
+              child: Text(l10n.navTrends, style: theme.textTheme.headlineMedium),
             ),
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
@@ -74,7 +76,7 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
                     Padding(
                       padding: const EdgeInsets.only(right: AppSpacing.sm),
                       child: _PeriodChip(
-                        label: _chipLabel(p),
+                        label: l10n.trendsChipPeriod(p.name),
                         selected: p == _period,
                         onTap: () => setState(() => _period = p),
                       ),
@@ -93,8 +95,8 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
                 data: (readings) {
                   final stats = TrendCalculator.compute(readings, _period, DateTime.now());
                   if (stats.readingCount == 0) {
-                    return const EmptyView(
-                      message: 'No readings in this period yet.',
+                    return EmptyView(
+                      message: l10n.trendsEmpty,
                       icon: Icons.show_chart,
                     );
                   }
@@ -108,22 +110,6 @@ class _TrendsScreenState extends ConsumerState<TrendsScreen> {
     );
   }
 }
-
-String _chipLabel(TrendPeriod period) => switch (period) {
-  TrendPeriod.sevenDays => '7 d',
-  TrendPeriod.thirtyDays => '30 d',
-  TrendPeriod.ninetyDays => '90 d',
-  TrendPeriod.oneYear => '1 y',
-  TrendPeriod.all => 'All',
-};
-
-String _exportPeriodLabel(TrendPeriod period) => switch (period) {
-  TrendPeriod.sevenDays => '7-day',
-  TrendPeriod.thirtyDays => '30-day',
-  TrendPeriod.ninetyDays => '90-day',
-  TrendPeriod.oneYear => '1-year',
-  TrendPeriod.all => 'all-time',
-};
 
 class _PeriodChip extends StatelessWidget {
   const _PeriodChip({required this.label, required this.selected, required this.onTap});
@@ -189,7 +175,7 @@ class _TrendBody extends StatelessWidget {
         _ExportButton(stats: stats),
         if (stats.hasPulseData) ...[
           const SizedBox(height: AppSpacing.lg),
-          Text('Pulse', style: Theme.of(context).textTheme.titleMedium),
+          Text(AppLocalizations.of(context).trendsPulseSectionTitle, style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppSpacing.sm),
           _PulseChart(readings: stats.readings),
         ],
@@ -217,7 +203,7 @@ class _ChartCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    'SYSTOLIC / DIASTOLIC · mmHg',
+                    AppLocalizations.of(context).trendsChartHeader,
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: AppColors.dashboardAccentTeal,
                     ),
@@ -258,15 +244,16 @@ class _Legend extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Row(
       children: [
         Container(width: 16, height: 3, color: AppColors.dashboardAccentTeal),
         const SizedBox(width: AppSpacing.xs),
-        Text('Systolic', style: theme.textTheme.bodySmall),
+        Text(l10n.trendsLegendSystolic, style: theme.textTheme.bodySmall),
         const SizedBox(width: AppSpacing.lg),
         _DashedSwatch(color: AppColors.dashboardAccentCoral),
         const SizedBox(width: AppSpacing.xs),
-        Text('Diastolic', style: theme.textTheme.bodySmall),
+        Text(l10n.trendsLegendDiastolic, style: theme.textTheme.bodySmall),
       ],
     );
   }
@@ -344,9 +331,7 @@ class _BpChart extends StatelessWidget {
     bool isLastSpot(FlSpot spot, LineChartBarData barData) => spot.x == barData.spots.last.x;
 
     return Semantics(
-      label:
-          'Blood pressure trend chart. See the summary below for averages '
-          'and reading count.',
+      label: AppLocalizations.of(context).trendsChartSemantics,
       child: ExcludeSemantics(
         child: SizedBox(
           height: 240,
@@ -449,7 +434,7 @@ class _PulseChart extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.fromLTRB(AppSpacing.sm, AppSpacing.md, AppSpacing.md, AppSpacing.sm),
         child: Semantics(
-          label: 'Pulse trend chart. See the summary below for averages.',
+          label: AppLocalizations.of(context).trendsPulseChartSemantics,
           child: ExcludeSemantics(
             child: SizedBox(
               height: 160,
@@ -501,6 +486,7 @@ class _StatsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final readings = stats.readings;
 
@@ -529,19 +515,21 @@ class _StatsGrid extends StatelessWidget {
               _StatTile(
                 background: accents.mintBackground,
                 foreground: accents.mintForeground,
-                label: 'AVERAGE',
+                label: l10n.trendsStatAverage,
                 value: avgSystolic != null && avgDiastolic != null
                     ? '${avgSystolic.round()} / ${avgDiastolic.round()}'
                     : '–',
-                subtitle: 'mmHg · ${stats.period.label}',
+                subtitle: l10n.trendsStatAverageSubtitle(
+                  l10n.trendsPeriodName(stats.period.name),
+                ),
               ),
               const SizedBox(height: AppSpacing.sm),
               _StatTile(
                 background: accents.purpleBackground,
                 foreground: accents.purpleForeground,
-                label: 'READINGS',
+                label: l10n.trendsStatReadings,
                 value: '${stats.readingCount}',
-                subtitle: 'on $distinctDays of $periodDays days',
+                subtitle: l10n.trendsStatReadingsSubtitle(distinctDays, periodDays),
               ),
             ],
           ),
@@ -553,18 +541,18 @@ class _StatsGrid extends StatelessWidget {
               _StatTile(
                 background: accents.coralBackground,
                 foreground: accents.coralForeground,
-                label: 'RANGE',
+                label: l10n.trendsStatRange,
                 value: '$minSystolic–$maxSystolic',
-                subtitle: 'systolic, mmHg',
+                subtitle: l10n.trendsStatRangeSubtitle,
               ),
               const SizedBox(height: AppSpacing.sm),
               _StatTile(
                 background: accents.blueBackground,
                 foreground: accents.blueForeground,
-                label: 'MORNING VS EVENING',
+                label: l10n.trendsStatMorningEvening,
                 value:
                     '${morningAvg?.round() ?? '–'} / ${eveningAvg?.round() ?? '–'}',
-                subtitle: 'mean systolic',
+                subtitle: l10n.trendsStatMorningEveningSubtitle,
               ),
             ],
           ),
@@ -658,7 +646,7 @@ class _AverageStatusCard extends StatelessWidget {
             ),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Average of ${stats.readingCount} recorded reading${stats.readingCount == 1 ? '' : 's'}',
+              AppLocalizations.of(context).trendsAverageOfReadings(stats.readingCount),
               style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
             ),
             if (movementLine != null) ...[
@@ -695,8 +683,7 @@ class _DisclaimerCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppSpacing.radiusXl),
       ),
       child: Text(
-        'Averages describe what you recorded. They are not an assessment of '
-        'your blood pressure — share them with your clinician.',
+        AppLocalizations.of(context).trendsDisclaimer,
         style: theme.textTheme.bodyMedium?.copyWith(color: accents.mintForeground),
       ),
     );
@@ -723,7 +710,11 @@ class _ExportButton extends StatelessWidget {
           textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
         icon: const Icon(Icons.download_outlined),
-        label: Text('Export ${_exportPeriodLabel(stats.period)} summary (PDF)'),
+        label: Text(
+          AppLocalizations.of(context).trendsExportButton(
+            AppLocalizations.of(context).trendsExportPeriodName(stats.period.name),
+          ),
+        ),
       ),
     );
   }

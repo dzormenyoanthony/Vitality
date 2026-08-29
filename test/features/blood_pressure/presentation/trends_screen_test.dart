@@ -9,6 +9,8 @@ import 'package:vitality/features/blood_pressure/data/blood_pressure_providers.d
 import 'package:vitality/features/blood_pressure/data/drift_blood_pressure_repository.dart';
 import 'package:vitality/features/blood_pressure/presentation/trends_screen.dart';
 
+import '../../../support/pump_app.dart';
+
 void main() {
   testWidgets('shows the empty state when there are no readings in the period', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
@@ -17,7 +19,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: TrendsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: TrendsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -51,7 +57,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: TrendsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: TrendsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -81,7 +91,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: TrendsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: TrendsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -110,7 +124,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: TrendsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: TrendsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -130,7 +148,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: TrendsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: TrendsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -163,7 +185,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: TrendsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: TrendsScreen(),
+        ),
       ),
     );
     await tester.pump();

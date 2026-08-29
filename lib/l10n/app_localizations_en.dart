@@ -49,6 +49,24 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonTomorrow => 'Tomorrow';
 
   @override
+  String get commonNone => 'None';
+
+  @override
+  String get commonChange => 'Change';
+
+  @override
+  String get commonSaving => 'Saving';
+
+  @override
+  String get commonExport => 'Export';
+
+  @override
+  String get commonEdit => 'Edit';
+
+  @override
+  String get commonCannotBeUndone => 'This cannot be undone.';
+
+  @override
   String get unitMmhg => 'mmHg';
 
   @override
@@ -373,6 +391,269 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bpSeriesDiastolic => 'diastolic';
+
+  @override
+  String get contextMorning => 'Morning';
+
+  @override
+  String get contextEvening => 'Evening';
+
+  @override
+  String get contextBeforeMedication => 'Before medication';
+
+  @override
+  String get contextAfterMedication => 'After medication';
+
+  @override
+  String get contextAfterExercise => 'After exercise';
+
+  @override
+  String get contextAfterMeal => 'After meal';
+
+  @override
+  String get contextOther => 'Other';
+
+  @override
+  String get bodyPositionSitting => 'Sitting';
+
+  @override
+  String get bodyPositionStanding => 'Standing';
+
+  @override
+  String get bodyPositionLying => 'Lying down';
+
+  @override
+  String get cuffArmLeft => 'Left arm';
+
+  @override
+  String get cuffArmRight => 'Right arm';
+
+  @override
+  String get recordBpTitleAdd => 'Add reading';
+
+  @override
+  String get recordBpTitleEdit => 'Edit reading';
+
+  @override
+  String get recordSectionRequired => 'MEASUREMENT · REQUIRED';
+
+  @override
+  String get recordSectionOptional => 'OPTIONAL';
+
+  @override
+  String get recordSystolicLabel => 'Systolic (mmHg)';
+
+  @override
+  String get recordDiastolicLabel => 'Diastolic (mmHg)';
+
+  @override
+  String get recordPulseLabel => 'Pulse (optional, bpm)';
+
+  @override
+  String get recordCuffArmLabel => 'Cuff arm (optional)';
+
+  @override
+  String get recordNotesHint => 'Notes';
+
+  @override
+  String recordAcceptedRange(int sysMin, int sysMax, int diaMin, int diaMax) {
+    return 'Accepted range $sysMin–$sysMax / $diaMin–$diaMax mmHg. Range limits are input checks, not an assessment.';
+  }
+
+  @override
+  String get recordSaveReading => 'Save reading';
+
+  @override
+  String get recordSaveChanges => 'Save changes';
+
+  @override
+  String get importedReportTag => 'Imported Report';
+
+  @override
+  String get historyRecordFabTooltip => 'Record BP';
+
+  @override
+  String get historySortNewestFirst => 'Sort: newest first';
+
+  @override
+  String get historySortOldestFirst => 'Sort: oldest first';
+
+  @override
+  String get historyExportUnavailable => 'Export isn\'t available yet.';
+
+  @override
+  String get historyEmpty =>
+      'No readings yet. Tap + to record your first blood pressure reading.';
+
+  @override
+  String get historyEmptyFiltered => 'No readings match this filter.';
+
+  @override
+  String get historyFilterAll => 'All';
+
+  @override
+  String get historyFilterWithNotes => 'With notes';
+
+  @override
+  String get historyDayHeaderTodayPrefix => 'TODAY';
+
+  @override
+  String get historyDeleteTitle => 'Delete this reading?';
+
+  @override
+  String historySubtitlePulse(int pulse) {
+    return '$pulse bpm';
+  }
+
+  @override
+  String get historySubtitleNoteAdded => 'Note added';
+
+  @override
+  String get readingDetailTitle => 'Reading';
+
+  @override
+  String get readingDetailNotFound => 'This reading no longer exists.';
+
+  @override
+  String get readingDetailPulseLabel => 'Pulse';
+
+  @override
+  String get readingDetailBodyPositionLabel => 'Body position';
+
+  @override
+  String get readingDetailCuffArmLabel => 'Cuff arm';
+
+  @override
+  String get readingDetailContextLabel => 'Context';
+
+  @override
+  String get readingDetailEnteredLabel => 'Entered';
+
+  @override
+  String get readingDetailEnteredManually => 'Manually';
+
+  @override
+  String get readingDetailNoteLabel => 'NOTE';
+
+  @override
+  String readingDetailSameTimeOfDayHeading(int count) {
+    return 'SAME TIME OF DAY, LAST $count';
+  }
+
+  @override
+  String get readingDetailSameTimeOfDayCaptionMorning =>
+      'Systolic values, morning readings only.';
+
+  @override
+  String get readingDetailSameTimeOfDayCaptionEvening =>
+      'Systolic values, evening readings only.';
+
+  @override
+  String get trendsEmpty => 'No readings in this period yet.';
+
+  @override
+  String trendsChipPeriod(String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'sevenDays': '7 d',
+      'thirtyDays': '30 d',
+      'ninetyDays': '90 d',
+      'oneYear': '1 y',
+      'other': 'All',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String trendsPeriodName(String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'sevenDays': '7 days',
+      'thirtyDays': '30 days',
+      'ninetyDays': '90 days',
+      'oneYear': '1 year',
+      'other': 'All time',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String trendsExportButton(String period) {
+    return 'Export $period summary (PDF)';
+  }
+
+  @override
+  String trendsExportPeriodName(String period) {
+    String _temp0 = intl.Intl.selectLogic(period, {
+      'sevenDays': '7-day',
+      'thirtyDays': '30-day',
+      'ninetyDays': '90-day',
+      'oneYear': '1-year',
+      'other': 'all-time',
+    });
+    return '$_temp0';
+  }
+
+  @override
+  String get trendsChartHeader => 'SYSTOLIC / DIASTOLIC · mmHg';
+
+  @override
+  String get trendsLegendSystolic => 'Systolic';
+
+  @override
+  String get trendsLegendDiastolic => 'Diastolic';
+
+  @override
+  String get trendsChartSemantics =>
+      'Blood pressure trend chart. See the summary below for averages and reading count.';
+
+  @override
+  String get trendsPulseChartSemantics =>
+      'Pulse trend chart. See the summary below for averages.';
+
+  @override
+  String get trendsPulseSectionTitle => 'Pulse';
+
+  @override
+  String get trendsStatAverage => 'AVERAGE';
+
+  @override
+  String trendsStatAverageSubtitle(String period) {
+    return 'mmHg · $period';
+  }
+
+  @override
+  String get trendsStatReadings => 'READINGS';
+
+  @override
+  String trendsStatReadingsSubtitle(int days, int periodDays) {
+    return 'on $days of $periodDays days';
+  }
+
+  @override
+  String get trendsStatRange => 'RANGE';
+
+  @override
+  String get trendsStatRangeSubtitle => 'systolic, mmHg';
+
+  @override
+  String get trendsStatMorningEvening => 'MORNING VS EVENING';
+
+  @override
+  String get trendsStatMorningEveningSubtitle => 'mean systolic';
+
+  @override
+  String trendsAverageOfReadings(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Average of $count recorded readings',
+      one: 'Average of 1 recorded reading',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get trendsDisclaimer =>
+      'Averages describe what you recorded. They are not an assessment of your blood pressure — share them with your clinician.';
 
   @override
   String get startupFailureMessage =>

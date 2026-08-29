@@ -551,8 +551,8 @@ class _LatestReadingCard extends StatelessWidget {
     final parts = <String>[];
     if (reading.pulse != null) parts.add(l10n.dashboardPulseSummary(reading.pulse!));
     final contextParts = <String>[];
-    if (reading.bodyPosition != null) contextParts.add(reading.bodyPosition!.label);
-    contextParts.addAll(reading.measurementContexts.map((c) => c.label.toLowerCase()));
+    if (reading.bodyPosition != null) contextParts.add(reading.bodyPosition!.label(l10n));
+    contextParts.addAll(reading.measurementContexts.map((c) => c.label(l10n).toLowerCase()));
     if (contextParts.isNotEmpty) parts.add(contextParts.join(', '));
     return parts.join(' · ');
   }

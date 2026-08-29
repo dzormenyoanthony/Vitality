@@ -6,6 +6,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/blood_pressure_reading.dart';
 import '../domain/reading_validator.dart';
 import 'measurement_context_label.dart';
@@ -112,12 +113,13 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final saveState = ref.watch(recordBpControllerProvider);
     final isSaving = saveState.isLoading;
 
     return Scaffold(
-      appBar: AppBar(title: Text(_isEditing ? 'Edit reading' : 'Add reading')),
+      appBar: AppBar(title: Text(_isEditing ? l10n.recordBpTitleEdit : l10n.recordBpTitleAdd)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -127,7 +129,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Text(
-                  'MEASUREMENT · REQUIRED',
+                  l10n.recordSectionRequired,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: AppColors.dashboardAccentTeal,
                   ),
@@ -139,7 +141,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                       child: _BigNumberField(
                         controller: _systolicController,
                         enabled: !isSaving,
-                        labelText: 'Systolic (mmHg)',
+                        labelText: l10n.recordSystolicLabel,
                         validator: ReadingValidator.validateSystolic,
                       ),
                     ),
@@ -148,7 +150,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                       child: _BigNumberField(
                         controller: _diastolicController,
                         enabled: !isSaving,
-                        labelText: 'Diastolic (mmHg)',
+                        labelText: l10n.recordDiastolicLabel,
                         validator: ReadingValidator.validateDiastolic,
                       ),
                     ),
@@ -156,14 +158,17 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Accepted range ${ReadingValidator.minSystolic}–${ReadingValidator.maxSystolic} / '
-                  '${ReadingValidator.minDiastolic}–${ReadingValidator.maxDiastolic} mmHg. '
-                  'Range limits are input checks, not an assessment.',
+                  l10n.recordAcceptedRange(
+                    ReadingValidator.minSystolic,
+                    ReadingValidator.maxSystolic,
+                    ReadingValidator.minDiastolic,
+                    ReadingValidator.maxDiastolic,
+                  ),
                   style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Text(
-                  'OPTIONAL',
+                  l10n.recordSectionOptional,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: AppColors.dashboardAccentTeal,
                   ),
@@ -176,8 +181,8 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                       child: _BigNumberField(
                         controller: _pulseController,
                         enabled: !isSaving,
-                        labelText: 'Pulse (optional, bpm)',
-                        suffixText: 'bpm',
+                        labelText: l10n.recordPulseLabel,
+                        suffixText: l10n.unitBpm,
                         validator: ReadingValidator.validatePulse,
                       ),
                     ),
@@ -186,7 +191,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                       child: DropdownButtonFormField<CuffArm?>(
                         initialValue: _cuffArm,
                         decoration: InputDecoration(
-                          labelText: 'Cuff arm (optional)',
+                          labelText: l10n.recordCuffArmLabel,
                           floatingLabelBehavior: FloatingLabelBehavior.always,
                           contentPadding: const EdgeInsets.symmetric(
                             horizontal: AppSpacing.md,
@@ -209,9 +214,9 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                           ),
                         ),
                         items: [
-                          const DropdownMenuItem(value: null, child: Text('None')),
+                          DropdownMenuItem(value: null, child: Text(l10n.commonNone)),
                           ...CuffArm.values.map(
-                            (a) => DropdownMenuItem(value: a, child: Text(a.label)),
+                            (a) => DropdownMenuItem(value: a, child: Text(a.label(l10n))),
                           ),
                         ],
                         onChanged: isSaving ? null : (value) => setState(() => _cuffArm = value),
@@ -226,7 +231,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                   children: [
                     for (final p in BodyPosition.values)
                       _TagChip(
-                        label: p.label,
+                        label: p.label(l10n),
                         selected: _bodyPosition == p,
                         background: accents.mintBackground,
                         foreground: accents.mintForeground,
@@ -236,7 +241,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                       ),
                     for (final c in MeasurementContext.values)
                       _TagChip(
-                        label: c.label,
+                        label: c.label(l10n),
                         selected: _contexts.contains(c),
                         background: _contextAccent(c, accents).$1,
                         foreground: _contextAccent(c, accents).$2,
@@ -258,7 +263,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                   enabled: !isSaving,
                   maxLines: 3,
                   decoration: InputDecoration(
-                    hintText: 'Notes',
+                    hintText: l10n.recordNotesHint,
                     contentPadding: const EdgeInsets.all(AppSpacing.md),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
@@ -283,7 +288,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                     TextButton(
                       onPressed: isSaving ? null : _pickTimestamp,
                       style: TextButton.styleFrom(foregroundColor: AppColors.dashboardAccentTeal),
-                      child: const Text('Change', style: TextStyle(fontWeight: FontWeight.w700)),
+                      child: Text(l10n.commonChange, style: const TextStyle(fontWeight: FontWeight.w700)),
                     ),
                   ],
                 ),
@@ -306,14 +311,14 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                   ),
                   child: isSaving
                       ? Semantics(
-                          label: 'Saving',
+                          label: l10n.commonSaving,
                           child: const SizedBox(
                             width: 20,
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           ),
                         )
-                      : Text(_isEditing ? 'Save changes' : 'Save reading'),
+                      : Text(_isEditing ? l10n.recordSaveChanges : l10n.recordSaveReading),
                 ),
               ],
             ),

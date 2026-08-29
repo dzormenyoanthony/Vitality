@@ -54,6 +54,30 @@
   "@commonTomorrow": {
     "description": "Relative day label for the day after the current date."
   },
+  "commonNone": "None",
+  "@commonNone": {
+    "description": "Dropdown option representing no selection."
+  },
+  "commonChange": "Change",
+  "@commonChange": {
+    "description": "Generic label for a control that opens an editor for an adjacent value."
+  },
+  "commonSaving": "Saving",
+  "@commonSaving": {
+    "description": "Accessibility label for an in-progress save spinner."
+  },
+  "commonExport": "Export",
+  "@commonExport": {
+    "description": "Generic label for an export action."
+  },
+  "commonEdit": "Edit",
+  "@commonEdit": {
+    "description": "Generic label/tooltip for an edit action."
+  },
+  "commonCannotBeUndone": "This cannot be undone.",
+  "@commonCannotBeUndone": {
+    "description": "Generic warning line in a destructive-confirmation dialog."
+  },
 
   "unitMmhg": "mmHg",
   "@unitMmhg": {
@@ -470,6 +494,194 @@
   "bpSeriesDiastolic": "diastolic",
   "@bpSeriesDiastolic": {
     "description": "Lowercase name of the diastolic data series, used in chart legends."
+  },
+
+  "contextMorning": "Morning",
+  "@contextMorning": { "description": "Measurement-context tag." },
+  "contextEvening": "Evening",
+  "@contextEvening": { "description": "Measurement-context tag." },
+  "contextBeforeMedication": "Before medication",
+  "@contextBeforeMedication": { "description": "Measurement-context tag." },
+  "contextAfterMedication": "After medication",
+  "@contextAfterMedication": { "description": "Measurement-context tag." },
+  "contextAfterExercise": "After exercise",
+  "@contextAfterExercise": { "description": "Measurement-context tag." },
+  "contextAfterMeal": "After meal",
+  "@contextAfterMeal": { "description": "Measurement-context tag." },
+  "contextOther": "Other",
+  "@contextOther": { "description": "Measurement-context tag (unspecified)." },
+  "bodyPositionSitting": "Sitting",
+  "@bodyPositionSitting": { "description": "Body-position option when recording a reading." },
+  "bodyPositionStanding": "Standing",
+  "@bodyPositionStanding": { "description": "Body-position option when recording a reading." },
+  "bodyPositionLying": "Lying down",
+  "@bodyPositionLying": { "description": "Body-position option when recording a reading." },
+  "cuffArmLeft": "Left arm",
+  "@cuffArmLeft": { "description": "Cuff-arm option when recording a reading." },
+  "cuffArmRight": "Right arm",
+  "@cuffArmRight": { "description": "Cuff-arm option when recording a reading." },
+
+  "recordBpTitleAdd": "Add reading",
+  "@recordBpTitleAdd": { "description": "App bar title of the record-reading screen when adding." },
+  "recordBpTitleEdit": "Edit reading",
+  "@recordBpTitleEdit": { "description": "App bar title of the record-reading screen when editing." },
+  "recordSectionRequired": "MEASUREMENT · REQUIRED",
+  "@recordSectionRequired": { "description": "Section header above the systolic/diastolic fields." },
+  "recordSectionOptional": "OPTIONAL",
+  "@recordSectionOptional": { "description": "Section header above the optional fields." },
+  "recordSystolicLabel": "Systolic (mmHg)",
+  "@recordSystolicLabel": { "description": "Field label for the systolic input." },
+  "recordDiastolicLabel": "Diastolic (mmHg)",
+  "@recordDiastolicLabel": { "description": "Field label for the diastolic input." },
+  "recordPulseLabel": "Pulse (optional, bpm)",
+  "@recordPulseLabel": { "description": "Field label for the optional pulse input." },
+  "recordCuffArmLabel": "Cuff arm (optional)",
+  "@recordCuffArmLabel": { "description": "Field label for the optional cuff-arm dropdown." },
+  "recordNotesHint": "Notes",
+  "@recordNotesHint": { "description": "Hint text for the optional free-text notes field." },
+  "recordAcceptedRange": "Accepted range {sysMin}–{sysMax} / {diaMin}–{diaMax} mmHg. Range limits are input checks, not an assessment.",
+  "@recordAcceptedRange": {
+    "description": "Caption under the systolic/diastolic fields clarifying that the accepted range is an input check, not a medical assessment (PROJECT_SPEC.md §7).",
+    "placeholders": {
+      "sysMin": { "type": "int" },
+      "sysMax": { "type": "int" },
+      "diaMin": { "type": "int" },
+      "diaMax": { "type": "int" }
+    }
+  },
+  "recordSaveReading": "Save reading",
+  "@recordSaveReading": { "description": "Submit button when adding a new reading." },
+  "recordSaveChanges": "Save changes",
+  "@recordSaveChanges": { "description": "Submit button when editing an existing reading." },
+
+  "importedReportTag": "Imported Report",
+  "@importedReportTag": {
+    "description": "Source tag on a reading that came from a scanned/imported report (PROJECT_SPEC.md §12). Must stay distinguishable from a manually entered reading."
+  },
+
+  "historyRecordFabTooltip": "Record BP",
+  "@historyRecordFabTooltip": { "description": "Tooltip on the History screen's add-reading FAB." },
+  "historySortNewestFirst": "Sort: newest first",
+  "@historySortNewestFirst": { "description": "Sort toggle tooltip; tapping switches to oldest first." },
+  "historySortOldestFirst": "Sort: oldest first",
+  "@historySortOldestFirst": { "description": "Sort toggle tooltip; tapping switches to newest first." },
+  "historyExportUnavailable": "Export isn't available yet.",
+  "@historyExportUnavailable": { "description": "Snackbar shown when the History export button is tapped (feature not built here)." },
+  "historyEmpty": "No readings yet. Tap + to record your first blood pressure reading.",
+  "@historyEmpty": { "description": "Empty state on the History screen." },
+  "historyEmptyFiltered": "No readings match this filter.",
+  "@historyEmptyFiltered": { "description": "Shown when a History filter matches none of the recorded readings." },
+  "historyFilterAll": "All",
+  "@historyFilterAll": { "description": "History filter chip that shows every reading." },
+  "historyFilterWithNotes": "With notes",
+  "@historyFilterWithNotes": { "description": "History filter chip limiting the list to readings that have a note." },
+  "historyDayHeaderTodayPrefix": "TODAY",
+  "@historyDayHeaderTodayPrefix": { "description": "Uppercase prefix marking today's group in the History list." },
+  "historyDeleteTitle": "Delete this reading?",
+  "@historyDeleteTitle": { "description": "Confirmation dialog title for deleting a reading from History." },
+  "historySubtitlePulse": "{pulse} bpm",
+  "@historySubtitlePulse": {
+    "description": "Pulse portion of a History row subtitle.",
+    "placeholders": { "pulse": { "type": "int" } }
+  },
+  "historySubtitleNoteAdded": "Note added",
+  "@historySubtitleNoteAdded": { "description": "Shown in a History row subtitle when the only extra detail is a free-text note." },
+
+  "readingDetailTitle": "Reading",
+  "@readingDetailTitle": { "description": "App bar title of the single-reading detail screen." },
+  "readingDetailNotFound": "This reading no longer exists.",
+  "@readingDetailNotFound": { "description": "Shown when a reading detail screen is opened for a reading that has been deleted." },
+  "readingDetailPulseLabel": "Pulse",
+  "@readingDetailPulseLabel": { "description": "Row label for the pulse value on the reading detail screen." },
+  "readingDetailBodyPositionLabel": "Body position",
+  "@readingDetailBodyPositionLabel": { "description": "Row label for the body-position value on the reading detail screen." },
+  "readingDetailCuffArmLabel": "Cuff arm",
+  "@readingDetailCuffArmLabel": { "description": "Row label for the cuff-arm value on the reading detail screen." },
+  "readingDetailContextLabel": "Context",
+  "@readingDetailContextLabel": { "description": "Row label for the measurement-context tags on the reading detail screen." },
+  "readingDetailEnteredLabel": "Entered",
+  "@readingDetailEnteredLabel": { "description": "Row label describing how the reading was entered." },
+  "readingDetailEnteredManually": "Manually",
+  "@readingDetailEnteredManually": { "description": "Row value when a reading was typed in by hand (contrast with 'Imported Report')." },
+  "readingDetailNoteLabel": "NOTE",
+  "@readingDetailNoteLabel": { "description": "Section label above the free-text note on the reading detail screen." },
+  "readingDetailSameTimeOfDayHeading": "SAME TIME OF DAY, LAST {count}",
+  "@readingDetailSameTimeOfDayHeading": {
+    "description": "Heading of the small comparison chart of the user's recent readings in the same morning/evening bucket.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "readingDetailSameTimeOfDayCaptionMorning": "Systolic values, morning readings only.",
+  "@readingDetailSameTimeOfDayCaptionMorning": { "description": "Caption under the same-time-of-day comparison chart when the bucket is morning." },
+  "readingDetailSameTimeOfDayCaptionEvening": "Systolic values, evening readings only.",
+  "@readingDetailSameTimeOfDayCaptionEvening": { "description": "Caption under the same-time-of-day comparison chart when the bucket is evening." },
+
+  "trendsEmpty": "No readings in this period yet.",
+  "@trendsEmpty": { "description": "Empty state on the Trends screen for the selected period." },
+  "trendsChipPeriod": "{period, select, sevenDays{7 d} thirtyDays{30 d} ninetyDays{90 d} oneYear{1 y} other{All}}",
+  "@trendsChipPeriod": {
+    "description": "Compact label on a Trends period-selector chip.",
+    "placeholders": { "period": { "type": "String", "example": "thirtyDays" } }
+  },
+  "trendsPeriodName": "{period, select, sevenDays{7 days} thirtyDays{30 days} ninetyDays{90 days} oneYear{1 year} other{All time}}",
+  "@trendsPeriodName": {
+    "description": "Full name of a trend period, used in stat subtitles.",
+    "placeholders": { "period": { "type": "String", "example": "sevenDays" } }
+  },
+  "trendsExportButton": "Export {period} summary (PDF)",
+  "@trendsExportButton": {
+    "description": "Label on the button that shares a PDF summary of the selected trend period.",
+    "placeholders": { "period": { "type": "String", "example": "30-day" } }
+  },
+  "trendsExportPeriodName": "{period, select, sevenDays{7-day} thirtyDays{30-day} ninetyDays{90-day} oneYear{1-year} other{all-time}}",
+  "@trendsExportPeriodName": {
+    "description": "Adjective form of a trend period, interpolated into trendsExportButton.",
+    "placeholders": { "period": { "type": "String", "example": "oneYear" } }
+  },
+  "trendsChartHeader": "SYSTOLIC / DIASTOLIC · mmHg",
+  "@trendsChartHeader": { "description": "Header above the systolic/diastolic line chart on Trends." },
+  "trendsLegendSystolic": "Systolic",
+  "@trendsLegendSystolic": { "description": "Chart legend label for the systolic line on Trends." },
+  "trendsLegendDiastolic": "Diastolic",
+  "@trendsLegendDiastolic": { "description": "Chart legend label for the diastolic line on Trends." },
+  "trendsChartSemantics": "Blood pressure trend chart. See the summary below for averages and reading count.",
+  "@trendsChartSemantics": { "description": "Screen-reader description of the Trends systolic/diastolic chart." },
+  "trendsPulseChartSemantics": "Pulse trend chart. See the summary below for averages.",
+  "@trendsPulseChartSemantics": { "description": "Screen-reader description of the Trends pulse chart." },
+  "trendsPulseSectionTitle": "Pulse",
+  "@trendsPulseSectionTitle": { "description": "Heading above the optional pulse chart on Trends." },
+  "trendsStatAverage": "AVERAGE",
+  "@trendsStatAverage": { "description": "Stat-tile label for the period average." },
+  "trendsStatAverageSubtitle": "mmHg · {period}",
+  "@trendsStatAverageSubtitle": {
+    "description": "Subtitle under the average stat tile.",
+    "placeholders": { "period": { "type": "String", "example": "30 days" } }
+  },
+  "trendsStatReadings": "READINGS",
+  "@trendsStatReadings": { "description": "Stat-tile label for the reading count." },
+  "trendsStatReadingsSubtitle": "on {days} of {periodDays} days",
+  "@trendsStatReadingsSubtitle": {
+    "description": "Subtitle under the readings stat tile: distinct days logged out of the period length.",
+    "placeholders": {
+      "days": { "type": "int" },
+      "periodDays": { "type": "int" }
+    }
+  },
+  "trendsStatRange": "RANGE",
+  "@trendsStatRange": { "description": "Stat-tile label for the systolic min–max range." },
+  "trendsStatRangeSubtitle": "systolic, mmHg",
+  "@trendsStatRangeSubtitle": { "description": "Subtitle under the range stat tile." },
+  "trendsStatMorningEvening": "MORNING VS EVENING",
+  "@trendsStatMorningEvening": { "description": "Stat-tile label comparing mean systolic before and after noon." },
+  "trendsStatMorningEveningSubtitle": "mean systolic",
+  "@trendsStatMorningEveningSubtitle": { "description": "Subtitle under the morning-vs-evening stat tile." },
+  "trendsAverageOfReadings": "{count, plural, =1{Average of 1 recorded reading} other{Average of {count} recorded readings}}",
+  "@trendsAverageOfReadings": {
+    "description": "Frames the period average as a record, never a new measurement (PROJECT_SPEC.md §23). Wording is approved; keep it faithful when translating.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "trendsDisclaimer": "Averages describe what you recorded. They are not an assessment of your blood pressure — share them with your clinician.",
+  "@trendsDisclaimer": {
+    "description": "Non-diagnostic disclaimer under the Trends stat grid (PROJECT_SPEC.md §12). Approved wording; any change needs the §37 non-diagnostic-scope review."
   },
 
   "startupFailureMessage": "Vitaly couldn't start. Please try again shortly.",
