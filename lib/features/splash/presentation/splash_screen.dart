@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/router/auth_gate_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/error_view.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../onboarding/data/user_profile_providers.dart';
 
 /// Resolving/entry screen shown while [authGateProvider] determines whether
@@ -27,6 +28,7 @@ class SplashScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final gate = ref.watch(authGateProvider);
 
     if (gate case AuthGateError(:final uid, :final message)) {
@@ -161,9 +163,9 @@ class SplashScreen extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          const Text(
-                            'VITALY',
-                            style: TextStyle(
+                          Text(
+                            l10n.splashWordmark,
+                            style: const TextStyle(
                               color: Colors.white,
                               fontSize: 28,
                               fontWeight: FontWeight.w700,
@@ -187,11 +189,11 @@ class SplashScreen extends ConsumerWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           _TaglineDash(),
-                          const Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 12),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
-                              'Blood pressure, recorded',
-                              style: TextStyle(
+                              l10n.splashTagline,
+                              style: const TextStyle(
                                 color: Colors.white70,
                                 fontSize: 16,
                               ),
@@ -229,10 +231,10 @@ class SplashScreen extends ConsumerWidget {
                 left: 0,
                 right: 0,
                 bottom: height * 0.045,
-                child: const Text(
-                  'NOT A MEDICAL DEVICE',
+                child: Text(
+                  l10n.splashNotAMedicalDevice,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white38,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,

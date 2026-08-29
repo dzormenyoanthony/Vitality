@@ -26,9 +26,192 @@
   "@commonClose": {
     "description": "Generic label for closing a sheet, dialog, or full-screen view."
   },
+  "commonTryAgain": "Try again",
+  "@commonTryAgain": {
+    "description": "Retry button on the shared error view."
+  },
+  "commonContinue": "Continue",
+  "@commonContinue": {
+    "description": "Generic label for proceeding past a confirmation dialog."
+  },
+  "commonBack": "Back",
+  "@commonBack": {
+    "description": "Generic label/tooltip for a back navigation control."
+  },
+
+  "navHome": "Home",
+  "@navHome": {
+    "description": "Bottom navigation label for the Dashboard tab."
+  },
+  "navHistory": "History",
+  "@navHistory": {
+    "description": "Bottom navigation label for the blood-pressure history tab."
+  },
+  "navTrends": "Trends",
+  "@navTrends": {
+    "description": "Bottom navigation label for the trends tab."
+  },
+  "navLearn": "Learn",
+  "@navLearn": {
+    "description": "Bottom navigation label for the educational content tab."
+  },
 
   "startupFailureMessage": "Vitaly couldn't start. Please try again shortly.",
   "@startupFailureMessage": {
     "description": "Shown full-screen when Firebase or another core service fails to initialize at launch."
+  },
+
+  "splashWordmark": "VITALY",
+  "@splashWordmark": {
+    "description": "The letter-spaced brand wordmark on the splash screen."
+  },
+  "splashTagline": "Blood pressure, recorded",
+  "@splashTagline": {
+    "description": "Short tagline under the wordmark on the splash screen."
+  },
+  "splashNotAMedicalDevice": "NOT A MEDICAL DEVICE",
+  "@splashNotAMedicalDevice": {
+    "description": "Regulatory caption pinned to the bottom of the splash screen."
+  },
+
+  "settingsTitle": "Settings",
+  "@settingsTitle": {
+    "description": "Header of the Settings screen."
+  },
+  "settingsSectionProfile": "PROFILE",
+  "@settingsSectionProfile": {
+    "description": "Section label above the profile card in Settings."
+  },
+  "settingsSectionAppearance": "APPEARANCE",
+  "@settingsSectionAppearance": {
+    "description": "Section label above the appearance/theme card in Settings."
+  },
+  "settingsSectionData": "DATA",
+  "@settingsSectionData": {
+    "description": "Section label above the saved-reports/export card in Settings."
+  },
+  "settingsSectionAccount": "ACCOUNT",
+  "@settingsSectionAccount": {
+    "description": "Section label above sign-out / delete-account in Settings."
+  },
+  "settingsManageReminders": "Manage reminders",
+  "@settingsManageReminders": {
+    "description": "Link from Settings into the reminders screen."
+  },
+  "settingsPreferredNameLabel": "Preferred name",
+  "@settingsPreferredNameLabel": {
+    "description": "Field label above the editable preferred-name input in Settings."
+  },
+  "settingsSaveNameTooltip": "Save name",
+  "@settingsSaveNameTooltip": {
+    "description": "Tooltip on the save button next to the preferred-name field."
+  },
+  "settingsEmailLabel": "Email",
+  "@settingsEmailLabel": {
+    "description": "Field label above the read-only account email in Settings."
+  },
+  "settingsEmailCaption": "Used for sign-in and export receipts only. Readings stay on this device.",
+  "@settingsEmailCaption": {
+    "description": "Caption under the account email explaining how it is used."
+  },
+  "settingsThemeOptionSystem": "System",
+  "@settingsThemeOptionSystem": {
+    "description": "Theme selector option that follows the OS setting."
+  },
+  "settingsThemeOptionLight": "Light",
+  "@settingsThemeOptionLight": {
+    "description": "Theme selector option forcing the light theme."
+  },
+  "settingsThemeOptionDark": "Dark",
+  "@settingsThemeOptionDark": {
+    "description": "Theme selector option forcing the dark theme."
+  },
+  "settingsThemeHelperSystem": "System follows your Android theme, currently {brightness}.",
+  "@settingsThemeHelperSystem": {
+    "description": "Helper line shown when the theme is set to System.",
+    "placeholders": {
+      "brightness": {
+        "type": "String",
+        "example": "dark"
+      }
+    }
+  },
+  "settingsThemeHelperLight": "Using light theme.",
+  "@settingsThemeHelperLight": {
+    "description": "Helper line shown when the light theme is forced."
+  },
+  "settingsThemeHelperDark": "Using dark theme.",
+  "@settingsThemeHelperDark": {
+    "description": "Helper line shown when the dark theme is forced."
+  },
+  "settingsBrightnessDark": "dark",
+  "@settingsBrightnessDark": {
+    "description": "Lowercase word for a dark system appearance, interpolated into settingsThemeHelperSystem."
+  },
+  "settingsBrightnessLight": "light",
+  "@settingsBrightnessLight": {
+    "description": "Lowercase word for a light system appearance, interpolated into settingsThemeHelperSystem."
+  },
+  "settingsLargerNumbersTitle": "Larger numbers",
+  "@settingsLargerNumbersTitle": {
+    "description": "Toggle title for enlarging reading values app-wide."
+  },
+  "settingsLargerNumbersSubtitle": "Increase the size of reading values",
+  "@settingsLargerNumbersSubtitle": {
+    "description": "Subtitle under the Larger numbers toggle."
+  },
+  "settingsSavedReportsTitle": "Saved reports",
+  "@settingsSavedReportsTitle": {
+    "description": "Data-section row opening the saved reports locker."
+  },
+  "settingsSavedReportsSubtitle": "Scanned or imported BP reports",
+  "@settingsSavedReportsSubtitle": {
+    "description": "Subtitle for the Saved reports row."
+  },
+  "settingsExportDataTitle": "Export data",
+  "@settingsExportDataTitle": {
+    "description": "Data-section row that builds and shares the full data export."
+  },
+  "settingsExportDataSubtitle": "BP readings (CSV) and saved report files, as a ZIP",
+  "@settingsExportDataSubtitle": {
+    "description": "Subtitle for the Export data row."
+  },
+  "settingsExportMissingTitle": "Some report files are unavailable",
+  "@settingsExportMissingTitle": {
+    "description": "Dialog title when some report files can't be found for the export."
+  },
+  "settingsExportMissingBody": "These report files couldn't be found on this device and will be left out of the export:\n\n{files}\n\nThe rest of your export will still be included. Continue?",
+  "@settingsExportMissingBody": {
+    "description": "Dialog body listing report files that will be omitted from the export.",
+    "placeholders": {
+      "files": {
+        "type": "String",
+        "example": "report_3.jpg\nreport_7_page_2.jpg"
+      }
+    }
+  },
+  "settingsExportFailed": "Couldn't prepare your export. Please try again.",
+  "@settingsExportFailed": {
+    "description": "Snackbar shown when building the data export fails."
+  },
+  "settingsDeleteAccountTitle": "Delete your account?",
+  "@settingsDeleteAccountTitle": {
+    "description": "Confirmation dialog title for account deletion."
+  },
+  "settingsDeleteAccountBody": "This permanently deletes your account and all locally stored blood pressure data and reminders. This cannot be undone.",
+  "@settingsDeleteAccountBody": {
+    "description": "Confirmation dialog body for account deletion."
+  },
+  "settingsSignOut": "Sign out",
+  "@settingsSignOut": {
+    "description": "Button that signs the user out."
+  },
+  "settingsDeleteAccount": "Delete account",
+  "@settingsDeleteAccount": {
+    "description": "Button that starts the account-deletion confirmation."
+  },
+  "settingsDeleteAccountCaption": "Deleting removes your profile and every stored reading. This cannot be undone.",
+  "@settingsDeleteAccountCaption": {
+    "description": "Caption under the delete-account button."
   }
 }

@@ -9,6 +9,7 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/larger_numbers_provider.dart';
 import '../../../core/theme/theme_mode_provider.dart';
 import '../../../core/widgets/loading_indicator.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../authentication/data/auth_providers.dart';
 import '../../authentication/domain/credentials_validator.dart';
 import '../../data_export/data/data_export_providers.dart';
@@ -34,6 +35,7 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final uid = ref.watch(authStateChangesProvider).value?.uid;
 
     return Scaffold(
@@ -53,7 +55,7 @@ class SettingsScreen extends ConsumerWidget {
                     children: [
                       IconButton(
                         icon: const Icon(Icons.arrow_back),
-                        tooltip: 'Back',
+                        tooltip: l10n.commonBack,
                         onPressed: () {
                           if (context.canPop()) {
                             context.pop();
@@ -63,30 +65,30 @@ class SettingsScreen extends ConsumerWidget {
                         },
                       ),
                       Expanded(
-                        child: Text('Settings', style: theme.textTheme.headlineMedium),
+                        child: Text(l10n.settingsTitle, style: theme.textTheme.headlineMedium),
                       ),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  const _SectionLabel('PROFILE', color: AppColors.dashboardAccentTeal),
+                  _SectionLabel(l10n.settingsSectionProfile, color: AppColors.dashboardAccentTeal),
                   const SizedBox(height: AppSpacing.sm),
                   _ProfileCard(uid: uid),
                   const SizedBox(height: AppSpacing.lg),
-                  const _SectionLabel('APPEARANCE', color: AppColors.dashboardAccentTeal),
+                  _SectionLabel(l10n.settingsSectionAppearance, color: AppColors.dashboardAccentTeal),
                   const SizedBox(height: AppSpacing.sm),
                   const _AppearanceCard(),
                   ListTile(
                     contentPadding: EdgeInsets.zero,
-                    title: const Text('Manage reminders'),
+                    title: Text(l10n.settingsManageReminders),
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => context.push(AppRoutes.reminders),
                   ),
                   const SizedBox(height: AppSpacing.lg),
-                  const _SectionLabel('DATA', color: AppColors.dashboardAccentTeal),
+                  _SectionLabel(l10n.settingsSectionData, color: AppColors.dashboardAccentTeal),
                   const SizedBox(height: AppSpacing.sm),
                   const _DataCard(),
                   const SizedBox(height: AppSpacing.lg),
-                  const _SectionLabel('ACCOUNT', color: AppColors.dashboardAccentCoral),
+                  _SectionLabel(l10n.settingsSectionAccount, color: AppColors.dashboardAccentCoral),
                   const SizedBox(height: AppSpacing.sm),
                   _AccountSection(uid: uid),
                 ],
@@ -141,6 +143,7 @@ class _ProfileCardState extends ConsumerState<_ProfileCard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final email = ref.watch(authStateChangesProvider).value?.email;
     final profile = ref.watch(userProfileStreamProvider(widget.uid)).value;
@@ -198,7 +201,7 @@ class _ProfileCardState extends ConsumerState<_ProfileCard> {
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
-              Text('Preferred name', style: theme.textTheme.bodySmall),
+              Text(l10n.settingsPreferredNameLabel, style: theme.textTheme.bodySmall),
               const SizedBox(height: AppSpacing.xs),
               TextFormField(
                 controller: _nameController,
@@ -213,7 +216,7 @@ class _ProfileCardState extends ConsumerState<_ProfileCard> {
                     borderSide: const BorderSide(color: AppColors.onboardingFieldBorder),
                   ),
                   suffixIcon: IconButton(
-                    tooltip: 'Save name',
+                    tooltip: l10n.settingsSaveNameTooltip,
                     icon: isSaving
                         ? const SizedBox(
                             width: 20,
@@ -235,7 +238,7 @@ class _ProfileCardState extends ConsumerState<_ProfileCard> {
               ],
               if (email != null) ...[
                 const SizedBox(height: AppSpacing.md),
-                Text('Email', style: theme.textTheme.bodySmall),
+                Text(l10n.settingsEmailLabel, style: theme.textTheme.bodySmall),
                 const SizedBox(height: AppSpacing.xs),
                 Container(
                   width: double.infinity,
@@ -256,7 +259,7 @@ class _ProfileCardState extends ConsumerState<_ProfileCard> {
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Used for sign-in and export receipts only. Readings stay on this device.',
+                  l10n.settingsEmailCaption,
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -276,14 +279,16 @@ class _AppearanceCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final themeMode = ref.watch(themeModeProvider);
     final largerNumbers = ref.watch(largerNumbersProvider);
     final systemIsDark = MediaQuery.of(context).platformBrightness == Brightness.dark;
     final helperText = switch (themeMode) {
-      ThemeMode.system =>
-        'System follows your Android theme, currently ${systemIsDark ? 'dark' : 'light'}.',
-      ThemeMode.light => 'Using light theme.',
-      ThemeMode.dark => 'Using dark theme.',
+      ThemeMode.system => l10n.settingsThemeHelperSystem(
+        systemIsDark ? l10n.settingsBrightnessDark : l10n.settingsBrightnessLight,
+      ),
+      ThemeMode.light => l10n.settingsThemeHelperLight,
+      ThemeMode.dark => l10n.settingsThemeHelperDark,
     };
 
     return Card(
@@ -297,7 +302,7 @@ class _AppearanceCard extends ConsumerWidget {
                 Expanded(
                   child: _ThemeOptionCard(
                     icon: Icons.desktop_windows_outlined,
-                    label: 'System',
+                    label: l10n.settingsThemeOptionSystem,
                     selected: themeMode == ThemeMode.system,
                     onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.system),
                   ),
@@ -306,7 +311,7 @@ class _AppearanceCard extends ConsumerWidget {
                 Expanded(
                   child: _ThemeOptionCard(
                     icon: Icons.wb_sunny_outlined,
-                    label: 'Light',
+                    label: l10n.settingsThemeOptionLight,
                     selected: themeMode == ThemeMode.light,
                     onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.light),
                   ),
@@ -315,7 +320,7 @@ class _AppearanceCard extends ConsumerWidget {
                 Expanded(
                   child: _ThemeOptionCard(
                     icon: Icons.dark_mode_outlined,
-                    label: 'Dark',
+                    label: l10n.settingsThemeOptionDark,
                     selected: themeMode == ThemeMode.dark,
                     onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark),
                   ),
@@ -331,9 +336,9 @@ class _AppearanceCard extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Larger numbers', style: theme.textTheme.titleMedium),
+                      Text(l10n.settingsLargerNumbersTitle, style: theme.textTheme.titleMedium),
                       Text(
-                        'Increase the size of reading values',
+                        l10n.settingsLargerNumbersSubtitle,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -424,6 +429,7 @@ class _DataCardState extends ConsumerState<_DataCard> {
 
   Future<void> _exportData() async {
     setState(() => _isExporting = true);
+    final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
     try {
       final result = await ref.read(dataExportServiceProvider).buildExport();
@@ -433,21 +439,20 @@ class _DataCardState extends ConsumerState<_DataCard> {
         final proceed = await showDialog<bool>(
           context: context,
           builder: (dialogContext) => AlertDialog(
-            title: const Text('Some report files are unavailable'),
+            title: Text(l10n.settingsExportMissingTitle),
             content: Text(
-              "These report files couldn't be found on this device and will "
-              'be left out of the export:\n\n'
-              '${result.missingReportFiles.join('\n')}\n\n'
-              'The rest of your export will still be included. Continue?',
+              l10n.settingsExportMissingBody(
+                result.missingReportFiles.join('\n'),
+              ),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: const Text('Cancel'),
+                child: Text(l10n.commonCancel),
               ),
               TextButton(
                 onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: const Text('Continue'),
+                child: Text(l10n.commonContinue),
               ),
             ],
           ),
@@ -459,7 +464,7 @@ class _DataCardState extends ConsumerState<_DataCard> {
     } catch (_) {
       if (!mounted) return;
       messenger.showSnackBar(
-        const SnackBar(content: Text("Couldn't prepare your export. Please try again.")),
+        SnackBar(content: Text(l10n.settingsExportFailed)),
       );
     } finally {
       if (mounted) setState(() => _isExporting = false);
@@ -468,21 +473,22 @@ class _DataCardState extends ConsumerState<_DataCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: Column(
         children: [
           ListTile(
             leading: const Icon(Icons.description_outlined),
-            title: const Text('Saved reports'),
-            subtitle: const Text('Scanned or imported BP reports'),
+            title: Text(l10n.settingsSavedReportsTitle),
+            subtitle: Text(l10n.settingsSavedReportsSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(AppRoutes.savedReports),
           ),
           const Divider(height: 1),
           ListTile(
             leading: const Icon(Icons.ios_share_outlined),
-            title: const Text('Export data'),
-            subtitle: const Text('BP readings (CSV) and saved report files, as a ZIP'),
+            title: Text(l10n.settingsExportDataTitle),
+            subtitle: Text(l10n.settingsExportDataSubtitle),
             trailing: _isExporting
                 ? const SizedBox(
                     width: 20,
@@ -504,23 +510,21 @@ class _AccountSection extends ConsumerWidget {
   final String uid;
 
   Future<void> _confirmDeleteAccount(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete your account?'),
-        content: const Text(
-          'This permanently deletes your account and all locally stored '
-          'blood pressure data and reminders. This cannot be undone.',
-        ),
+        title: Text(l10n.settingsDeleteAccountTitle),
+        content: Text(l10n.settingsDeleteAccountBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
             style: TextButton.styleFrom(foregroundColor: Theme.of(dialogContext).colorScheme.error),
-            child: const Text('Delete'),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -540,6 +544,7 @@ class _AccountSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final isBusy = ref.watch(settingsControllerProvider).isLoading;
 
     return Column(
@@ -554,7 +559,7 @@ class _AccountSection extends ConsumerWidget {
             foregroundColor: theme.colorScheme.onSurface,
           ),
           icon: const Icon(Icons.logout),
-          label: const Text('Sign out'),
+          label: Text(l10n.settingsSignOut),
         ),
         const SizedBox(height: AppSpacing.sm),
         FilledButton.icon(
@@ -575,11 +580,11 @@ class _AccountSection extends ConsumerWidget {
                   ),
                 )
               : const Icon(Icons.delete_outline),
-          label: const Text('Delete account'),
+          label: Text(l10n.settingsDeleteAccount),
         ),
         const SizedBox(height: AppSpacing.sm),
         Text(
-          'Deleting removes your profile and every stored reading. This cannot be undone.',
+          l10n.settingsDeleteAccountCaption,
           style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
       ],

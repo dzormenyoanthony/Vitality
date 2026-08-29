@@ -15,6 +15,8 @@ import 'package:vitality/features/reminders/data/fake_notification_scheduler.dar
 import 'package:vitality/features/reminders/data/reminder_providers.dart';
 import 'package:vitality/features/settings/presentation/settings_screen.dart';
 
+import '../../../support/pump_app.dart';
+
 void main() {
   Future<SharedPreferences> mockPrefs() async {
     SharedPreferences.setMockInitialValues({});
@@ -43,7 +45,11 @@ void main() {
           userProfileRepositoryProvider.overrideWithValue(profileRepository),
           sharedPreferencesProvider.overrideWithValue(prefs),
         ],
-        child: const MaterialApp(home: SettingsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: SettingsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -80,7 +86,11 @@ void main() {
           userProfileRepositoryProvider.overrideWithValue(profileRepository),
           sharedPreferencesProvider.overrideWithValue(prefs),
         ],
-        child: const MaterialApp(home: SettingsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: SettingsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -119,7 +129,11 @@ void main() {
           userProfileRepositoryProvider.overrideWithValue(profileRepository),
           sharedPreferencesProvider.overrideWithValue(prefs),
         ],
-        child: const MaterialApp(home: SettingsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: SettingsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -164,7 +178,11 @@ void main() {
           userProfileRepositoryProvider.overrideWithValue(profileRepository),
           sharedPreferencesProvider.overrideWithValue(prefs),
         ],
-        child: const MaterialApp(home: SettingsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: SettingsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -207,7 +225,11 @@ void main() {
           userProfileRepositoryProvider.overrideWithValue(profileRepository),
           sharedPreferencesProvider.overrideWithValue(prefs),
         ],
-        child: const MaterialApp(home: SettingsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: SettingsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -252,7 +274,11 @@ void main() {
           userProfileRepositoryProvider.overrideWithValue(profileRepository),
           sharedPreferencesProvider.overrideWithValue(prefs),
         ],
-        child: const MaterialApp(home: SettingsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: SettingsScreen(),
+        ),
       ),
     );
     await tester.pump();

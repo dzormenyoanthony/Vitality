@@ -5,6 +5,8 @@ import 'package:vitality/core/widgets/empty_view.dart';
 import 'package:vitality/core/widgets/error_view.dart';
 import 'package:vitality/core/widgets/loading_indicator.dart';
 
+import '../../support/pump_app.dart';
+
 void main() {
   group('LoadingIndicator', () {
     testWidgets('shows a progress indicator and optional message', (
@@ -28,6 +30,8 @@ void main() {
       var retried = false;
       await tester.pumpWidget(
         MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
           home: ErrorView(
             message: 'Something went wrong.',
             onRetry: () => retried = true,

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 /// Shared error state with an understandable message and an optional retry
 /// action (PROJECT_SPEC.md §12: "do not expose raw stack traces...",
 /// §24: errors should provide a useful next action).
@@ -30,7 +32,10 @@ class ErrorView extends StatelessWidget {
             ),
             if (onRetry != null) ...[
               const SizedBox(height: 16),
-              FilledButton(onPressed: onRetry, child: const Text('Try again')),
+              FilledButton(
+                onPressed: onRetry,
+                child: Text(AppLocalizations.of(context).commonTryAgain),
+              ),
             ],
           ],
         ),
