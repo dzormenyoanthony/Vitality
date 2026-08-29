@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// First step of the onboarding carousel ("Onboarding 1 of 3" in
 /// `design_references/`) — introduces recording a reading before the user
@@ -21,6 +22,7 @@ class OnboardingWelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       children: [
@@ -36,7 +38,7 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                   child: TextButton(
                     onPressed: onContinue,
                     child: Text(
-                      'Skip',
+                      l10n.onboardingSkip,
                       style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ),
@@ -53,14 +55,14 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      'LOG',
+                      l10n.onboardingWelcomeBadge,
                       style: theme.textTheme.labelMedium?.copyWith(color: Colors.white),
                     ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'Two numbers, five seconds.',
+                  l10n.onboardingWelcomeTitle,
                   style: theme.textTheme.headlineMedium?.copyWith(
                     color: AppColors.onboardingHeadline,
                     height: 1.08,
@@ -68,8 +70,7 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'Systolic and diastolic are all Vitaly needs. Pulse, posture and '
-                  'notes are there when you want them.',
+                  l10n.onboardingWelcomeBody,
                   style: theme.textTheme.bodyLarge?.copyWith(color: AppColors.onboardingBody),
                 ),
               ],
@@ -89,12 +90,12 @@ class OnboardingWelcomeScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Next', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                    SizedBox(width: AppSpacing.sm),
-                    Icon(Icons.arrow_forward, size: 18),
+                    Text(l10n.onboardingNext, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                    const SizedBox(width: AppSpacing.sm),
+                    const Icon(Icons.arrow_forward, size: 18),
                   ],
                 ),
               ),
@@ -200,6 +201,7 @@ class _MockReadingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       decoration: BoxDecoration(
@@ -221,7 +223,7 @@ class _MockReadingCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'NEW READING',
+                  l10n.onboardingWelcomeMockLabel,
                   style: theme.textTheme.labelMedium?.copyWith(color: AppColors.onboardingAccent),
                 ),
                 SizedBox(height: width * 0.025),
@@ -262,7 +264,7 @@ class _MockReadingCard extends StatelessWidget {
                       Padding(
                         padding: EdgeInsets.only(bottom: width * 0.015),
                         child: Text(
-                          'mmHg',
+                          l10n.unitMmhg,
                           style: TextStyle(color: Colors.black45, fontSize: width * 0.05),
                         ),
                       ),
@@ -281,7 +283,7 @@ class _MockReadingCard extends StatelessWidget {
                   ),
                   alignment: Alignment.center,
                   child: Text(
-                    'Save reading',
+                    l10n.onboardingWelcomeMockButton,
                     style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: width * 0.075),
                   ),
                 ),

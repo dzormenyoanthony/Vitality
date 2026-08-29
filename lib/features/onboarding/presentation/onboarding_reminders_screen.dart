@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/onboarding_progress_dots.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Third step of the onboarding carousel ("Onboarding 3 of 3" in
 /// `design_references/`) — introduces reminders before the user starts
@@ -22,6 +23,7 @@ class OnboardingRemindersScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       children: [
@@ -37,7 +39,7 @@ class OnboardingRemindersScreen extends StatelessWidget {
                   child: TextButton(
                     onPressed: onContinue,
                     child: Text(
-                      'Skip',
+                      l10n.onboardingSkip,
                       style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ),
@@ -54,14 +56,14 @@ class OnboardingRemindersScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      'ROUTINE',
+                      l10n.onboardingRemindersBadge,
                       style: theme.textTheme.labelMedium?.copyWith(color: Colors.white),
                     ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'Reminders that fit your day.',
+                  l10n.onboardingRemindersTitle,
                   style: theme.textTheme.headlineMedium?.copyWith(
                     color: AppColors.onboardingHeadline3,
                     height: 1.08,
@@ -69,8 +71,7 @@ class OnboardingRemindersScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'Set the times you measure. Vitaly nudges you, then gets out of '
-                  'the way.',
+                  l10n.onboardingRemindersBody,
                   style: theme.textTheme.bodyLarge?.copyWith(color: AppColors.onboardingBody3),
                 ),
               ],
@@ -95,12 +96,12 @@ class OnboardingRemindersScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Get started', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                    SizedBox(width: AppSpacing.sm),
-                    Icon(Icons.arrow_forward, size: 18),
+                    Text(l10n.onboardingGetStarted, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                    const SizedBox(width: AppSpacing.sm),
+                    const Icon(Icons.arrow_forward, size: 18),
                   ],
                 ),
               ),
@@ -212,7 +213,7 @@ class _MockRemindersCard extends StatelessWidget {
                     SizedBox(width: width * 0.045),
                     Flexible(
                       child: Text(
-                        'Two reminders a day',
+                        AppLocalizations.of(context).onboardingRemindersMockTitle,
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: AppColors.onboardingHeadline3,
                           fontWeight: FontWeight.w600,

@@ -37,6 +37,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonBack => 'Back';
 
   @override
+  String get unitMmhg => 'mmHg';
+
+  @override
+  String get unitBpm => 'bpm';
+
+  @override
   String get navHome => 'Home';
 
   @override
@@ -163,6 +169,89 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get forgotPasswordSentBody =>
       'If an account exists for that email, a reset link is on its way. Check your inbox.';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingGetStarted => 'Get started';
+
+  @override
+  String get onboardingWelcomeBadge => 'LOG';
+
+  @override
+  String get onboardingWelcomeTitle => 'Two numbers, five seconds.';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'Systolic and diastolic are all Vitaly needs. Pulse, posture and notes are there when you want them.';
+
+  @override
+  String get onboardingWelcomeMockLabel => 'NEW READING';
+
+  @override
+  String get onboardingWelcomeMockButton => 'Save reading';
+
+  @override
+  String get onboardingTrendsBadge => 'TRENDS';
+
+  @override
+  String get onboardingTrendsTitle => 'Watch the line, not the number.';
+
+  @override
+  String get onboardingTrendsBody =>
+      'Charts and averages show how your readings move across weeks — no labels, no verdicts.';
+
+  @override
+  String get onboardingTrendsMockDaysLogged => '19 of 30 days logged';
+
+  @override
+  String get onboardingTrendsMockRange => '30 DAYS';
+
+  @override
+  String get onboardingTrendsMockSystolic => 'systolic';
+
+  @override
+  String get onboardingTrendsMockDiastolic => 'diastolic';
+
+  @override
+  String get onboardingRemindersBadge => 'ROUTINE';
+
+  @override
+  String get onboardingRemindersTitle => 'Reminders that fit your day.';
+
+  @override
+  String get onboardingRemindersBody =>
+      'Set the times you measure. Vitaly nudges you, then gets out of the way.';
+
+  @override
+  String get onboardingRemindersMockTitle => 'Two reminders a day';
+
+  @override
+  String get onboardingNameTitlePart1 => 'A record of your ';
+
+  @override
+  String get onboardingNameTitleEmphasis => 'blood pressure ';
+
+  @override
+  String get onboardingNameTitlePart2 => 'over time.';
+
+  @override
+  String get onboardingNameBody =>
+      'Vitaly stores the readings you enter and shows how they change. It does not interpret them or give medical advice.';
+
+  @override
+  String get onboardingNameFieldLabel => 'WHAT SHOULD WE CALL YOU?';
+
+  @override
+  String get onboardingNamePrivacyCaption =>
+      'Used only on this device. Nothing is uploaded.';
+
+  @override
+  String get onboardingNameStepFooter => 'Step 1 of 1';
 
   @override
   String get startupFailureMessage =>

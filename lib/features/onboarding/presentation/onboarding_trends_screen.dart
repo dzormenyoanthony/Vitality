@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/onboarding_progress_dots.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Second step of the onboarding carousel ("Onboarding 2 of 3" in
 /// `design_references/`) — introduces the Trends view before the user
@@ -22,6 +23,7 @@ class OnboardingTrendsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       children: [
@@ -37,7 +39,7 @@ class OnboardingTrendsScreen extends StatelessWidget {
                   child: TextButton(
                     onPressed: onContinue,
                     child: Text(
-                      'Skip',
+                      l10n.onboardingSkip,
                       style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
                     ),
                   ),
@@ -54,14 +56,14 @@ class OnboardingTrendsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      'TRENDS',
+                      l10n.onboardingTrendsBadge,
                       style: theme.textTheme.labelMedium?.copyWith(color: Colors.white),
                     ),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'Watch the line, not the number.',
+                  l10n.onboardingTrendsTitle,
                   style: theme.textTheme.headlineMedium?.copyWith(
                     color: AppColors.onboardingHeadline2,
                     height: 1.08,
@@ -69,8 +71,7 @@ class OnboardingTrendsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'Charts and averages show how your readings move across weeks — '
-                  'no labels, no verdicts.',
+                  l10n.onboardingTrendsBody,
                   style: theme.textTheme.bodyLarge?.copyWith(color: AppColors.onboardingBody2),
                 ),
               ],
@@ -95,12 +96,12 @@ class OnboardingTrendsScreen extends StatelessWidget {
                   padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(999)),
                 ),
-                child: const Row(
+                child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Next', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
-                    SizedBox(width: AppSpacing.sm),
-                    Icon(Icons.arrow_forward, size: 18),
+                    Text(l10n.onboardingNext, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                    const SizedBox(width: AppSpacing.sm),
+                    const Icon(Icons.arrow_forward, size: 18),
                   ],
                 ),
               ),
@@ -155,7 +156,7 @@ class _TrendsIllustration extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
                     decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(999)),
                     child: Text(
-                      '19 of 30 days logged',
+                      AppLocalizations.of(context).onboardingTrendsMockDaysLogged,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: AppColors.onboardingHeadline2,
                         fontWeight: FontWeight.w600,
@@ -196,6 +197,7 @@ class _MockChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Container(
       decoration: BoxDecoration(
@@ -216,7 +218,7 @@ class _MockChartCard extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      '30 DAYS',
+                      l10n.onboardingTrendsMockRange,
                       style: theme.textTheme.labelMedium?.copyWith(color: AppColors.onboardingAccent),
                     ),
                     const Spacer(),
@@ -256,14 +258,14 @@ class _MockChartCard extends StatelessWidget {
                       _LegendSwatch(dashed: false, color: AppColors.onboardingAccent),
                       SizedBox(width: width * 0.02),
                       Text(
-                        'systolic',
+                        l10n.onboardingTrendsMockSystolic,
                         style: theme.textTheme.bodySmall?.copyWith(color: AppColors.onboardingAccent),
                       ),
                       SizedBox(width: width * 0.05),
                       _LegendSwatch(dashed: true, color: AppColors.onboardingDiastolicLine),
                       SizedBox(width: width * 0.02),
                       Text(
-                        'diastolic',
+                        l10n.onboardingTrendsMockDiastolic,
                         style: theme.textTheme.bodySmall?.copyWith(color: AppColors.onboardingDiastolicLine),
                       ),
                     ],

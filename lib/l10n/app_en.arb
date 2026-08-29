@@ -39,6 +39,15 @@
     "description": "Generic label/tooltip for a back navigation control."
   },
 
+  "unitMmhg": "mmHg",
+  "@unitMmhg": {
+    "description": "Blood-pressure unit. Held constant across locales per PROJECT_SPEC.md §36; keyed only so it is not a bare literal in the widget tree."
+  },
+  "unitBpm": "bpm",
+  "@unitBpm": {
+    "description": "Pulse unit. Held constant across locales per PROJECT_SPEC.md §36; keyed only so it is not a bare literal in the widget tree."
+  },
+
   "navHome": "Home",
   "@navHome": {
     "description": "Bottom navigation label for the Dashboard tab."
@@ -206,6 +215,111 @@
   "forgotPasswordSentBody": "If an account exists for that email, a reset link is on its way. Check your inbox.",
   "@forgotPasswordSentBody": {
     "description": "Confirmation shown after a password-reset email has been requested."
+  },
+
+  "onboardingSkip": "Skip",
+  "@onboardingSkip": {
+    "description": "Skips the rest of the onboarding carousel."
+  },
+  "onboardingNext": "Next",
+  "@onboardingNext": {
+    "description": "Advances to the next onboarding carousel step."
+  },
+  "onboardingGetStarted": "Get started",
+  "@onboardingGetStarted": {
+    "description": "Finishes the onboarding carousel from its last step."
+  },
+  "onboardingWelcomeBadge": "LOG",
+  "@onboardingWelcomeBadge": {
+    "description": "Eyebrow badge on onboarding step 1 (recording a reading)."
+  },
+  "onboardingWelcomeTitle": "Two numbers, five seconds.",
+  "@onboardingWelcomeTitle": {
+    "description": "Headline on onboarding step 1."
+  },
+  "onboardingWelcomeBody": "Systolic and diastolic are all Vitaly needs. Pulse, posture and notes are there when you want them.",
+  "@onboardingWelcomeBody": {
+    "description": "Body copy on onboarding step 1."
+  },
+  "onboardingWelcomeMockLabel": "NEW READING",
+  "@onboardingWelcomeMockLabel": {
+    "description": "Label on the illustrative mock reading card in onboarding step 1."
+  },
+  "onboardingWelcomeMockButton": "Save reading",
+  "@onboardingWelcomeMockButton": {
+    "description": "Button caption on the illustrative mock reading card in onboarding step 1."
+  },
+  "onboardingTrendsBadge": "TRENDS",
+  "@onboardingTrendsBadge": {
+    "description": "Eyebrow badge on onboarding step 2 (trends)."
+  },
+  "onboardingTrendsTitle": "Watch the line, not the number.",
+  "@onboardingTrendsTitle": {
+    "description": "Headline on onboarding step 2."
+  },
+  "onboardingTrendsBody": "Charts and averages show how your readings move across weeks — no labels, no verdicts.",
+  "@onboardingTrendsBody": {
+    "description": "Body copy on onboarding step 2."
+  },
+  "onboardingTrendsMockDaysLogged": "19 of 30 days logged",
+  "@onboardingTrendsMockDaysLogged": {
+    "description": "Illustrative badge on the mock chart in onboarding step 2."
+  },
+  "onboardingTrendsMockRange": "30 DAYS",
+  "@onboardingTrendsMockRange": {
+    "description": "Range label on the illustrative mock chart in onboarding step 2."
+  },
+  "onboardingTrendsMockSystolic": "systolic",
+  "@onboardingTrendsMockSystolic": {
+    "description": "Legend label on the illustrative mock chart in onboarding step 2."
+  },
+  "onboardingTrendsMockDiastolic": "diastolic",
+  "@onboardingTrendsMockDiastolic": {
+    "description": "Legend label on the illustrative mock chart in onboarding step 2."
+  },
+  "onboardingRemindersBadge": "ROUTINE",
+  "@onboardingRemindersBadge": {
+    "description": "Eyebrow badge on onboarding step 3 (reminders)."
+  },
+  "onboardingRemindersTitle": "Reminders that fit your day.",
+  "@onboardingRemindersTitle": {
+    "description": "Headline on onboarding step 3."
+  },
+  "onboardingRemindersBody": "Set the times you measure. Vitaly nudges you, then gets out of the way.",
+  "@onboardingRemindersBody": {
+    "description": "Body copy on onboarding step 3."
+  },
+  "onboardingRemindersMockTitle": "Two reminders a day",
+  "@onboardingRemindersMockTitle": {
+    "description": "Heading on the illustrative mock reminders card in onboarding step 3."
+  },
+  "onboardingNameTitlePart1": "A record of your ",
+  "@onboardingNameTitlePart1": {
+    "description": "First plain span of the multi-color headline on the preferred-name screen."
+  },
+  "onboardingNameTitleEmphasis": "blood pressure ",
+  "@onboardingNameTitleEmphasis": {
+    "description": "Accent-colored span of the multi-color headline on the preferred-name screen."
+  },
+  "onboardingNameTitlePart2": "over time.",
+  "@onboardingNameTitlePart2": {
+    "description": "Closing plain span of the multi-color headline on the preferred-name screen."
+  },
+  "onboardingNameBody": "Vitaly stores the readings you enter and shows how they change. It does not interpret them or give medical advice.",
+  "@onboardingNameBody": {
+    "description": "Non-diagnostic explanation shown on the preferred-name screen (PROJECT_SPEC.md §19)."
+  },
+  "onboardingNameFieldLabel": "WHAT SHOULD WE CALL YOU?",
+  "@onboardingNameFieldLabel": {
+    "description": "Eyebrow label above the preferred-name input."
+  },
+  "onboardingNamePrivacyCaption": "Used only on this device. Nothing is uploaded.",
+  "@onboardingNamePrivacyCaption": {
+    "description": "Privacy caption under the preferred-name input."
+  },
+  "onboardingNameStepFooter": "Step 1 of 1",
+  "@onboardingNameStepFooter": {
+    "description": "Progress footer on the preferred-name screen."
   },
 
   "startupFailureMessage": "Vitaly couldn't start. Please try again shortly.",

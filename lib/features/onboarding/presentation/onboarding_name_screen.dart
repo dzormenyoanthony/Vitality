@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../authentication/domain/credentials_validator.dart';
 
 /// Collects only a preferred name, per PROJECT_SPEC.md §19 — no age, sex,
@@ -45,6 +46,7 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Form(
       key: _formKey,
@@ -58,7 +60,7 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                 children: [
                   const SizedBox(height: AppSpacing.xl),
                   Text(
-                    'VITALY',
+                    l10n.splashWordmark,
                     style: theme.textTheme.labelMedium?.copyWith(
                       color: AppColors.onboardingAccent,
                       letterSpacing: 4,
@@ -69,21 +71,20 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                     TextSpan(
                       style: const TextStyle(fontSize: 36, fontWeight: FontWeight.w700, height: 1.15),
                       children: [
-                        TextSpan(text: 'A record of your ', style: TextStyle(color: AppColors.onboardingHeadline)),
-                        TextSpan(text: 'blood pressure ', style: TextStyle(color: AppColors.onboardingAccent)),
-                        TextSpan(text: 'over time.', style: TextStyle(color: AppColors.onboardingHeadline)),
+                        TextSpan(text: l10n.onboardingNameTitlePart1, style: const TextStyle(color: AppColors.onboardingHeadline)),
+                        TextSpan(text: l10n.onboardingNameTitleEmphasis, style: const TextStyle(color: AppColors.onboardingAccent)),
+                        TextSpan(text: l10n.onboardingNameTitlePart2, style: const TextStyle(color: AppColors.onboardingHeadline)),
                       ],
                     ),
                   ),
                   const SizedBox(height: AppSpacing.md),
                   Text(
-                    'Vitaly stores the readings you enter and shows how they change. '
-                    'It does not interpret them or give medical advice.',
+                    l10n.onboardingNameBody,
                     style: theme.textTheme.bodyLarge?.copyWith(color: AppColors.onboardingBody),
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
-                    'WHAT SHOULD WE CALL YOU?',
+                    l10n.onboardingNameFieldLabel,
                     style: theme.textTheme.labelMedium?.copyWith(color: AppColors.onboardingBody),
                   ),
                   const SizedBox(height: AppSpacing.sm),
@@ -115,7 +116,7 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                     const SizedBox(height: AppSpacing.sm),
                   ],
                   Text(
-                    'Used only on this device. Nothing is uploaded.',
+                    l10n.onboardingNamePrivacyCaption,
                     style: theme.textTheme.bodySmall?.copyWith(color: AppColors.onboardingBody),
                   ),
                 ],
@@ -141,11 +142,11 @@ class _OnboardingNameScreenState extends State<OnboardingNameScreen> {
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                           )
-                        : const Text('Continue', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
+                        : Text(l10n.commonContinue, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 16)),
                   ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
-                Text('Step 1 of 1', style: theme.textTheme.bodySmall?.copyWith(color: AppColors.onboardingBody)),
+                Text(l10n.onboardingNameStepFooter, style: theme.textTheme.bodySmall?.copyWith(color: AppColors.onboardingBody)),
               ],
             ),
           ),

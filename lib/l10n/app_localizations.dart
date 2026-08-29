@@ -148,6 +148,18 @@ abstract class AppLocalizations {
   /// **'Back'**
   String get commonBack;
 
+  /// Blood-pressure unit. Held constant across locales per PROJECT_SPEC.md §36; keyed only so it is not a bare literal in the widget tree.
+  ///
+  /// In en, this message translates to:
+  /// **'mmHg'**
+  String get unitMmhg;
+
+  /// Pulse unit. Held constant across locales per PROJECT_SPEC.md §36; keyed only so it is not a bare literal in the widget tree.
+  ///
+  /// In en, this message translates to:
+  /// **'bpm'**
+  String get unitBpm;
+
   /// Bottom navigation label for the Dashboard tab.
   ///
   /// In en, this message translates to:
@@ -393,6 +405,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'If an account exists for that email, a reset link is on its way. Check your inbox.'**
   String get forgotPasswordSentBody;
+
+  /// Skips the rest of the onboarding carousel.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// Advances to the next onboarding carousel step.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// Finishes the onboarding carousel from its last step.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get onboardingGetStarted;
+
+  /// Eyebrow badge on onboarding step 1 (recording a reading).
+  ///
+  /// In en, this message translates to:
+  /// **'LOG'**
+  String get onboardingWelcomeBadge;
+
+  /// Headline on onboarding step 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Two numbers, five seconds.'**
+  String get onboardingWelcomeTitle;
+
+  /// Body copy on onboarding step 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic and diastolic are all Vitaly needs. Pulse, posture and notes are there when you want them.'**
+  String get onboardingWelcomeBody;
+
+  /// Label on the illustrative mock reading card in onboarding step 1.
+  ///
+  /// In en, this message translates to:
+  /// **'NEW READING'**
+  String get onboardingWelcomeMockLabel;
+
+  /// Button caption on the illustrative mock reading card in onboarding step 1.
+  ///
+  /// In en, this message translates to:
+  /// **'Save reading'**
+  String get onboardingWelcomeMockButton;
+
+  /// Eyebrow badge on onboarding step 2 (trends).
+  ///
+  /// In en, this message translates to:
+  /// **'TRENDS'**
+  String get onboardingTrendsBadge;
+
+  /// Headline on onboarding step 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Watch the line, not the number.'**
+  String get onboardingTrendsTitle;
+
+  /// Body copy on onboarding step 2.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts and averages show how your readings move across weeks — no labels, no verdicts.'**
+  String get onboardingTrendsBody;
+
+  /// Illustrative badge on the mock chart in onboarding step 2.
+  ///
+  /// In en, this message translates to:
+  /// **'19 of 30 days logged'**
+  String get onboardingTrendsMockDaysLogged;
+
+  /// Range label on the illustrative mock chart in onboarding step 2.
+  ///
+  /// In en, this message translates to:
+  /// **'30 DAYS'**
+  String get onboardingTrendsMockRange;
+
+  /// Legend label on the illustrative mock chart in onboarding step 2.
+  ///
+  /// In en, this message translates to:
+  /// **'systolic'**
+  String get onboardingTrendsMockSystolic;
+
+  /// Legend label on the illustrative mock chart in onboarding step 2.
+  ///
+  /// In en, this message translates to:
+  /// **'diastolic'**
+  String get onboardingTrendsMockDiastolic;
+
+  /// Eyebrow badge on onboarding step 3 (reminders).
+  ///
+  /// In en, this message translates to:
+  /// **'ROUTINE'**
+  String get onboardingRemindersBadge;
+
+  /// Headline on onboarding step 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders that fit your day.'**
+  String get onboardingRemindersTitle;
+
+  /// Body copy on onboarding step 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Set the times you measure. Vitaly nudges you, then gets out of the way.'**
+  String get onboardingRemindersBody;
+
+  /// Heading on the illustrative mock reminders card in onboarding step 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Two reminders a day'**
+  String get onboardingRemindersMockTitle;
+
+  /// First plain span of the multi-color headline on the preferred-name screen.
+  ///
+  /// In en, this message translates to:
+  /// **'A record of your '**
+  String get onboardingNameTitlePart1;
+
+  /// Accent-colored span of the multi-color headline on the preferred-name screen.
+  ///
+  /// In en, this message translates to:
+  /// **'blood pressure '**
+  String get onboardingNameTitleEmphasis;
+
+  /// Closing plain span of the multi-color headline on the preferred-name screen.
+  ///
+  /// In en, this message translates to:
+  /// **'over time.'**
+  String get onboardingNameTitlePart2;
+
+  /// Non-diagnostic explanation shown on the preferred-name screen (PROJECT_SPEC.md §19).
+  ///
+  /// In en, this message translates to:
+  /// **'Vitaly stores the readings you enter and shows how they change. It does not interpret them or give medical advice.'**
+  String get onboardingNameBody;
+
+  /// Eyebrow label above the preferred-name input.
+  ///
+  /// In en, this message translates to:
+  /// **'WHAT SHOULD WE CALL YOU?'**
+  String get onboardingNameFieldLabel;
+
+  /// Privacy caption under the preferred-name input.
+  ///
+  /// In en, this message translates to:
+  /// **'Used only on this device. Nothing is uploaded.'**
+  String get onboardingNamePrivacyCaption;
+
+  /// Progress footer on the preferred-name screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Step 1 of 1'**
+  String get onboardingNameStepFooter;
 
   /// Shown full-screen when Firebase or another core service fails to initialize at launch.
   ///

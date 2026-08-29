@@ -3,17 +3,18 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:vitality/features/onboarding/presentation/onboarding_name_screen.dart';
 
+import '../../../support/pump_app.dart';
+
 void main() {
   testWidgets('requires a non-empty name before submitting', (tester) async {
     var submittedName = '';
 
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: OnboardingNameScreen(
-            onSubmit: (name) => submittedName = name,
-            isSubmitting: false,
-          ),
+    await pumpApp(
+      tester,
+      Scaffold(
+        body: OnboardingNameScreen(
+          onSubmit: (name) => submittedName = name,
+          isSubmitting: false,
         ),
       ),
     );
@@ -32,14 +33,13 @@ void main() {
   });
 
   testWidgets('shows the provided error message', (tester) async {
-    await tester.pumpWidget(
-      MaterialApp(
-        home: Scaffold(
-          body: OnboardingNameScreen(
-            onSubmit: (_) {},
-            isSubmitting: false,
-            errorMessage: 'Something went wrong. Please try again.',
-          ),
+    await pumpApp(
+      tester,
+      const Scaffold(
+        body: OnboardingNameScreen(
+          onSubmit: _noop,
+          isSubmitting: false,
+          errorMessage: 'Something went wrong. Please try again.',
         ),
       ),
     );
@@ -47,3 +47,5 @@ void main() {
     expect(find.text('Something went wrong. Please try again.'), findsOneWidget);
   });
 }
+
+void _noop(String _) {}
