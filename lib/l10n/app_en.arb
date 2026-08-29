@@ -38,6 +38,22 @@
   "@commonBack": {
     "description": "Generic label/tooltip for a back navigation control."
   },
+  "commonNotNow": "Not now",
+  "@commonNotNow": {
+    "description": "Generic dismiss label for an optional prompt the user can defer."
+  },
+  "commonNoData": "No data",
+  "@commonNoData": {
+    "description": "Placeholder shown where a value would go but none is available yet."
+  },
+  "commonToday": "Today",
+  "@commonToday": {
+    "description": "Relative day label for the current date."
+  },
+  "commonTomorrow": "Tomorrow",
+  "@commonTomorrow": {
+    "description": "Relative day label for the day after the current date."
+  },
 
   "unitMmhg": "mmHg",
   "@unitMmhg": {
@@ -320,6 +336,140 @@
   "onboardingNameStepFooter": "Step 1 of 1",
   "@onboardingNameStepFooter": {
     "description": "Progress footer on the preferred-name screen."
+  },
+
+  "reminderDefaultLabelMorning": "Morning reading",
+  "@reminderDefaultLabelMorning": {
+    "description": "Default label for a reminder created for a morning time."
+  },
+  "reminderDefaultLabelEvening": "Evening reading",
+  "@reminderDefaultLabelEvening": {
+    "description": "Default label for a reminder created for an evening time."
+  },
+  "reminderCreatedSnackbar": "Reminder created.",
+  "@reminderCreatedSnackbar": {
+    "description": "Confirmation snackbar shown after a reminder is created."
+  },
+
+  "dashboardScanFabTooltip": "Scan BP report",
+  "@dashboardScanFabTooltip": {
+    "description": "Tooltip on the dashboard's document-scanner FAB."
+  },
+  "dashboardAddReading": "Add reading",
+  "@dashboardAddReading": {
+    "description": "Label on the dashboard's primary 'record a reading' FAB."
+  },
+  "dashboardEmptyBody": "You haven't recorded a blood pressure reading yet. Tap \"Add reading\" to add your first one.",
+  "@dashboardEmptyBody": {
+    "description": "Shown on the dashboard before the user has any readings."
+  },
+  "dashboardGreeting": "Good {timeOfDay}",
+  "@dashboardGreeting": {
+    "description": "Dashboard greeting when no preferred name is known.",
+    "placeholders": {
+      "timeOfDay": { "type": "String", "example": "morning" }
+    }
+  },
+  "dashboardGreetingWithName": "Good {timeOfDay}, {name}",
+  "@dashboardGreetingWithName": {
+    "description": "Dashboard greeting including the user's preferred name.",
+    "placeholders": {
+      "timeOfDay": { "type": "String", "example": "evening" },
+      "name": { "type": "String", "example": "Ada" }
+    }
+  },
+  "dashboardTimeOfDayMorning": "morning",
+  "@dashboardTimeOfDayMorning": {
+    "description": "Time-of-day word interpolated into the dashboard greeting (before noon)."
+  },
+  "dashboardTimeOfDayAfternoon": "afternoon",
+  "@dashboardTimeOfDayAfternoon": {
+    "description": "Time-of-day word interpolated into the dashboard greeting (noon to 18:00)."
+  },
+  "dashboardTimeOfDayEvening": "evening",
+  "@dashboardTimeOfDayEvening": {
+    "description": "Time-of-day word interpolated into the dashboard greeting (after 18:00)."
+  },
+  "dashboardHeaderSubtitle": "{dateLabel} · {count, plural, =1{1 reading} other{{count} readings}} this week",
+  "@dashboardHeaderSubtitle": {
+    "description": "Date plus count-of-readings-this-week line under the dashboard greeting.",
+    "placeholders": {
+      "dateLabel": { "type": "String", "example": "Fri, Aug 21" },
+      "count": { "type": "int" }
+    }
+  },
+  "dashboardStreakLabel": "LOGGING STREAK",
+  "@dashboardStreakLabel": {
+    "description": "Eyebrow label on the dashboard logging-streak tile."
+  },
+  "dashboardStreakDays": "{count, plural, =1{1 day} other{{count} days}}",
+  "@dashboardStreakDays": {
+    "description": "Streak length shown on the dashboard streak tile.",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "dashboardSetReminderButton": "Set {time} reminder",
+  "@dashboardSetReminderButton": {
+    "description": "Button on the dashboard nudge card that creates a reminder at the suggested time.",
+    "placeholders": {
+      "time": { "type": "String", "example": "08:00" }
+    }
+  },
+  "dashboardNextReminderLabel": "NEXT REMINDER",
+  "@dashboardNextReminderLabel": {
+    "description": "Eyebrow label on the dashboard next-reminder tile."
+  },
+  "dashboardNoReminders": "No reminders set. Tap to add one.",
+  "@dashboardNoReminders": {
+    "description": "Shown on the next-reminder tile when the user has no reminders."
+  },
+  "dashboardNextReminderWhen": "{dayLabel} {time}",
+  "@dashboardNextReminderWhen": {
+    "description": "Relative day plus time for the next scheduled reminder.",
+    "placeholders": {
+      "dayLabel": { "type": "String", "example": "Tomorrow" },
+      "time": { "type": "String", "example": "08:00" }
+    }
+  },
+  "dashboardLatestReadingLabel": "LATEST READING",
+  "@dashboardLatestReadingLabel": {
+    "description": "Eyebrow label on the dashboard latest-reading hero card."
+  },
+  "dashboardPulseSummary": "Pulse {pulse} bpm",
+  "@dashboardPulseSummary": {
+    "description": "Pulse portion of the latest-reading subtitle.",
+    "placeholders": {
+      "pulse": { "type": "int" }
+    }
+  },
+  "dashboardSevenDayAverage": "7-DAY AVERAGE",
+  "@dashboardSevenDayAverage": {
+    "description": "Label above the 7-day average on the latest-reading card."
+  },
+  "dashboardThirtyDayAverage": "30-DAY AVERAGE",
+  "@dashboardThirtyDayAverage": {
+    "description": "Label above the 30-day average on the latest-reading card."
+  },
+  "dashboardChartLegendPrefix": "LAST 7 DAYS · ",
+  "@dashboardChartLegendPrefix": {
+    "description": "Leading text of the dashboard weekly-chart legend."
+  },
+  "dashboardChartEmpty": "No readings recorded in the last 7 days.",
+  "@dashboardChartEmpty": {
+    "description": "Shown in the dashboard weekly-chart card when there are no recent readings."
+  },
+  "dashboardChartSemantics": "Blood pressure trend for the last 7 days. See the latest reading card for the averages.",
+  "@dashboardChartSemantics": {
+    "description": "Screen-reader description of the dashboard weekly trend chart."
+  },
+  "bpSeriesSystolic": "systolic",
+  "@bpSeriesSystolic": {
+    "description": "Lowercase name of the systolic data series, used in chart legends."
+  },
+  "bpSeriesDiastolic": "diastolic",
+  "@bpSeriesDiastolic": {
+    "description": "Lowercase name of the diastolic data series, used in chart legends."
   },
 
   "startupFailureMessage": "Vitaly couldn't start. Please try again shortly.",

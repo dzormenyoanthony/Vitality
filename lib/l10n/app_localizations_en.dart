@@ -37,6 +37,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get commonBack => 'Back';
 
   @override
+  String get commonNotNow => 'Not now';
+
+  @override
+  String get commonNoData => 'No data';
+
+  @override
+  String get commonToday => 'Today';
+
+  @override
+  String get commonTomorrow => 'Tomorrow';
+
+  @override
   String get unitMmhg => 'mmHg';
 
   @override
@@ -252,6 +264,115 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get onboardingNameStepFooter => 'Step 1 of 1';
+
+  @override
+  String get reminderDefaultLabelMorning => 'Morning reading';
+
+  @override
+  String get reminderDefaultLabelEvening => 'Evening reading';
+
+  @override
+  String get reminderCreatedSnackbar => 'Reminder created.';
+
+  @override
+  String get dashboardScanFabTooltip => 'Scan BP report';
+
+  @override
+  String get dashboardAddReading => 'Add reading';
+
+  @override
+  String get dashboardEmptyBody =>
+      'You haven\'t recorded a blood pressure reading yet. Tap \"Add reading\" to add your first one.';
+
+  @override
+  String dashboardGreeting(String timeOfDay) {
+    return 'Good $timeOfDay';
+  }
+
+  @override
+  String dashboardGreetingWithName(String timeOfDay, String name) {
+    return 'Good $timeOfDay, $name';
+  }
+
+  @override
+  String get dashboardTimeOfDayMorning => 'morning';
+
+  @override
+  String get dashboardTimeOfDayAfternoon => 'afternoon';
+
+  @override
+  String get dashboardTimeOfDayEvening => 'evening';
+
+  @override
+  String dashboardHeaderSubtitle(String dateLabel, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count readings',
+      one: '1 reading',
+    );
+    return '$dateLabel · $_temp0 this week';
+  }
+
+  @override
+  String get dashboardStreakLabel => 'LOGGING STREAK';
+
+  @override
+  String dashboardStreakDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String dashboardSetReminderButton(String time) {
+    return 'Set $time reminder';
+  }
+
+  @override
+  String get dashboardNextReminderLabel => 'NEXT REMINDER';
+
+  @override
+  String get dashboardNoReminders => 'No reminders set. Tap to add one.';
+
+  @override
+  String dashboardNextReminderWhen(String dayLabel, String time) {
+    return '$dayLabel $time';
+  }
+
+  @override
+  String get dashboardLatestReadingLabel => 'LATEST READING';
+
+  @override
+  String dashboardPulseSummary(int pulse) {
+    return 'Pulse $pulse bpm';
+  }
+
+  @override
+  String get dashboardSevenDayAverage => '7-DAY AVERAGE';
+
+  @override
+  String get dashboardThirtyDayAverage => '30-DAY AVERAGE';
+
+  @override
+  String get dashboardChartLegendPrefix => 'LAST 7 DAYS · ';
+
+  @override
+  String get dashboardChartEmpty => 'No readings recorded in the last 7 days.';
+
+  @override
+  String get dashboardChartSemantics =>
+      'Blood pressure trend for the last 7 days. See the latest reading card for the averages.';
+
+  @override
+  String get bpSeriesSystolic => 'systolic';
+
+  @override
+  String get bpSeriesDiastolic => 'diastolic';
 
   @override
   String get startupFailureMessage =>

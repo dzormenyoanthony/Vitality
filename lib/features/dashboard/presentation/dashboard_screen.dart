@@ -10,6 +10,7 @@ import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../authentication/data/auth_providers.dart';
 import '../../blood_pressure/data/blood_pressure_providers.dart';
 import '../../blood_pressure/data/blood_pressure_reading.dart';
@@ -36,6 +37,7 @@ class DashboardScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final uid = ref.watch(authStateChangesProvider).value?.uid;
     final profile = uid == null ? null : ref.watch(userProfileStreamProvider(uid)).value;
     final readingsState = ref.watch(readingsStreamProvider);
@@ -55,7 +57,7 @@ class DashboardScreen extends ConsumerWidget {
             heroTag: 'dashboard-scan-fab',
             mini: true,
             backgroundColor: AppColors.dashboardAccentTeal,
-            tooltip: 'Scan BP report',
+            tooltip: l10n.dashboardScanFabTooltip,
             onPressed: () => showScanEntrySheet(context, ref),
             child: const Icon(Icons.document_scanner_outlined, color: Colors.white),
           ),
@@ -65,7 +67,7 @@ class DashboardScreen extends ConsumerWidget {
             backgroundColor: AppColors.dashboardAccentCoral,
             onPressed: () => context.push(AppRoutes.recordBp),
             icon: const Icon(Icons.add),
-            label: const Text('Add reading'),
+            label: Text(l10n.dashboardAddReading),
           ),
         ],
       ),
@@ -101,6 +103,7 @@ class _DashboardBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final now = DateTime.now();
     final nextReminder = NextReminderCalculator.compute(reminders, now);
     final weekly = TrendCalculator.compute(readings, TrendPeriod.sevenDays, now);
@@ -120,8 +123,7 @@ class _DashboardBody extends StatelessWidget {
           _Header(displayName: displayName, readingsThisWeek: 0),
           const SizedBox(height: AppSpacing.lg),
           Text(
-            "You haven't recorded a blood pressure reading yet. "
-            'Tap "Add reading" to add your first one.',
+            l10n.dashboardEmptyBody,
             style: theme.textTheme.bodyLarge,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -186,12 +188,17 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final now = DateTime.now();
     final hour = now.hour;
-    final timeOfDay = hour < 12 ? 'morning' : (hour < 18 ? 'afternoon' : 'evening');
+    final timeOfDay = hour < 12
+        ? l10n.dashboardTimeOfDayMorning
+        : (hour < 18
+            ? l10n.dashboardTimeOfDayAfternoon
+            : l10n.dashboardTimeOfDayEvening);
     final greeting = displayName == null
-        ? 'Good $timeOfDay'
-        : 'Good $timeOfDay, $displayName';
+        ? l10n.dashboardGreeting(timeOfDay)
+        : l10n.dashboardGreetingWithName(timeOfDay, displayName!);
     final dateLabel = formatWeekdayDayMonth(context, now);
 
     return Row(
@@ -204,7 +211,7 @@ class _Header extends StatelessWidget {
               Text(greeting, style: theme.textTheme.headlineMedium),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                '$dateLabel · $readingsThisWeek reading${readingsThisWeek == 1 ? '' : 's'} this week',
+                l10n.dashboardHeaderSubtitle(dateLabel, readingsThisWeek),
                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
             ],
@@ -212,7 +219,7 @@ class _Header extends StatelessWidget {
         ),
         const SizedBox(width: AppSpacing.md),
         Tooltip(
-          message: 'Settings',
+          message: l10n.settingsTitle,
           child: Material(
             color: AppColors.dashboardBadgeBackground,
             borderRadius: BorderRadius.circular(AppSpacing.radiusLg),
@@ -239,6 +246,7 @@ class _StreakTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -258,7 +266,7 @@ class _StreakTile extends StatelessWidget {
                 Icon(Icons.local_fire_department, size: 16, color: accents.mintForeground),
                 const SizedBox(width: AppSpacing.xs),
                 Text(
-                  'LOGGING STREAK',
+                  l10n.dashboardStreakLabel,
                   style: theme.textTheme.labelMedium?.copyWith(color: accents.mintForeground),
                 ),
               ],
@@ -266,7 +274,7 @@ class _StreakTile extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            '$streak day${streak == 1 ? '' : 's'}',
+            l10n.dashboardStreakDays(streak),
             style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface),
           ),
         ],
@@ -293,10 +301,13 @@ class _InsightCardState extends ConsumerState<_InsightCard> {
 
   Future<void> _setReminder() async {
     setState(() => _isSaving = true);
+    final l10n = AppLocalizations.of(context);
     await ref
         .read(reminderControllerProvider.notifier)
         .save(
-          label: widget.insight.suggestedHour < 12 ? 'Morning reading' : 'Evening reading',
+          label: widget.insight.suggestedHour < 12
+              ? l10n.reminderDefaultLabelMorning
+              : l10n.reminderDefaultLabelEvening,
           hour: widget.insight.suggestedHour,
           minute: widget.insight.suggestedMinute,
           daysOfWeek: const {1, 2, 3, 4, 5, 6, 7},
@@ -308,13 +319,14 @@ class _InsightCardState extends ConsumerState<_InsightCard> {
     });
     ScaffoldMessenger.of(
       context,
-    ).showSnackBar(const SnackBar(content: Text('Reminder created.')));
+    ).showSnackBar(SnackBar(content: Text(l10n.reminderCreatedSnackbar)));
   }
 
   @override
   Widget build(BuildContext context) {
     if (_dismissed) return const SizedBox.shrink();
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
 
     return Container(
@@ -336,7 +348,7 @@ class _InsightCardState extends ConsumerState<_InsightCard> {
               ),
               const SizedBox(width: AppSpacing.xs),
               Text(
-                'VITALY',
+                l10n.splashWordmark,
                 style: theme.textTheme.labelSmall?.copyWith(color: accents.purpleForeground),
               ),
             ],
@@ -355,13 +367,19 @@ class _InsightCardState extends ConsumerState<_InsightCard> {
                 onPressed: _isSaving ? null : _setReminder,
                 style: FilledButton.styleFrom(backgroundColor: accents.purpleForeground),
                 child: Text(
-                  'Set ${formatClock(context, hour: widget.insight.suggestedHour, minute: widget.insight.suggestedMinute)} reminder',
+                  l10n.dashboardSetReminderButton(
+                    formatClock(
+                      context,
+                      hour: widget.insight.suggestedHour,
+                      minute: widget.insight.suggestedMinute,
+                    ),
+                  ),
                 ),
               ),
               OutlinedButton(
                 onPressed: _isSaving ? null : () => setState(() => _dismissed = true),
                 style: OutlinedButton.styleFrom(foregroundColor: accents.purpleForeground),
-                child: const Text('Not now'),
+                child: Text(l10n.commonNotNow),
               ),
             ],
           ),
@@ -380,6 +398,7 @@ class _NextReminderTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final occ = occurrence;
 
@@ -395,12 +414,12 @@ class _NextReminderTile extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'NEXT REMINDER',
+                l10n.dashboardNextReminderLabel,
                 style: theme.textTheme.labelMedium?.copyWith(color: accents.coralForeground),
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                occ == null ? 'No reminders set. Tap to add one.' : _formatWhen(context, occ.when),
+                occ == null ? l10n.dashboardNoReminders : _formatWhen(context, l10n, occ.when),
                 style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface),
               ),
             ],
@@ -410,17 +429,17 @@ class _NextReminderTile extends StatelessWidget {
     );
   }
 
-  String _formatWhen(BuildContext context, DateTime when) {
+  String _formatWhen(BuildContext context, AppLocalizations l10n, DateTime when) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final target = DateTime(when.year, when.month, when.day);
     final dayDiff = target.difference(today).inDays;
     final dayLabel = switch (dayDiff) {
-      0 => 'Today',
-      1 => 'Tomorrow',
+      0 => l10n.commonToday,
+      1 => l10n.commonTomorrow,
       _ => formatWeekdayAbbrev(context, when),
     };
-    return '$dayLabel ${formatTime(context, when)}';
+    return l10n.dashboardNextReminderWhen(dayLabel, formatTime(context, when));
   }
 }
 
@@ -434,6 +453,7 @@ class _LatestReadingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final classification = BPClassificationService.classify(
       systolic: reading.systolic,
       diastolic: reading.diastolic,
@@ -453,7 +473,7 @@ class _LatestReadingCard extends StatelessWidget {
               Row(
                 children: [
                   Text(
-                    'LATEST READING',
+                    l10n.dashboardLatestReadingLabel,
                     style: theme.textTheme.labelMedium?.copyWith(color: Colors.white70),
                   ),
                   const Spacer(),
@@ -462,7 +482,7 @@ class _LatestReadingCard extends StatelessWidget {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerRight,
                       child: Text(
-                        _formatRecency(context, reading.timestamp),
+                        _formatRecency(context, l10n, reading.timestamp),
                         style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
                       ),
                     ),
@@ -499,7 +519,7 @@ class _LatestReadingCard extends StatelessWidget {
                     const SizedBox(width: AppSpacing.xs),
                     Padding(
                       padding: const EdgeInsets.only(bottom: 6),
-                      child: Text('mmHg', style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white70)),
+                      child: Text(l10n.unitMmhg, style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white70)),
                     ),
                   ],
                 ),
@@ -510,14 +530,14 @@ class _LatestReadingCard extends StatelessWidget {
                 onExplain: () => showBpExplanationSheet(context, classification),
               ),
               const SizedBox(height: AppSpacing.xs),
-              Text(_subtitleFor(reading), style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white)),
+              Text(_subtitleFor(l10n, reading), style: theme.textTheme.bodyLarge?.copyWith(color: Colors.white)),
               const SizedBox(height: AppSpacing.md),
               const Divider(color: Colors.white24, height: 1),
               const SizedBox(height: AppSpacing.md),
               Row(
                 children: [
-                  Expanded(child: _AverageColumn(label: '7-DAY AVERAGE', stats: weekly)),
-                  Expanded(child: _AverageColumn(label: '30-DAY AVERAGE', stats: monthly)),
+                  Expanded(child: _AverageColumn(label: l10n.dashboardSevenDayAverage, stats: weekly)),
+                  Expanded(child: _AverageColumn(label: l10n.dashboardThirtyDayAverage, stats: monthly)),
                 ],
               ),
             ],
@@ -527,9 +547,9 @@ class _LatestReadingCard extends StatelessWidget {
     );
   }
 
-  String _subtitleFor(BloodPressureReading reading) {
+  String _subtitleFor(AppLocalizations l10n, BloodPressureReading reading) {
     final parts = <String>[];
-    if (reading.pulse != null) parts.add('Pulse ${reading.pulse} bpm');
+    if (reading.pulse != null) parts.add(l10n.dashboardPulseSummary(reading.pulse!));
     final contextParts = <String>[];
     if (reading.bodyPosition != null) contextParts.add(reading.bodyPosition!.label);
     contextParts.addAll(reading.measurementContexts.map((c) => c.label.toLowerCase()));
@@ -537,11 +557,11 @@ class _LatestReadingCard extends StatelessWidget {
     return parts.join(' · ');
   }
 
-  String _formatRecency(BuildContext context, DateTime ts) {
+  String _formatRecency(BuildContext context, AppLocalizations l10n, DateTime ts) {
     final now = DateTime.now();
     final time = formatTime(context, ts);
     if (ts.year == now.year && ts.month == now.month && ts.day == now.day) {
-      return 'Today $time';
+      return '${l10n.commonToday} $time';
     }
     return '${formatDayMonth(context, ts)}, $time';
   }
@@ -556,6 +576,7 @@ class _AverageColumn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final avgSystolic = stats.avgSystolic;
     final avgDiastolic = stats.avgDiastolic;
 
@@ -578,13 +599,13 @@ class _AverageColumn extends StatelessWidget {
                 const SizedBox(width: AppSpacing.xs),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 2),
-                  child: Text('mmHg', style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70)),
+                  child: Text(l10n.unitMmhg, style: theme.textTheme.bodySmall?.copyWith(color: Colors.white70)),
                 ),
               ],
             ),
           )
         else
-          Text('No data', style: theme.textTheme.titleMedium?.copyWith(color: Colors.white70)),
+          Text(l10n.commonNoData, style: theme.textTheme.titleMedium?.copyWith(color: Colors.white70)),
       ],
     );
   }
@@ -600,6 +621,7 @@ class _WeeklyChartCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -608,15 +630,15 @@ class _WeeklyChartCard extends StatelessWidget {
           TextSpan(
             style: theme.textTheme.labelMedium,
             children: [
-              const TextSpan(text: 'LAST 7 DAYS · '),
+              TextSpan(text: l10n.dashboardChartLegendPrefix),
               TextSpan(
-                text: 'systolic',
-                style: TextStyle(color: AppColors.dashboardAccentTeal),
+                text: l10n.bpSeriesSystolic,
+                style: const TextStyle(color: AppColors.dashboardAccentTeal),
               ),
               TextSpan(text: ' / ', style: TextStyle(color: theme.colorScheme.onSurfaceVariant)),
               TextSpan(
-                text: 'diastolic',
-                style: TextStyle(color: AppColors.dashboardAccentCoral),
+                text: l10n.bpSeriesDiastolic,
+                style: const TextStyle(color: AppColors.dashboardAccentCoral),
               ),
             ],
           ),
@@ -626,9 +648,9 @@ class _WeeklyChartCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.fromLTRB(AppSpacing.sm, AppSpacing.md, AppSpacing.md, AppSpacing.sm),
             child: readings.isEmpty
-                ? const Padding(
-                    padding: EdgeInsets.all(AppSpacing.lg),
-                    child: Text('No readings recorded in the last 7 days.'),
+                ? Padding(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: Text(l10n.dashboardChartEmpty),
                   )
                 : _WeeklyChart(readings: readings),
           ),
@@ -646,6 +668,7 @@ class _WeeklyChart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final axisStyle = theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant);
     final systolicSpots = <FlSpot>[];
     final diastolicSpots = <FlSpot>[];
@@ -668,9 +691,7 @@ class _WeeklyChart extends StatelessWidget {
     final interval = ((chartMaxY - chartMinY) / 3 / 10).ceil() * 10.0;
 
     return Semantics(
-      label:
-          'Blood pressure trend for the last 7 days. See the latest reading '
-          'card for the averages.',
+      label: l10n.dashboardChartSemantics,
       child: ExcludeSemantics(
         child: SizedBox(
           height: 160,

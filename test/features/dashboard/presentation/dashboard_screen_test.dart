@@ -12,6 +12,8 @@ import 'package:vitality/features/dashboard/presentation/dashboard_screen.dart';
 import 'package:vitality/features/onboarding/data/fake_user_profile_repository.dart';
 import 'package:vitality/features/onboarding/data/user_profile_providers.dart';
 
+import '../../../support/pump_app.dart';
+
 // Follows the lesson from Phase 3's blood_pressure widget tests: explicitly
 // `await db.close()` at the end of each test body rather than relying on
 // implicit teardown, since Drift's stream cleanup otherwise leaves a
@@ -32,7 +34,11 @@ void main() {
           authRepositoryProvider.overrideWithValue(authRepository),
           userProfileRepositoryProvider.overrideWithValue(profileRepository),
         ],
-        child: const MaterialApp(home: DashboardScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: DashboardScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -72,7 +78,11 @@ void main() {
           authRepositoryProvider.overrideWithValue(authRepository),
           userProfileRepositoryProvider.overrideWithValue(profileRepository),
         ],
-        child: const MaterialApp(home: DashboardScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: DashboardScreen(),
+        ),
       ),
     );
     await tester.pump();

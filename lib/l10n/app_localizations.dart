@@ -148,6 +148,30 @@ abstract class AppLocalizations {
   /// **'Back'**
   String get commonBack;
 
+  /// Generic dismiss label for an optional prompt the user can defer.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get commonNotNow;
+
+  /// Placeholder shown where a value would go but none is available yet.
+  ///
+  /// In en, this message translates to:
+  /// **'No data'**
+  String get commonNoData;
+
+  /// Relative day label for the current date.
+  ///
+  /// In en, this message translates to:
+  /// **'Today'**
+  String get commonToday;
+
+  /// Relative day label for the day after the current date.
+  ///
+  /// In en, this message translates to:
+  /// **'Tomorrow'**
+  String get commonTomorrow;
+
   /// Blood-pressure unit. Held constant across locales per PROJECT_SPEC.md §36; keyed only so it is not a bare literal in the widget tree.
   ///
   /// In en, this message translates to:
@@ -561,6 +585,168 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Step 1 of 1'**
   String get onboardingNameStepFooter;
+
+  /// Default label for a reminder created for a morning time.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning reading'**
+  String get reminderDefaultLabelMorning;
+
+  /// Default label for a reminder created for an evening time.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening reading'**
+  String get reminderDefaultLabelEvening;
+
+  /// Confirmation snackbar shown after a reminder is created.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder created.'**
+  String get reminderCreatedSnackbar;
+
+  /// Tooltip on the dashboard's document-scanner FAB.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan BP report'**
+  String get dashboardScanFabTooltip;
+
+  /// Label on the dashboard's primary 'record a reading' FAB.
+  ///
+  /// In en, this message translates to:
+  /// **'Add reading'**
+  String get dashboardAddReading;
+
+  /// Shown on the dashboard before the user has any readings.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t recorded a blood pressure reading yet. Tap \"Add reading\" to add your first one.'**
+  String get dashboardEmptyBody;
+
+  /// Dashboard greeting when no preferred name is known.
+  ///
+  /// In en, this message translates to:
+  /// **'Good {timeOfDay}'**
+  String dashboardGreeting(String timeOfDay);
+
+  /// Dashboard greeting including the user's preferred name.
+  ///
+  /// In en, this message translates to:
+  /// **'Good {timeOfDay}, {name}'**
+  String dashboardGreetingWithName(String timeOfDay, String name);
+
+  /// Time-of-day word interpolated into the dashboard greeting (before noon).
+  ///
+  /// In en, this message translates to:
+  /// **'morning'**
+  String get dashboardTimeOfDayMorning;
+
+  /// Time-of-day word interpolated into the dashboard greeting (noon to 18:00).
+  ///
+  /// In en, this message translates to:
+  /// **'afternoon'**
+  String get dashboardTimeOfDayAfternoon;
+
+  /// Time-of-day word interpolated into the dashboard greeting (after 18:00).
+  ///
+  /// In en, this message translates to:
+  /// **'evening'**
+  String get dashboardTimeOfDayEvening;
+
+  /// Date plus count-of-readings-this-week line under the dashboard greeting.
+  ///
+  /// In en, this message translates to:
+  /// **'{dateLabel} · {count, plural, =1{1 reading} other{{count} readings}} this week'**
+  String dashboardHeaderSubtitle(String dateLabel, int count);
+
+  /// Eyebrow label on the dashboard logging-streak tile.
+  ///
+  /// In en, this message translates to:
+  /// **'LOGGING STREAK'**
+  String get dashboardStreakLabel;
+
+  /// Streak length shown on the dashboard streak tile.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day} other{{count} days}}'**
+  String dashboardStreakDays(int count);
+
+  /// Button on the dashboard nudge card that creates a reminder at the suggested time.
+  ///
+  /// In en, this message translates to:
+  /// **'Set {time} reminder'**
+  String dashboardSetReminderButton(String time);
+
+  /// Eyebrow label on the dashboard next-reminder tile.
+  ///
+  /// In en, this message translates to:
+  /// **'NEXT REMINDER'**
+  String get dashboardNextReminderLabel;
+
+  /// Shown on the next-reminder tile when the user has no reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'No reminders set. Tap to add one.'**
+  String get dashboardNoReminders;
+
+  /// Relative day plus time for the next scheduled reminder.
+  ///
+  /// In en, this message translates to:
+  /// **'{dayLabel} {time}'**
+  String dashboardNextReminderWhen(String dayLabel, String time);
+
+  /// Eyebrow label on the dashboard latest-reading hero card.
+  ///
+  /// In en, this message translates to:
+  /// **'LATEST READING'**
+  String get dashboardLatestReadingLabel;
+
+  /// Pulse portion of the latest-reading subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse {pulse} bpm'**
+  String dashboardPulseSummary(int pulse);
+
+  /// Label above the 7-day average on the latest-reading card.
+  ///
+  /// In en, this message translates to:
+  /// **'7-DAY AVERAGE'**
+  String get dashboardSevenDayAverage;
+
+  /// Label above the 30-day average on the latest-reading card.
+  ///
+  /// In en, this message translates to:
+  /// **'30-DAY AVERAGE'**
+  String get dashboardThirtyDayAverage;
+
+  /// Leading text of the dashboard weekly-chart legend.
+  ///
+  /// In en, this message translates to:
+  /// **'LAST 7 DAYS · '**
+  String get dashboardChartLegendPrefix;
+
+  /// Shown in the dashboard weekly-chart card when there are no recent readings.
+  ///
+  /// In en, this message translates to:
+  /// **'No readings recorded in the last 7 days.'**
+  String get dashboardChartEmpty;
+
+  /// Screen-reader description of the dashboard weekly trend chart.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood pressure trend for the last 7 days. See the latest reading card for the averages.'**
+  String get dashboardChartSemantics;
+
+  /// Lowercase name of the systolic data series, used in chart legends.
+  ///
+  /// In en, this message translates to:
+  /// **'systolic'**
+  String get bpSeriesSystolic;
+
+  /// Lowercase name of the diastolic data series, used in chart legends.
+  ///
+  /// In en, this message translates to:
+  /// **'diastolic'**
+  String get bpSeriesDiastolic;
 
   /// Shown full-screen when Firebase or another core service fails to initialize at launch.
   ///
