@@ -6,6 +6,7 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../domain/credentials_validator.dart';
 import 'auth_controllers.dart';
 
@@ -38,8 +39,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     if (!_formKey.currentState!.validate()) return;
     if (!_agreedToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please agree to the Terms and Privacy Policy first.'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).signUpAgreeToTermsError),
         ),
       );
       return;
@@ -55,6 +56,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final signUpState = ref.watch(signUpControllerProvider);
     final googleState = ref.watch(googleSignInControllerProvider);
     final isLoading = signUpState.isLoading || googleState.isLoading;
@@ -139,7 +141,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                     )
                                   : const _GoogleLogo(),
                               label: Text(
-                                'Continue with Google',
+                                l10n.authContinueWithGoogle,
                                 style: theme.textTheme.titleMedium?.copyWith(
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -167,7 +169,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                     horizontal: AppSpacing.sm,
                                   ),
                                   child: Text(
-                                    'OR USE EMAIL',
+                                    l10n.authDividerOrUseEmail,
                                     style: theme.textTheme.labelMedium
                                         ?.copyWith(
                                           color: theme
@@ -189,11 +191,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               enabled: !isLoading,
                               keyboardType: TextInputType.emailAddress,
                               autofillHints: const [AutofillHints.email],
-                              decoration: const InputDecoration(
-                                labelText: 'EMAIL',
+                              decoration: InputDecoration(
+                                labelText: l10n.authEmailFieldLabel,
                                 floatingLabelBehavior:
                                     FloatingLabelBehavior.always,
-                                prefixIcon: Icon(Icons.mail_outline),
+                                prefixIcon: const Icon(Icons.mail_outline),
                               ),
                               validator: CredentialsValidator.validateEmail,
                             ),
@@ -204,7 +206,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               obscureText: _obscurePassword,
                               autofillHints: const [AutofillHints.newPassword],
                               decoration: InputDecoration(
-                                labelText: 'PASSWORD',
+                                labelText: l10n.authPasswordFieldLabel,
                                 floatingLabelBehavior:
                                     FloatingLabelBehavior.always,
                                 filled: true,
@@ -212,8 +214,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 prefixIcon: const Icon(Icons.lock_outline),
                                 suffixIcon: IconButton(
                                   tooltip: _obscurePassword
-                                      ? 'Show password'
-                                      : 'Hide password',
+                                      ? l10n.authShowPassword
+                                      : l10n.authHidePassword,
                                   icon: Icon(
                                     _obscurePassword
                                         ? Icons.visibility_outlined
@@ -232,7 +234,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                               enabled: !isLoading,
                               obscureText: _obscureConfirmPassword,
                               decoration: InputDecoration(
-                                labelText: 'CONFIRM PASSWORD',
+                                labelText: l10n.authConfirmPasswordFieldLabel,
                                 floatingLabelBehavior:
                                     FloatingLabelBehavior.always,
                                 filled: true,
@@ -240,8 +242,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                 prefixIcon: const Icon(Icons.lock_outline),
                                 suffixIcon: IconButton(
                                   tooltip: _obscureConfirmPassword
-                                      ? 'Show password'
-                                      : 'Hide password',
+                                      ? l10n.authShowPassword
+                                      : l10n.authHidePassword,
                                   icon: Icon(
                                     _obscureConfirmPassword
                                         ? Icons.visibility_outlined
@@ -286,21 +288,21 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                                   .onSurfaceVariant,
                                             ),
                                         children: [
-                                          const TextSpan(
-                                            text: 'I agree to the ',
-                                          ),
+                                          TextSpan(text: l10n.signUpAgreePrefix),
                                           TextSpan(
-                                            text: 'Terms',
-                                            style: TextStyle(
+                                            text: l10n.signUpTermsLink,
+                                            style: const TextStyle(
                                               color:
                                                   AppColors.dashboardAccentTeal,
                                               fontWeight: FontWeight.w700,
                                             ),
                                           ),
-                                          const TextSpan(text: ' and '),
                                           TextSpan(
-                                            text: 'Privacy Policy',
-                                            style: TextStyle(
+                                            text: l10n.signUpAgreeConjunction,
+                                          ),
+                                          TextSpan(
+                                            text: l10n.signUpPrivacyLink,
+                                            style: const TextStyle(
                                               color:
                                                   AppColors.dashboardAccentTeal,
                                               fontWeight: FontWeight.w700,
@@ -310,9 +312,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                           // no Terms/Privacy Policy document to
                                           // point to yet, so making these tap
                                           // targets would go nowhere.
-                                          const TextSpan(
-                                            text: '. Vitaly is not a medical device.',
-                                          ),
+                                          TextSpan(text: l10n.signUpAgreeSuffix),
                                         ],
                                       ),
                                     ),
@@ -360,7 +360,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                       Icons.arrow_forward,
                                       color: AppColors.onboardingHeadline,
                                     ),
-                              label: const Text('Create account'),
+                              label: Text(l10n.signUpSubmit),
                             ),
                             const SizedBox(height: AppSpacing.md),
                             Center(
@@ -374,10 +374,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
                                     children: [
-                                      const TextSpan(text: 'Already with us? '),
+                                      TextSpan(text: l10n.signUpHasAccountPrompt),
                                       TextSpan(
-                                        text: 'Sign in',
-                                        style: TextStyle(
+                                        text: l10n.signUpSignInAction,
+                                        style: const TextStyle(
                                           color: AppColors.dashboardAccentTeal,
                                           fontWeight: FontWeight.w700,
                                         ),
@@ -420,6 +420,7 @@ class _HeroHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
 
     // The decorative circles are deliberately cropped at the hero box's
     // edges (matching the reference). Sized as fractions of width (not
@@ -519,7 +520,7 @@ class _HeroHeader extends StatelessWidget {
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         Text(
-                          'VITALY',
+                          l10n.splashWordmark,
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: Colors.white,
                             fontWeight: FontWeight.w700,
@@ -530,7 +531,7 @@ class _HeroHeader extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.lg),
                     Text(
-                      'Start your blood pressure story',
+                      l10n.signUpHeroTitle,
                       style: theme.textTheme.headlineMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w800,
@@ -538,8 +539,7 @@ class _HeroHeader extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.sm),
                     Text(
-                      'Log a reading in nine seconds. Bring a real chart to your '
-                      'next appointment.',
+                      l10n.signUpHeroSubtitle,
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: Colors.white70,
                       ),
@@ -648,7 +648,7 @@ class _ExampleReadingChip extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  'TODAY 7:34',
+                  AppLocalizations.of(context).signUpExampleReadingTime,
                   style: theme.textTheme.labelSmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),

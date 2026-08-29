@@ -172,6 +172,228 @@ abstract class AppLocalizations {
   /// **'Learn'**
   String get navLearn;
 
+  /// Label on the Google sign-in button, shared by Sign In and Create Account.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue with Google'**
+  String get authContinueWithGoogle;
+
+  /// Divider between Google sign-in and the email form on Sign In.
+  ///
+  /// In en, this message translates to:
+  /// **'OR'**
+  String get authDividerOr;
+
+  /// Divider between Google sign-in and the email form on Create Account.
+  ///
+  /// In en, this message translates to:
+  /// **'OR USE EMAIL'**
+  String get authDividerOrUseEmail;
+
+  /// Uppercase floating label on the email input in the auth forms.
+  ///
+  /// In en, this message translates to:
+  /// **'EMAIL'**
+  String get authEmailFieldLabel;
+
+  /// Uppercase floating label on the password input in the auth forms.
+  ///
+  /// In en, this message translates to:
+  /// **'PASSWORD'**
+  String get authPasswordFieldLabel;
+
+  /// Uppercase floating label on the confirm-password input on Create Account.
+  ///
+  /// In en, this message translates to:
+  /// **'CONFIRM PASSWORD'**
+  String get authConfirmPasswordFieldLabel;
+
+  /// Tooltip on the reveal-password toggle when the password is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get authShowPassword;
+
+  /// Tooltip on the reveal-password toggle when the password is visible.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide password'**
+  String get authHidePassword;
+
+  /// Heading on the Sign In screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome back'**
+  String get signInTitle;
+
+  /// Supporting line under the Sign In heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to continue tracking your blood pressure.'**
+  String get signInSubtitle;
+
+  /// Checkbox label for persisting the session across app restarts.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep me signed in'**
+  String get signInKeepSignedIn;
+
+  /// Short link to the password-reset flow.
+  ///
+  /// In en, this message translates to:
+  /// **'Forgot?'**
+  String get signInForgot;
+
+  /// Primary button that submits the sign-in form.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signInSubmit;
+
+  /// Leading text before the create-account link at the bottom of Sign In.
+  ///
+  /// In en, this message translates to:
+  /// **'New here? '**
+  String get signInNoAccountPrompt;
+
+  /// Link from Sign In to the Create Account screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Create an account'**
+  String get signInCreateAccountAction;
+
+  /// Label on the illustrative sample summary card in the Sign In hero.
+  ///
+  /// In en, this message translates to:
+  /// **'7-DAY AVERAGE'**
+  String get signInMockSevenDayAverage;
+
+  /// Illustrative log count on the sample summary card in the Sign In hero.
+  ///
+  /// In en, this message translates to:
+  /// **'42 logs'**
+  String get signInMockLogCount;
+
+  /// Initial shown on the illustrative avatar in the Sign In hero.
+  ///
+  /// In en, this message translates to:
+  /// **'A'**
+  String get signInMockAvatarInitial;
+
+  /// Illustrative join-month caption under the sample avatar in the Sign In hero.
+  ///
+  /// In en, this message translates to:
+  /// **'SINCE MAR'**
+  String get signInMockSince;
+
+  /// Snackbar shown when Create Account is submitted without ticking the terms box.
+  ///
+  /// In en, this message translates to:
+  /// **'Please agree to the Terms and Privacy Policy first.'**
+  String get signUpAgreeToTermsError;
+
+  /// Headline in the Create Account hero header.
+  ///
+  /// In en, this message translates to:
+  /// **'Start your blood pressure story'**
+  String get signUpHeroTitle;
+
+  /// Supporting line in the Create Account hero header.
+  ///
+  /// In en, this message translates to:
+  /// **'Log a reading in nine seconds. Bring a real chart to your next appointment.'**
+  String get signUpHeroSubtitle;
+
+  /// Text before the Terms link in the Create Account agreement line.
+  ///
+  /// In en, this message translates to:
+  /// **'I agree to the '**
+  String get signUpAgreePrefix;
+
+  /// The 'Terms' span in the Create Account agreement line (not yet linked).
+  ///
+  /// In en, this message translates to:
+  /// **'Terms'**
+  String get signUpTermsLink;
+
+  /// Text between the Terms and Privacy Policy spans in the agreement line.
+  ///
+  /// In en, this message translates to:
+  /// **' and '**
+  String get signUpAgreeConjunction;
+
+  /// The 'Privacy Policy' span in the Create Account agreement line (not yet linked).
+  ///
+  /// In en, this message translates to:
+  /// **'Privacy Policy'**
+  String get signUpPrivacyLink;
+
+  /// Text after the Privacy Policy link in the Create Account agreement line.
+  ///
+  /// In en, this message translates to:
+  /// **'. Vitaly is not a medical device.'**
+  String get signUpAgreeSuffix;
+
+  /// Primary button that submits the Create Account form.
+  ///
+  /// In en, this message translates to:
+  /// **'Create account'**
+  String get signUpSubmit;
+
+  /// Leading text before the sign-in link at the bottom of Create Account.
+  ///
+  /// In en, this message translates to:
+  /// **'Already with us? '**
+  String get signUpHasAccountPrompt;
+
+  /// Link from Create Account back to the Sign In screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get signUpSignInAction;
+
+  /// Illustrative timestamp on the floating example reading chip on Create Account.
+  ///
+  /// In en, this message translates to:
+  /// **'TODAY 7:34'**
+  String get signUpExampleReadingTime;
+
+  /// App bar title of the password-reset screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset password'**
+  String get forgotPasswordAppBarTitle;
+
+  /// Heading on the password-reset form.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset your password'**
+  String get forgotPasswordTitle;
+
+  /// Supporting line under the password-reset heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your account\'s email and we\'ll send you a reset link.'**
+  String get forgotPasswordSubtitle;
+
+  /// Label on the email input in the password-reset form.
+  ///
+  /// In en, this message translates to:
+  /// **'Email'**
+  String get forgotPasswordEmailLabel;
+
+  /// Button that requests the password-reset email.
+  ///
+  /// In en, this message translates to:
+  /// **'Send reset link'**
+  String get forgotPasswordSubmit;
+
+  /// Confirmation shown after a password-reset email has been requested.
+  ///
+  /// In en, this message translates to:
+  /// **'If an account exists for that email, a reset link is on its way. Check your inbox.'**
+  String get forgotPasswordSentBody;
+
   /// Shown full-screen when Firebase or another core service fails to initialize at launch.
   ///
   /// In en, this message translates to:

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../l10n/app_localizations.dart';
 import '../domain/credentials_validator.dart';
 import 'auth_controllers.dart';
 
@@ -36,11 +37,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final resetState = ref.watch(forgotPasswordControllerProvider);
     final isLoading = resetState.isLoading;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Reset password')),
+      appBar: AppBar(title: Text(l10n.forgotPasswordAppBarTitle)),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.lg),
@@ -55,8 +57,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                     ),
                     const SizedBox(height: AppSpacing.md),
                     Text(
-                      'If an account exists for that email, a reset link is on its way. '
-                      'Check your inbox.',
+                      l10n.forgotPasswordSentBody,
                       style: Theme.of(context).textTheme.bodyLarge,
                     ),
                   ],
@@ -67,12 +68,12 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
                       Text(
-                        'Reset your password',
+                        l10n.forgotPasswordTitle,
                         style: Theme.of(context).textTheme.headlineMedium,
                       ),
                       const SizedBox(height: AppSpacing.sm),
                       Text(
-                        "Enter your account's email and we'll send you a reset link.",
+                        l10n.forgotPasswordSubtitle,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                       const SizedBox(height: AppSpacing.lg),
@@ -81,7 +82,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                         enabled: !isLoading,
                         keyboardType: TextInputType.emailAddress,
                         autofillHints: const [AutofillHints.email],
-                        decoration: const InputDecoration(labelText: 'Email'),
+                        decoration: InputDecoration(labelText: l10n.forgotPasswordEmailLabel),
                         validator: CredentialsValidator.validateEmail,
                         onFieldSubmitted: (_) => _submit(),
                       ),
@@ -103,7 +104,7 @@ class _ForgotPasswordScreenState extends ConsumerState<ForgotPasswordScreen> {
                                 height: 20,
                                 child: CircularProgressIndicator(strokeWidth: 2),
                               )
-                            : const Text('Send reset link'),
+                            : Text(l10n.forgotPasswordSubmit),
                       ),
                     ],
                   ),

@@ -9,6 +9,8 @@ import 'package:vitality/features/authentication/data/fake_auth_repository.dart'
 import 'package:vitality/features/authentication/presentation/sign_in_screen.dart';
 import 'package:vitality/features/authentication/presentation/sign_up_screen.dart';
 
+import '../../../support/pump_app.dart';
+
 void main() {
   group('SignInScreen', () {
     // SignInScreen reads sharedPreferencesProvider for the "Keep me signed
@@ -29,7 +31,11 @@ void main() {
             authRepositoryProvider.overrideWithValue(authRepository),
             sharedPreferencesProvider.overrideWithValue(prefs),
           ],
-          child: const MaterialApp(home: SignInScreen()),
+          child: const MaterialApp(
+            localizationsDelegates: localizationWrappers,
+            supportedLocales: testSupportedLocales,
+            home: SignInScreen(),
+          ),
         ),
       );
 
@@ -55,7 +61,11 @@ void main() {
             authRepositoryProvider.overrideWithValue(authRepository),
             sharedPreferencesProvider.overrideWithValue(prefs),
           ],
-          child: const MaterialApp(home: SignInScreen()),
+          child: const MaterialApp(
+            localizationsDelegates: localizationWrappers,
+            supportedLocales: testSupportedLocales,
+            home: SignInScreen(),
+          ),
         ),
       );
 
@@ -88,7 +98,11 @@ void main() {
             authRepositoryProvider.overrideWithValue(authRepository),
             sharedPreferencesProvider.overrideWithValue(prefs),
           ],
-          child: const MaterialApp(home: SignInScreen()),
+          child: const MaterialApp(
+            localizationsDelegates: localizationWrappers,
+            supportedLocales: testSupportedLocales,
+            home: SignInScreen(),
+          ),
         ),
       );
 
@@ -115,7 +129,11 @@ void main() {
               authRepositoryProvider.overrideWithValue(authRepository),
               sharedPreferencesProvider.overrideWithValue(prefs),
             ],
-            child: const MaterialApp(home: SignInScreen()),
+            child: const MaterialApp(
+            localizationsDelegates: localizationWrappers,
+            supportedLocales: testSupportedLocales,
+            home: SignInScreen(),
+          ),
           ),
         );
 
@@ -142,7 +160,11 @@ void main() {
               authRepositoryProvider.overrideWithValue(authRepository),
               sharedPreferencesProvider.overrideWithValue(prefs),
             ],
-            child: const MaterialApp(home: SignInScreen()),
+            child: const MaterialApp(
+            localizationsDelegates: localizationWrappers,
+            supportedLocales: testSupportedLocales,
+            home: SignInScreen(),
+          ),
           ),
         );
 
@@ -166,7 +188,11 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
-          child: const MaterialApp(home: SignUpScreen()),
+          child: const MaterialApp(
+            localizationsDelegates: localizationWrappers,
+            supportedLocales: testSupportedLocales,
+            home: SignUpScreen(),
+          ),
         ),
       );
 
@@ -200,7 +226,11 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
-          child: const MaterialApp(home: SignUpScreen()),
+          child: const MaterialApp(
+            localizationsDelegates: localizationWrappers,
+            supportedLocales: testSupportedLocales,
+            home: SignUpScreen(),
+          ),
         ),
       );
 
@@ -236,7 +266,11 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
-          child: const MaterialApp(home: SignUpScreen()),
+          child: const MaterialApp(
+            localizationsDelegates: localizationWrappers,
+            supportedLocales: testSupportedLocales,
+            home: SignUpScreen(),
+          ),
         ),
       );
 
@@ -259,7 +293,11 @@ void main() {
         await tester.pumpWidget(
           ProviderScope(
             overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
-            child: const MaterialApp(home: SignUpScreen()),
+            child: const MaterialApp(
+            localizationsDelegates: localizationWrappers,
+            supportedLocales: testSupportedLocales,
+            home: SignUpScreen(),
+          ),
           ),
         );
 

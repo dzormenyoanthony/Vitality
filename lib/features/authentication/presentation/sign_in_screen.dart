@@ -7,6 +7,7 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/keep_signed_in_provider.dart';
 import '../domain/credentials_validator.dart';
 import 'auth_controllers.dart';
@@ -51,6 +52,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final signInState = ref.watch(signInControllerProvider);
     final googleState = ref.watch(googleSignInControllerProvider);
     final keepSignedIn = ref.watch(keepSignedInProvider);
@@ -86,12 +88,12 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          'Welcome back',
+                          l10n.signInTitle,
                           style: theme.textTheme.headlineMedium,
                         ),
                         const SizedBox(height: AppSpacing.sm),
                         Text(
-                          'Sign in to continue tracking your blood pressure.',
+                          l10n.signInSubtitle,
                           style: theme.textTheme.bodyMedium?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
                           ),
@@ -136,7 +138,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                 )
                               : const _GoogleLogo(),
                           label: Text(
-                            'Continue with Google',
+                            l10n.authContinueWithGoogle,
                             style: theme.textTheme.titleMedium?.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
@@ -162,7 +164,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                 horizontal: AppSpacing.sm,
                               ),
                               child: Text(
-                                'OR',
+                                l10n.authDividerOr,
                                 style: theme.textTheme.labelMedium?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
@@ -182,7 +184,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           keyboardType: TextInputType.emailAddress,
                           autofillHints: const [AutofillHints.email],
                           decoration: InputDecoration(
-                            labelText: 'EMAIL',
+                            labelText: l10n.authEmailFieldLabel,
                             floatingLabelBehavior: FloatingLabelBehavior.always,
                             filled: true,
                             fillColor: AppColors.onboardingChipUnselected,
@@ -218,7 +220,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                           obscureText: _obscurePassword,
                           autofillHints: const [AutofillHints.password],
                           decoration: InputDecoration(
-                            labelText: 'PASSWORD',
+                            labelText: l10n.authPasswordFieldLabel,
                             floatingLabelBehavior: FloatingLabelBehavior.always,
                             labelStyle: const TextStyle(
                               color: AppColors.dashboardAccentTeal,
@@ -252,8 +254,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                             prefixIcon: const Icon(Icons.lock_outline),
                             suffixIcon: IconButton(
                               tooltip: _obscurePassword
-                                  ? 'Show password'
-                                  : 'Hide password',
+                                  ? l10n.authShowPassword
+                                  : l10n.authHidePassword,
                               icon: Icon(
                                 _obscurePassword
                                     ? Icons.visibility_outlined
@@ -279,7 +281,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                             ),
                             Expanded(
                               child: Text(
-                                'Keep me signed in',
+                                l10n.signInKeepSignedIn,
                                 style: theme.textTheme.bodyMedium,
                               ),
                             ),
@@ -287,9 +289,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                               onPressed: isLoading
                                   ? null
                                   : () => context.go(AppRoutes.forgotPassword),
-                              child: const Text(
-                                'Forgot?',
-                                style: TextStyle(fontWeight: FontWeight.w700),
+                              child: Text(
+                                l10n.signInForgot,
+                                style: const TextStyle(fontWeight: FontWeight.w700),
                               ),
                             ),
                           ],
@@ -328,7 +330,7 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                   ),
                                 )
                               : const Icon(Icons.arrow_forward),
-                          label: const Text('Sign in'),
+                          label: Text(l10n.signInSubmit),
                         ),
                         const SizedBox(height: AppSpacing.md),
                         Center(
@@ -342,10 +344,10 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                   color: theme.colorScheme.onSurfaceVariant,
                                 ),
                                 children: [
-                                  const TextSpan(text: 'New here? '),
+                                  TextSpan(text: l10n.signInNoAccountPrompt),
                                   TextSpan(
-                                    text: 'Create an account',
-                                    style: TextStyle(
+                                    text: l10n.signInCreateAccountAction,
+                                    style: const TextStyle(
                                       color: AppColors.dashboardAccentTeal,
                                       fontWeight: FontWeight.w700,
                                     ),
@@ -435,7 +437,7 @@ class _HeroBanner extends StatelessWidget {
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         Text(
-                          'VITALY',
+                          AppLocalizations.of(context).splashWordmark,
                           style: theme.textTheme.titleMedium?.copyWith(
                             color: AppColors.heroFill,
                             fontWeight: FontWeight.w700,
@@ -500,7 +502,7 @@ class _ReadingSummaryCard extends StatelessWidget {
               children: [
                 Expanded(
                   child: Text(
-                    '7-DAY AVERAGE',
+                    AppLocalizations.of(context).signInMockSevenDayAverage,
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
                       letterSpacing: 1,
@@ -508,7 +510,7 @@ class _ReadingSummaryCard extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  '42 logs',
+                  AppLocalizations.of(context).signInMockLogCount,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: AppColors.dashboardAccentTeal,
                     fontWeight: FontWeight.w700,
@@ -597,7 +599,7 @@ class _AvatarBadge extends StatelessWidget {
             ],
           ),
           child: Text(
-            'A',
+            AppLocalizations.of(context).signInMockAvatarInitial,
             style: theme.textTheme.headlineSmall?.copyWith(
               color: AppColors.heroFill,
               fontWeight: FontWeight.w700,
@@ -606,7 +608,7 @@ class _AvatarBadge extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.xs),
         Text(
-          'SINCE MAR',
+          AppLocalizations.of(context).signInMockSince,
           style: theme.textTheme.labelSmall?.copyWith(
             color: AppColors.heroFill,
             letterSpacing: 1,

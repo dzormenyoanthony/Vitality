@@ -56,6 +56,158 @@
     "description": "Bottom navigation label for the educational content tab."
   },
 
+  "authContinueWithGoogle": "Continue with Google",
+  "@authContinueWithGoogle": {
+    "description": "Label on the Google sign-in button, shared by Sign In and Create Account."
+  },
+  "authDividerOr": "OR",
+  "@authDividerOr": {
+    "description": "Divider between Google sign-in and the email form on Sign In."
+  },
+  "authDividerOrUseEmail": "OR USE EMAIL",
+  "@authDividerOrUseEmail": {
+    "description": "Divider between Google sign-in and the email form on Create Account."
+  },
+  "authEmailFieldLabel": "EMAIL",
+  "@authEmailFieldLabel": {
+    "description": "Uppercase floating label on the email input in the auth forms."
+  },
+  "authPasswordFieldLabel": "PASSWORD",
+  "@authPasswordFieldLabel": {
+    "description": "Uppercase floating label on the password input in the auth forms."
+  },
+  "authConfirmPasswordFieldLabel": "CONFIRM PASSWORD",
+  "@authConfirmPasswordFieldLabel": {
+    "description": "Uppercase floating label on the confirm-password input on Create Account."
+  },
+  "authShowPassword": "Show password",
+  "@authShowPassword": {
+    "description": "Tooltip on the reveal-password toggle when the password is hidden."
+  },
+  "authHidePassword": "Hide password",
+  "@authHidePassword": {
+    "description": "Tooltip on the reveal-password toggle when the password is visible."
+  },
+
+  "signInTitle": "Welcome back",
+  "@signInTitle": {
+    "description": "Heading on the Sign In screen."
+  },
+  "signInSubtitle": "Sign in to continue tracking your blood pressure.",
+  "@signInSubtitle": {
+    "description": "Supporting line under the Sign In heading."
+  },
+  "signInKeepSignedIn": "Keep me signed in",
+  "@signInKeepSignedIn": {
+    "description": "Checkbox label for persisting the session across app restarts."
+  },
+  "signInForgot": "Forgot?",
+  "@signInForgot": {
+    "description": "Short link to the password-reset flow."
+  },
+  "signInSubmit": "Sign in",
+  "@signInSubmit": {
+    "description": "Primary button that submits the sign-in form."
+  },
+  "signInNoAccountPrompt": "New here? ",
+  "@signInNoAccountPrompt": {
+    "description": "Leading text before the create-account link at the bottom of Sign In."
+  },
+  "signInCreateAccountAction": "Create an account",
+  "@signInCreateAccountAction": {
+    "description": "Link from Sign In to the Create Account screen."
+  },
+  "signInMockSevenDayAverage": "7-DAY AVERAGE",
+  "@signInMockSevenDayAverage": {
+    "description": "Label on the illustrative sample summary card in the Sign In hero."
+  },
+  "signInMockLogCount": "42 logs",
+  "@signInMockLogCount": {
+    "description": "Illustrative log count on the sample summary card in the Sign In hero."
+  },
+  "signInMockAvatarInitial": "A",
+  "@signInMockAvatarInitial": {
+    "description": "Initial shown on the illustrative avatar in the Sign In hero."
+  },
+  "signInMockSince": "SINCE MAR",
+  "@signInMockSince": {
+    "description": "Illustrative join-month caption under the sample avatar in the Sign In hero."
+  },
+
+  "signUpAgreeToTermsError": "Please agree to the Terms and Privacy Policy first.",
+  "@signUpAgreeToTermsError": {
+    "description": "Snackbar shown when Create Account is submitted without ticking the terms box."
+  },
+  "signUpHeroTitle": "Start your blood pressure story",
+  "@signUpHeroTitle": {
+    "description": "Headline in the Create Account hero header."
+  },
+  "signUpHeroSubtitle": "Log a reading in nine seconds. Bring a real chart to your next appointment.",
+  "@signUpHeroSubtitle": {
+    "description": "Supporting line in the Create Account hero header."
+  },
+  "signUpAgreePrefix": "I agree to the ",
+  "@signUpAgreePrefix": {
+    "description": "Text before the Terms link in the Create Account agreement line."
+  },
+  "signUpTermsLink": "Terms",
+  "@signUpTermsLink": {
+    "description": "The 'Terms' span in the Create Account agreement line (not yet linked)."
+  },
+  "signUpAgreeConjunction": " and ",
+  "@signUpAgreeConjunction": {
+    "description": "Text between the Terms and Privacy Policy spans in the agreement line."
+  },
+  "signUpPrivacyLink": "Privacy Policy",
+  "@signUpPrivacyLink": {
+    "description": "The 'Privacy Policy' span in the Create Account agreement line (not yet linked)."
+  },
+  "signUpAgreeSuffix": ". Vitaly is not a medical device.",
+  "@signUpAgreeSuffix": {
+    "description": "Text after the Privacy Policy link in the Create Account agreement line."
+  },
+  "signUpSubmit": "Create account",
+  "@signUpSubmit": {
+    "description": "Primary button that submits the Create Account form."
+  },
+  "signUpHasAccountPrompt": "Already with us? ",
+  "@signUpHasAccountPrompt": {
+    "description": "Leading text before the sign-in link at the bottom of Create Account."
+  },
+  "signUpSignInAction": "Sign in",
+  "@signUpSignInAction": {
+    "description": "Link from Create Account back to the Sign In screen."
+  },
+  "signUpExampleReadingTime": "TODAY 7:34",
+  "@signUpExampleReadingTime": {
+    "description": "Illustrative timestamp on the floating example reading chip on Create Account."
+  },
+
+  "forgotPasswordAppBarTitle": "Reset password",
+  "@forgotPasswordAppBarTitle": {
+    "description": "App bar title of the password-reset screen."
+  },
+  "forgotPasswordTitle": "Reset your password",
+  "@forgotPasswordTitle": {
+    "description": "Heading on the password-reset form."
+  },
+  "forgotPasswordSubtitle": "Enter your account's email and we'll send you a reset link.",
+  "@forgotPasswordSubtitle": {
+    "description": "Supporting line under the password-reset heading."
+  },
+  "forgotPasswordEmailLabel": "Email",
+  "@forgotPasswordEmailLabel": {
+    "description": "Label on the email input in the password-reset form."
+  },
+  "forgotPasswordSubmit": "Send reset link",
+  "@forgotPasswordSubmit": {
+    "description": "Button that requests the password-reset email."
+  },
+  "forgotPasswordSentBody": "If an account exists for that email, a reset link is on its way. Check your inbox.",
+  "@forgotPasswordSentBody": {
+    "description": "Confirmation shown after a password-reset email has been requested."
+  },
+
   "startupFailureMessage": "Vitaly couldn't start. Please try again shortly.",
   "@startupFailureMessage": {
     "description": "Shown full-screen when Firebase or another core service fails to initialize at launch."

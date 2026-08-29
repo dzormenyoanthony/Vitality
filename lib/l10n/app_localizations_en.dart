@@ -49,6 +49,122 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navLearn => 'Learn';
 
   @override
+  String get authContinueWithGoogle => 'Continue with Google';
+
+  @override
+  String get authDividerOr => 'OR';
+
+  @override
+  String get authDividerOrUseEmail => 'OR USE EMAIL';
+
+  @override
+  String get authEmailFieldLabel => 'EMAIL';
+
+  @override
+  String get authPasswordFieldLabel => 'PASSWORD';
+
+  @override
+  String get authConfirmPasswordFieldLabel => 'CONFIRM PASSWORD';
+
+  @override
+  String get authShowPassword => 'Show password';
+
+  @override
+  String get authHidePassword => 'Hide password';
+
+  @override
+  String get signInTitle => 'Welcome back';
+
+  @override
+  String get signInSubtitle =>
+      'Sign in to continue tracking your blood pressure.';
+
+  @override
+  String get signInKeepSignedIn => 'Keep me signed in';
+
+  @override
+  String get signInForgot => 'Forgot?';
+
+  @override
+  String get signInSubmit => 'Sign in';
+
+  @override
+  String get signInNoAccountPrompt => 'New here? ';
+
+  @override
+  String get signInCreateAccountAction => 'Create an account';
+
+  @override
+  String get signInMockSevenDayAverage => '7-DAY AVERAGE';
+
+  @override
+  String get signInMockLogCount => '42 logs';
+
+  @override
+  String get signInMockAvatarInitial => 'A';
+
+  @override
+  String get signInMockSince => 'SINCE MAR';
+
+  @override
+  String get signUpAgreeToTermsError =>
+      'Please agree to the Terms and Privacy Policy first.';
+
+  @override
+  String get signUpHeroTitle => 'Start your blood pressure story';
+
+  @override
+  String get signUpHeroSubtitle =>
+      'Log a reading in nine seconds. Bring a real chart to your next appointment.';
+
+  @override
+  String get signUpAgreePrefix => 'I agree to the ';
+
+  @override
+  String get signUpTermsLink => 'Terms';
+
+  @override
+  String get signUpAgreeConjunction => ' and ';
+
+  @override
+  String get signUpPrivacyLink => 'Privacy Policy';
+
+  @override
+  String get signUpAgreeSuffix => '. Vitaly is not a medical device.';
+
+  @override
+  String get signUpSubmit => 'Create account';
+
+  @override
+  String get signUpHasAccountPrompt => 'Already with us? ';
+
+  @override
+  String get signUpSignInAction => 'Sign in';
+
+  @override
+  String get signUpExampleReadingTime => 'TODAY 7:34';
+
+  @override
+  String get forgotPasswordAppBarTitle => 'Reset password';
+
+  @override
+  String get forgotPasswordTitle => 'Reset your password';
+
+  @override
+  String get forgotPasswordSubtitle =>
+      'Enter your account\'s email and we\'ll send you a reset link.';
+
+  @override
+  String get forgotPasswordEmailLabel => 'Email';
+
+  @override
+  String get forgotPasswordSubmit => 'Send reset link';
+
+  @override
+  String get forgotPasswordSentBody =>
+      'If an account exists for that email, a reset link is on its way. Check your inbox.';
+
+  @override
   String get startupFailureMessage =>
       'Vitaly couldn\'t start. Please try again shortly.';
 
