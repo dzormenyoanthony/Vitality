@@ -11,6 +11,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
 
+import 'l10n/app_localizations.dart';
+
 import 'core/constants/app_routes.dart';
 import 'core/router/app_router.dart';
 import 'core/router/auth_gate_provider.dart';
@@ -131,12 +133,16 @@ class _StartupFailureApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Vitaly',
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
-      home: const Scaffold(
-        body: ErrorView(
-          message: "Vitaly couldn't start. Please try again shortly.",
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Builder(
+        builder: (context) => Scaffold(
+          body: ErrorView(
+            message: AppLocalizations.of(context).startupFailureMessage,
+          ),
         ),
       ),
     );
@@ -218,11 +224,13 @@ class _VitalyAppState extends ConsumerState<VitalyApp>
     ref.listen(authGateProvider, _handleAuthGateChange);
 
     return MaterialApp.router(
-      title: 'Vitaly',
+      onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light(),
       darkTheme: AppTheme.dark(),
       themeMode: themeMode,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       routerConfig: router,
     );
   }

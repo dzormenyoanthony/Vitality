@@ -1,0 +1,34 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "Vitaly",
+  "@appTitle": {
+    "description": "The application name, shown as the task/window title."
+  },
+
+  "commonSave": "Save",
+  "@commonSave": {
+    "description": "Generic confirm label for a form or dialog that persists changes."
+  },
+  "commonCancel": "Cancel",
+  "@commonCancel": {
+    "description": "Generic dismiss label for a dialog or flow."
+  },
+  "commonDelete": "Delete",
+  "@commonDelete": {
+    "description": "Generic destructive-confirm label."
+  },
+  "commonRetry": "Retry",
+  "@commonRetry": {
+    "description": "Generic label for re-attempting a failed operation."
+  },
+  "commonClose": "Close",
+  "@commonClose": {
+    "description": "Generic label for closing a sheet, dialog, or full-screen view."
+  },
+
+  "startupFailureMessage": "Vitaly couldn't start. Please try again shortly.",
+  "@startupFailureMessage": {
+    "description": "Shown full-screen when Firebase or another core service fails to initialize at launch."
+  }
+}
