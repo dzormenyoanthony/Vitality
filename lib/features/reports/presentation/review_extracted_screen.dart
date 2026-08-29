@@ -7,12 +7,14 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../blood_pressure/domain/reading_validator.dart';
 import '../data/report_providers.dart';
 import '../domain/bp_value_extractor.dart';
 import '../domain/extracted_reading.dart';
 import '../domain/saved_report.dart';
 import 'confirm_report_controller.dart';
+import 'report_category_label.dart';
 
 /// Arguments passed from [showScanEntrySheet] to [ReviewExtractedScreen].
 class ReviewExtractedArgs {
@@ -140,7 +142,10 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
   }
 
   Future<void> _confirm() async {
-    final title = 'Scanned report – ${formatShortDateTime(context, DateTime.now())}';
+    final l10n = AppLocalizations.of(context);
+    final title = l10n.reviewScannedReportTitle(
+      formatShortDateTime(context, DateTime.now()),
+    );
     await ref
         .read(confirmReportControllerProvider.notifier)
         .confirmAndSave(
@@ -164,8 +169,8 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
       SnackBar(
         content: Text(
           _selectedForHistory.isEmpty
-              ? 'Report saved.'
-              : 'Report saved and ${_selectedForHistory.length} reading${_selectedForHistory.length == 1 ? '' : 's'} added to BP History.',
+              ? l10n.reviewReportSaved
+              : l10n.reviewReportSavedWithReadings(_selectedForHistory.length),
         ),
       ),
     );
@@ -175,11 +180,12 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final saveState = ref.watch(confirmReportControllerProvider);
     final isSaving = saveState.isLoading;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Review extracted information')),
+      appBar: AppBar(title: Text(l10n.reviewTitle)),
       body: SafeArea(
         child: Column(
           children: [
@@ -210,8 +216,8 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
                         )
                       : Text(
                           _ocrStatus == OcrStatus.failed
-                              ? 'Save report without extracted info'
-                              : 'Confirm and save',
+                              ? l10n.reviewSaveWithoutInfo
+                              : l10n.reviewConfirmAndSave,
                         ),
                 ),
               ),
@@ -226,20 +232,21 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
   /// note who it's from, matching `design_references/My document
   /// locker.png`'s category filters and per-file provider label.
   Widget _buildDetailsSection(ThemeData theme) {
+    final l10n = AppLocalizations.of(context);
     return Card(
       child: Padding(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Document details', style: theme.textTheme.titleMedium),
+            Text(l10n.reviewDocumentDetails, style: theme.textTheme.titleMedium),
             const SizedBox(height: AppSpacing.md),
             DropdownButtonFormField<ReportCategory>(
               initialValue: _category,
-              decoration: const InputDecoration(labelText: 'Category'),
+              decoration: InputDecoration(labelText: l10n.savedReportsFieldCategory),
               items: [
                 for (final category in ReportCategory.values)
-                  DropdownMenuItem(value: category, child: Text(category.label)),
+                  DropdownMenuItem(value: category, child: Text(category.label(l10n))),
               ],
               onChanged: (value) {
                 if (value != null) setState(() => _category = value);
@@ -248,9 +255,9 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
             const SizedBox(height: AppSpacing.md),
             TextField(
               controller: _providerController,
-              decoration: const InputDecoration(
-                labelText: 'Source (optional)',
-                hintText: 'e.g. Dr. Okafor, Northside Lab',
+              decoration: InputDecoration(
+                labelText: l10n.savedReportsFieldSource,
+                hintText: l10n.reviewSourceHint,
               ),
             ),
           ],
@@ -260,14 +267,15 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
   }
 
   Widget _buildBody(ThemeData theme, bool isSaving) {
+    final l10n = AppLocalizations.of(context);
     if (_ocrStatus == OcrStatus.processing) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            CircularProgressIndicator(),
-            SizedBox(height: AppSpacing.md),
-            Text('Reading your report…'),
+            const CircularProgressIndicator(),
+            const SizedBox(height: AppSpacing.md),
+            Text(l10n.reviewProcessing),
           ],
         ),
       );
@@ -281,27 +289,25 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
           children: [
             Icon(Icons.warning_amber_outlined, size: 40, color: theme.colorScheme.error),
             const SizedBox(height: AppSpacing.md),
-            const Text(
-              "We couldn't reliably read this report.",
+            Text(
+              l10n.reviewOcrFailedTitle,
               textAlign: TextAlign.center,
-              style: TextStyle(fontWeight: FontWeight.w700),
+              style: const TextStyle(fontWeight: FontWeight.w700),
             ),
             const SizedBox(height: AppSpacing.sm),
-            const Text(
-              'You can retry, or save the original document without '
-              'extracted information — you can always add readings '
-              'manually afterward.',
+            Text(
+              l10n.reviewOcrFailedBody,
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: AppSpacing.lg),
             OutlinedButton(
               onPressed: isSaving ? null : _runOcr,
-              child: const Text('Retry'),
+              child: Text(l10n.commonRetry),
             ),
             const SizedBox(height: AppSpacing.sm),
             TextButton(
               onPressed: isSaving ? null : () => context.pop(),
-              child: const Text('Scan or import again'),
+              child: Text(l10n.reviewScanAgain),
             ),
             const SizedBox(height: AppSpacing.lg),
             _buildDetailsSection(theme),
@@ -316,9 +322,7 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
         _buildDetailsSection(theme),
         const SizedBox(height: AppSpacing.lg),
         Text(
-          _readings.isEmpty
-              ? 'No blood pressure readings were detected. You can add one manually.'
-              : 'Review each detected reading. Only what you confirm and select is added to BP History.',
+          _readings.isEmpty ? l10n.reviewNoReadings : l10n.reviewInstructions,
           style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: AppSpacing.md),
@@ -334,7 +338,7 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
         OutlinedButton.icon(
           onPressed: () => _editReading(null),
           icon: const Icon(Icons.add),
-          label: const Text('Add a missing reading'),
+          label: Text(l10n.reviewAddMissing),
         ),
       ],
     );
@@ -359,6 +363,7 @@ class _ExtractedReadingCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
       child: Padding(
@@ -380,7 +385,7 @@ class _ExtractedReadingCard extends StatelessWidget {
                     runSpacing: AppSpacing.xs,
                     children: [
                       Text(
-                        '${reading.systolic}/${reading.diastolic} mmHg',
+                        l10n.reviewReadingValue(reading.systolic, reading.diastolic),
                         style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
                       ),
                       if (reading.needsReview) ...[
@@ -391,7 +396,7 @@ class _ExtractedReadingCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(AppSpacing.radiusSm),
                           ),
                           child: Text(
-                            'Needs review',
+                            l10n.reviewNeedsReview,
                             style: theme.textTheme.labelSmall?.copyWith(
                               color: AppColors.remindersWarningDot,
                             ),
@@ -403,8 +408,10 @@ class _ExtractedReadingCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     [
-                      if (reading.pulse != null) 'Pulse ${reading.pulse} bpm',
-                      reading.timestamp == null ? 'No date detected' : formatShortDateTime(context, reading.timestamp!),
+                      if (reading.pulse != null) l10n.dashboardPulseSummary(reading.pulse!),
+                      reading.timestamp == null
+                          ? l10n.reviewNoDate
+                          : formatShortDateTime(context, reading.timestamp!),
                     ].join(' · '),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
@@ -415,12 +422,12 @@ class _ExtractedReadingCard extends StatelessWidget {
             ),
             IconButton(
               icon: const Icon(Icons.edit_outlined),
-              tooltip: 'Edit',
+              tooltip: l10n.commonEdit,
               onPressed: onEdit,
             ),
             IconButton(
               icon: const Icon(Icons.delete_outline),
-              tooltip: 'Delete',
+              tooltip: l10n.commonDelete,
               onPressed: onDelete,
             ),
           ],
@@ -498,6 +505,7 @@ class _EditReadingSheetState extends State<_EditReadingSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Padding(
       padding: EdgeInsets.fromLTRB(
         AppSpacing.lg,
@@ -512,7 +520,7 @@ class _EditReadingSheetState extends State<_EditReadingSheet> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Text(
-              widget.existing == null ? 'Add reading' : 'Edit reading',
+              widget.existing == null ? l10n.recordBpTitleAdd : l10n.recordBpTitleEdit,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -522,7 +530,7 @@ class _EditReadingSheetState extends State<_EditReadingSheet> {
                   child: TextFormField(
                     controller: _systolicController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Systolic (mmHg)'),
+                    decoration: InputDecoration(labelText: l10n.recordSystolicLabel),
                     validator: ReadingValidator.validateSystolic,
                   ),
                 ),
@@ -531,7 +539,7 @@ class _EditReadingSheetState extends State<_EditReadingSheet> {
                   child: TextFormField(
                     controller: _diastolicController,
                     keyboardType: TextInputType.number,
-                    decoration: const InputDecoration(labelText: 'Diastolic (mmHg)'),
+                    decoration: InputDecoration(labelText: l10n.recordDiastolicLabel),
                     validator: ReadingValidator.validateDiastolic,
                   ),
                 ),
@@ -541,18 +549,18 @@ class _EditReadingSheetState extends State<_EditReadingSheet> {
             TextFormField(
               controller: _pulseController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: 'Pulse (optional, bpm)'),
+              decoration: InputDecoration(labelText: l10n.recordPulseLabel),
               validator: ReadingValidator.validatePulse,
             ),
             const SizedBox(height: AppSpacing.md),
             Row(
               children: [
                 Expanded(child: Text(formatShortDateTime(context, _timestamp))),
-                TextButton(onPressed: _pickDate, child: const Text('Change date')),
+                TextButton(onPressed: _pickDate, child: Text(l10n.reviewChangeDate)),
               ],
             ),
             const SizedBox(height: AppSpacing.lg),
-            FilledButton(onPressed: _save, child: const Text('Save')),
+            FilledButton(onPressed: _save, child: Text(l10n.commonSave)),
           ],
         ),
       ),

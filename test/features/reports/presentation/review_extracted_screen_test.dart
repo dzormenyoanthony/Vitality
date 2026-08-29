@@ -12,6 +12,8 @@ import 'package:vitality/features/reports/domain/saved_report.dart';
 import 'package:vitality/features/reports/domain/text_recognition_service.dart';
 import 'package:vitality/features/reports/presentation/review_extracted_screen.dart';
 
+import '../../../support/pump_app.dart';
+
 class _FakeTextRecognitionService implements TextRecognitionService {
   _FakeTextRecognitionService(this.textByPath);
 
@@ -59,6 +61,8 @@ void main() {
           textRecognitionServiceProvider.overrideWithValue(fakeOcr),
         ],
         child: MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
           home: ReviewExtractedScreen(
             args: const ReviewExtractedArgs(
               rawPagePaths: ['/tmp/page_0.jpg'],
@@ -93,6 +97,8 @@ void main() {
           textRecognitionServiceProvider.overrideWithValue(fakeOcr),
         ],
         child: MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
           home: ReviewExtractedScreen(
             args: const ReviewExtractedArgs(
               rawPagePaths: ['/tmp/page_0.jpg'],
@@ -144,7 +150,11 @@ void main() {
           textRecognitionServiceProvider.overrideWithValue(fakeOcr),
           reportDocumentStorageProvider.overrideWithValue(_FakeReportDocumentStorage()),
         ],
-        child: MaterialApp.router(routerConfig: router),
+        child: MaterialApp.router(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
     await tester.pump();
@@ -201,7 +211,11 @@ void main() {
           textRecognitionServiceProvider.overrideWithValue(fakeOcr),
           reportDocumentStorageProvider.overrideWithValue(_FakeReportDocumentStorage()),
         ],
-        child: MaterialApp.router(routerConfig: router),
+        child: MaterialApp.router(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
     await tester.pump();

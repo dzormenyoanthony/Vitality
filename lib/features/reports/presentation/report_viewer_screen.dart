@@ -7,6 +7,7 @@ import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/report_providers.dart';
 import '../domain/saved_report.dart';
 
@@ -20,11 +21,12 @@ class ReportViewerScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
     final reportState = ref.watch(savedReportStreamProvider(reportId));
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(reportState.value?.title ?? 'Report'),
+        title: Text(reportState.value?.title ?? l10n.reportViewerFallbackTitle),
       ),
       body: SafeArea(
         child: reportState.when(
@@ -32,7 +34,7 @@ class ReportViewerScreen extends ConsumerWidget {
           error: (error, _) => ErrorView(message: friendlyMessage(error)),
           data: (report) {
             if (report == null) {
-              return const ErrorView(message: 'This report is no longer available.');
+              return ErrorView(message: l10n.reportViewerNotFound);
             }
             return _ReportPages(report: report);
           },
@@ -69,11 +71,10 @@ class _ReportPagesState extends State<_ReportPages> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final paths = widget.report.localPagePaths;
     if (paths.isEmpty) {
-      return const ErrorView(
-        message: "This report's original document isn't available on this device.",
-      );
+      return ErrorView(message: l10n.reportViewerNoDocument);
     }
 
     return Column(
@@ -86,9 +87,7 @@ class _ReportPagesState extends State<_ReportPages> {
             itemBuilder: (context, index) {
               final file = File(paths[index]);
               if (!file.existsSync()) {
-                return const ErrorView(
-                  message: "This page isn't available offline.",
-                );
+                return ErrorView(message: l10n.reportViewerPageOffline);
               }
               return InteractiveViewer(
                 minScale: 1,
@@ -102,7 +101,7 @@ class _ReportPagesState extends State<_ReportPages> {
           Padding(
             padding: const EdgeInsets.all(AppSpacing.md),
             child: Text(
-              'Page ${_page + 1} of ${paths.length}',
+              l10n.reportViewerPageIndicator(_page + 1, paths.length),
               style: Theme.of(context).textTheme.bodyMedium,
             ),
           ),

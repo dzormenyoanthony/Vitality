@@ -385,6 +385,200 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reminderFormSelectDay => 'Select at least one day.';
 
   @override
+  String get reportCategoryBpReport => 'BP report';
+
+  @override
+  String get reportCategoryLabResults => 'Lab results';
+
+  @override
+  String get reportCategoryPrescriptions => 'Prescriptions';
+
+  @override
+  String get reportCategoryEcg => 'ECG';
+
+  @override
+  String get reportCategoryOther => 'Other';
+
+  @override
+  String get scanSheetBody =>
+      'Vitaly will look for blood pressure values, but you always review and confirm them before anything is saved.';
+
+  @override
+  String get scanSheetCamera => 'Scan with camera';
+
+  @override
+  String get scanSheetImport => 'Import from device';
+
+  @override
+  String get scanSheetImportSubtitle => 'Image or PDF';
+
+  @override
+  String get scanScannerError =>
+      'Couldn\'t open the scanner. Please try again.';
+
+  @override
+  String get scanImportError => 'Couldn\'t import that file. Please try again.';
+
+  @override
+  String get reportViewerFallbackTitle => 'Report';
+
+  @override
+  String get reportViewerNotFound => 'This report is no longer available.';
+
+  @override
+  String get reportViewerNoDocument =>
+      'This report\'s original document isn\'t available on this device.';
+
+  @override
+  String get reportViewerPageOffline => 'This page isn\'t available offline.';
+
+  @override
+  String reportViewerPageIndicator(int page, int total) {
+    return 'Page $page of $total';
+  }
+
+  @override
+  String get savedReportsTitle => 'My saved reports';
+
+  @override
+  String get savedReportsEmpty =>
+      'No saved reports yet. Scan or import a report to get started.';
+
+  @override
+  String get savedReportsEmptyCategory => 'No reports in this category yet.';
+
+  @override
+  String get savedReportsThisMonth => 'THIS MONTH';
+
+  @override
+  String get savedReportsEarlier => 'EARLIER';
+
+  @override
+  String get savedReportsLockerEyebrow => 'YOUR DOCUMENT LOCKER';
+
+  @override
+  String savedReportsLockerFilesSize(String size) {
+    return 'files · $size';
+  }
+
+  @override
+  String get savedReportsUpload => 'Upload report';
+
+  @override
+  String get savedReportsScanPage => 'Scan a page';
+
+  @override
+  String savedReportsCategoryAll(int count) {
+    return 'All $count';
+  }
+
+  @override
+  String savedReportsCategoryChip(String label, int count) {
+    return '$label $count';
+  }
+
+  @override
+  String get savedReportsTypePdf => 'PDF';
+
+  @override
+  String get savedReportsTypeImage => 'IMG';
+
+  @override
+  String get savedReportsEditDetails => 'Edit details';
+
+  @override
+  String get savedReportsFieldTitle => 'Title';
+
+  @override
+  String get savedReportsFieldCategory => 'Category';
+
+  @override
+  String get savedReportsFieldSource => 'Source (optional)';
+
+  @override
+  String get savedReportsDeleteTitle => 'Delete this report?';
+
+  @override
+  String get savedReportsDeleteBody =>
+      'The saved document and its extracted information will be removed. This cannot be undone.';
+
+  @override
+  String get savedReportsFooter =>
+      'Files stay on this device unless you share them. Attach any report to a reading from its detail view.';
+
+  @override
+  String get reviewTitle => 'Review extracted information';
+
+  @override
+  String reviewScannedReportTitle(String date) {
+    return 'Scanned report – $date';
+  }
+
+  @override
+  String get reviewReportSaved => 'Report saved.';
+
+  @override
+  String reviewReportSavedWithReadings(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Report saved and $count readings added to BP History.',
+      one: 'Report saved and 1 reading added to BP History.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get reviewSaveWithoutInfo => 'Save report without extracted info';
+
+  @override
+  String get reviewConfirmAndSave => 'Confirm and save';
+
+  @override
+  String get reviewDocumentDetails => 'Document details';
+
+  @override
+  String get reviewSourceHint => 'e.g. Dr. Okafor, Northside Lab';
+
+  @override
+  String get reviewProcessing => 'Reading your report…';
+
+  @override
+  String get reviewOcrFailedTitle => 'We couldn\'t reliably read this report.';
+
+  @override
+  String get reviewOcrFailedBody =>
+      'You can retry, or save the original document without extracted information — you can always add readings manually afterward.';
+
+  @override
+  String get reviewScanAgain => 'Scan or import again';
+
+  @override
+  String get reviewNoReadings =>
+      'No blood pressure readings were detected. You can add one manually.';
+
+  @override
+  String get reviewInstructions =>
+      'Review each detected reading. Only what you confirm and select is added to BP History.';
+
+  @override
+  String get reviewAddMissing => 'Add a missing reading';
+
+  @override
+  String reviewReadingValue(int systolic, int diastolic) {
+    return '$systolic/$diastolic mmHg';
+  }
+
+  @override
+  String get reviewNeedsReview => 'Needs review';
+
+  @override
+  String get reviewNoDate => 'No date detected';
+
+  @override
+  String get reviewChangeDate => 'Change date';
+
+  @override
   String get dashboardScanFabTooltip => 'Scan BP report';
 
   @override

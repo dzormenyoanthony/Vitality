@@ -15,16 +15,6 @@ enum ReportSource { scan, import }
 /// document's medical category automatically (PROJECT_SPEC.md §9, §14).
 enum ReportCategory { bpReport, labResults, prescriptions, ecg, other }
 
-extension ReportCategoryLabel on ReportCategory {
-  String get label => switch (this) {
-    ReportCategory.bpReport => 'BP report',
-    ReportCategory.labResults => 'Lab results',
-    ReportCategory.prescriptions => 'Prescriptions',
-    ReportCategory.ecg => 'ECG',
-    ReportCategory.other => 'Other',
-  };
-}
-
 /// Processing state of OCR extraction for a report (PROJECT_SPEC.md
 /// "Scan BP Report" §4, §13-14). OCR never runs automatically into BP
 /// History — this only tracks whether extraction was attempted/succeeded.

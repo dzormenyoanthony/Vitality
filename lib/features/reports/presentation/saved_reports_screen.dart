@@ -10,12 +10,16 @@ import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/report_providers.dart';
 import '../domain/saved_report.dart';
+import 'report_category_label.dart';
 import 'scan_entry_sheet.dart';
 
 /// `bytes` formatted as e.g. "640 KB" or "1.8 MB", matching
-/// `design_references/My document locker.png`'s size labels.
+/// `design_references/My document locker.png`'s size labels. The "KB"/"MB"
+/// units are held constant across locales (PROJECT_SPEC.md §36), so this
+/// stays a plain string rather than an ARB message.
 String formatFileSize(int bytes) {
   if (bytes < 1024 * 1024) return '${(bytes / 1024).round()} KB';
   return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
@@ -63,6 +67,7 @@ class _SavedReportsBodyState extends State<_SavedReportsBody> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final reports = widget.reports;
     final filtered = _selectedCategory == null
         ? reports
@@ -87,7 +92,7 @@ class _SavedReportsBodyState extends State<_SavedReportsBody> {
           children: [
             IconButton(
               icon: const Icon(Icons.arrow_back),
-              tooltip: 'Back',
+              tooltip: l10n.commonBack,
               onPressed: () {
                 if (context.canPop()) {
                   context.pop();
@@ -98,7 +103,7 @@ class _SavedReportsBodyState extends State<_SavedReportsBody> {
             ),
             Expanded(
               child: Text(
-                'My saved reports',
+                l10n.savedReportsTitle,
                 style: Theme.of(context).textTheme.headlineMedium,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -109,10 +114,10 @@ class _SavedReportsBodyState extends State<_SavedReportsBody> {
         _DocumentLockerHero(reports: reports),
         const SizedBox(height: AppSpacing.lg),
         if (reports.isEmpty)
-          const Padding(
-            padding: EdgeInsets.only(top: AppSpacing.xl),
+          Padding(
+            padding: const EdgeInsets.only(top: AppSpacing.xl),
             child: EmptyView(
-              message: 'No saved reports yet. Scan or import a report to get started.',
+              message: l10n.savedReportsEmpty,
               icon: Icons.description_outlined,
             ),
           )
@@ -124,23 +129,23 @@ class _SavedReportsBodyState extends State<_SavedReportsBody> {
           ),
           const SizedBox(height: AppSpacing.lg),
           if (filtered.isEmpty)
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: AppSpacing.xl),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.xl),
               child: EmptyView(
-                message: 'No reports in this category yet.',
+                message: l10n.savedReportsEmptyCategory,
                 icon: Icons.filter_list_off_outlined,
               ),
             )
           else ...[
             if (thisMonth.isNotEmpty) ...[
-              _SectionLabel('THIS MONTH'),
+              _SectionLabel(l10n.savedReportsThisMonth),
               const SizedBox(height: AppSpacing.sm),
               for (final report in thisMonth)
                 _ReportCard(report: report, accentIndex: filtered.indexOf(report)),
               const SizedBox(height: AppSpacing.md),
             ],
             if (earlier.isNotEmpty) ...[
-              _SectionLabel('EARLIER'),
+              _SectionLabel(l10n.savedReportsEarlier),
               const SizedBox(height: AppSpacing.sm),
               for (final report in earlier)
                 _ReportCard(report: report, accentIndex: filtered.indexOf(report)),
@@ -212,6 +217,7 @@ class _DocumentLockerHeroState extends ConsumerState<_DocumentLockerHero> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -231,7 +237,7 @@ class _DocumentLockerHeroState extends ConsumerState<_DocumentLockerHero> {
             children: [
               Expanded(
                 child: Text(
-                  'YOUR DOCUMENT LOCKER',
+                  l10n.savedReportsLockerEyebrow,
                   style: theme.textTheme.labelMedium?.copyWith(
                     color: AppColors.documentLockerEyebrow,
                   ),
@@ -257,7 +263,7 @@ class _DocumentLockerHeroState extends ConsumerState<_DocumentLockerHero> {
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Text(
-                    'files · ${formatFileSize(snapshot.data ?? 0)}',
+                    l10n.savedReportsLockerFilesSize(formatFileSize(snapshot.data ?? 0)),
                     style: theme.textTheme.bodyLarge?.copyWith(
                       color: AppColors.documentLockerMetaText,
                     ),
@@ -279,7 +285,7 @@ class _DocumentLockerHeroState extends ConsumerState<_DocumentLockerHero> {
                     padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
                   ),
                   icon: const Icon(Icons.file_upload_outlined, size: 18),
-                  label: const Text('Upload report'),
+                  label: Text(l10n.savedReportsUpload),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -292,7 +298,7 @@ class _DocumentLockerHeroState extends ConsumerState<_DocumentLockerHero> {
                     shape: const StadiumBorder(),
                     padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
                   ),
-                  child: const Text('Scan a page'),
+                  child: Text(l10n.savedReportsScanPage),
                 ),
               ),
             ],
@@ -316,6 +322,7 @@ class _CategoryChipsRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final counts = <ReportCategory, int>{};
     for (final report in reports) {
       counts[report.category] = (counts[report.category] ?? 0) + 1;
@@ -328,14 +335,17 @@ class _CategoryChipsRow extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         children: [
           _CategoryChip(
-            label: 'All ${reports.length}',
+            label: l10n.savedReportsCategoryAll(reports.length),
             selected: selected == null,
             onTap: () => onSelected(null),
           ),
           for (final category in present) ...[
             const SizedBox(width: AppSpacing.sm),
             _CategoryChip(
-              label: '${category.label} ${counts[category]}',
+              label: l10n.savedReportsCategoryChip(
+                category.label(l10n),
+                counts[category]!,
+              ),
               selected: selected == category,
               onTap: () => onSelected(category),
             ),
@@ -380,6 +390,7 @@ class _ReportCard extends ConsumerWidget {
   final int accentIndex;
 
   Future<void> _editDetails(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     final titleController = TextEditingController(text: report.title);
     final providerController = TextEditingController(text: report.provider ?? '');
     var category = report.category;
@@ -388,22 +399,22 @@ class _ReportCard extends ConsumerWidget {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Edit details'),
+          title: Text(l10n.savedReportsEditDetails),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: titleController,
                 autofocus: true,
-                decoration: const InputDecoration(labelText: 'Title'),
+                decoration: InputDecoration(labelText: l10n.savedReportsFieldTitle),
               ),
               const SizedBox(height: AppSpacing.md),
               DropdownButtonFormField<ReportCategory>(
                 initialValue: category,
-                decoration: const InputDecoration(labelText: 'Category'),
+                decoration: InputDecoration(labelText: l10n.savedReportsFieldCategory),
                 items: [
                   for (final c in ReportCategory.values)
-                    DropdownMenuItem(value: c, child: Text(c.label)),
+                    DropdownMenuItem(value: c, child: Text(c.label(l10n))),
                 ],
                 onChanged: (value) {
                   if (value != null) setDialogState(() => category = value);
@@ -412,18 +423,18 @@ class _ReportCard extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: providerController,
-                decoration: const InputDecoration(labelText: 'Source (optional)'),
+                decoration: InputDecoration(labelText: l10n.savedReportsFieldSource),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Cancel'),
+              child: Text(l10n.commonCancel),
             ),
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
-              child: const Text('Save'),
+              child: Text(l10n.commonSave),
             ),
           ],
         ),
@@ -445,21 +456,20 @@ class _ReportCard extends ConsumerWidget {
   }
 
   Future<void> _delete(BuildContext context, WidgetRef ref) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text('Delete this report?'),
-        content: const Text(
-          'The saved document and its extracted information will be removed. This cannot be undone.',
-        ),
+        title: Text(l10n.savedReportsDeleteTitle),
+        content: Text(l10n.savedReportsDeleteBody),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.commonCancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -472,12 +482,13 @@ class _ReportCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final (background, foreground) = accents.accents[accentIndex % accents.accents.length];
     final date = report.reportDate ?? report.createdAt;
     final dateLabel = formatDayMonth(context, date);
     final isPdf = report.documentType == ReportDocumentType.pdf;
-    final typeLabel = isPdf ? 'PDF' : 'IMG';
+    final typeLabel = isPdf ? l10n.savedReportsTypePdf : l10n.savedReportsTypeImage;
 
     return Card(
       margin: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -556,9 +567,9 @@ class _ReportCard extends ConsumerWidget {
                   if (value == 'edit') _editDetails(context, ref);
                   if (value == 'delete') _delete(context, ref);
                 },
-                itemBuilder: (context) => const [
-                  PopupMenuItem(value: 'edit', child: Text('Edit details')),
-                  PopupMenuItem(value: 'delete', child: Text('Delete')),
+                itemBuilder: (context) => [
+                  PopupMenuItem(value: 'edit', child: Text(l10n.savedReportsEditDetails)),
+                  PopupMenuItem(value: 'delete', child: Text(l10n.commonDelete)),
                 ],
               ),
             ],
@@ -598,8 +609,7 @@ class _FooterNote extends StatelessWidget {
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Text(
-                'Files stay on this device unless you share them. Attach any '
-                'report to a reading from its detail view.',
+                AppLocalizations.of(context).savedReportsFooter,
                 style: theme.textTheme.bodyMedium?.copyWith(color: accents.mintForeground),
               ),
             ),

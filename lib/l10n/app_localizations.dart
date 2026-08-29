@@ -808,6 +808,336 @@ abstract class AppLocalizations {
   /// **'Select at least one day.'**
   String get reminderFormSelectDay;
 
+  /// Saved-report category tag.
+  ///
+  /// In en, this message translates to:
+  /// **'BP report'**
+  String get reportCategoryBpReport;
+
+  /// Saved-report category tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Lab results'**
+  String get reportCategoryLabResults;
+
+  /// Saved-report category tag.
+  ///
+  /// In en, this message translates to:
+  /// **'Prescriptions'**
+  String get reportCategoryPrescriptions;
+
+  /// Saved-report category tag.
+  ///
+  /// In en, this message translates to:
+  /// **'ECG'**
+  String get reportCategoryEcg;
+
+  /// Saved-report category tag (unspecified).
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get reportCategoryOther;
+
+  /// Explains the scan flow on the entry sheet (PROJECT_SPEC.md §6). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Vitaly will look for blood pressure values, but you always review and confirm them before anything is saved.'**
+  String get scanSheetBody;
+
+  /// Entry-sheet option to open the document scanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan with camera'**
+  String get scanSheetCamera;
+
+  /// Entry-sheet option to pick an existing file.
+  ///
+  /// In en, this message translates to:
+  /// **'Import from device'**
+  String get scanSheetImport;
+
+  /// Subtitle under the import option, listing accepted file types.
+  ///
+  /// In en, this message translates to:
+  /// **'Image or PDF'**
+  String get scanSheetImportSubtitle;
+
+  /// Snackbar when the camera scanner fails to open.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the scanner. Please try again.'**
+  String get scanScannerError;
+
+  /// Snackbar when importing a picked file fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t import that file. Please try again.'**
+  String get scanImportError;
+
+  /// App bar title shown while a saved report's own title is still loading.
+  ///
+  /// In en, this message translates to:
+  /// **'Report'**
+  String get reportViewerFallbackTitle;
+
+  /// Shown when a report viewer is opened for a deleted report.
+  ///
+  /// In en, this message translates to:
+  /// **'This report is no longer available.'**
+  String get reportViewerNotFound;
+
+  /// Shown when a saved report has no local page files.
+  ///
+  /// In en, this message translates to:
+  /// **'This report\'s original document isn\'t available on this device.'**
+  String get reportViewerNoDocument;
+
+  /// Shown for a single report page whose file is missing locally.
+  ///
+  /// In en, this message translates to:
+  /// **'This page isn\'t available offline.'**
+  String get reportViewerPageOffline;
+
+  /// Page position indicator under a multi-page report.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {total}'**
+  String reportViewerPageIndicator(int page, int total);
+
+  /// Header of the Saved Reports 'document locker' screen.
+  ///
+  /// In en, this message translates to:
+  /// **'My saved reports'**
+  String get savedReportsTitle;
+
+  /// Empty state on the Saved Reports screen.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved reports yet. Scan or import a report to get started.'**
+  String get savedReportsEmpty;
+
+  /// Shown when a category filter matches no saved reports.
+  ///
+  /// In en, this message translates to:
+  /// **'No reports in this category yet.'**
+  String get savedReportsEmptyCategory;
+
+  /// Section label grouping reports dated in the current month.
+  ///
+  /// In en, this message translates to:
+  /// **'THIS MONTH'**
+  String get savedReportsThisMonth;
+
+  /// Section label grouping reports dated before the current month.
+  ///
+  /// In en, this message translates to:
+  /// **'EARLIER'**
+  String get savedReportsEarlier;
+
+  /// Eyebrow label on the storage-usage hero card.
+  ///
+  /// In en, this message translates to:
+  /// **'YOUR DOCUMENT LOCKER'**
+  String get savedReportsLockerEyebrow;
+
+  /// Follows the file count on the locker hero card, e.g. '3  files · 1.8 MB'.
+  ///
+  /// In en, this message translates to:
+  /// **'files · {size}'**
+  String savedReportsLockerFilesSize(String size);
+
+  /// Locker hero button that imports a file from the device.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload report'**
+  String get savedReportsUpload;
+
+  /// Locker hero button that opens the camera scanner.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan a page'**
+  String get savedReportsScanPage;
+
+  /// The 'all categories' filter chip, with the total report count.
+  ///
+  /// In en, this message translates to:
+  /// **'All {count}'**
+  String savedReportsCategoryAll(int count);
+
+  /// A category filter chip: the category name plus how many reports it holds.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} {count}'**
+  String savedReportsCategoryChip(String label, int count);
+
+  /// Badge on a report card whose document is a PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get savedReportsTypePdf;
+
+  /// Badge on a report card whose document is an image.
+  ///
+  /// In en, this message translates to:
+  /// **'IMG'**
+  String get savedReportsTypeImage;
+
+  /// Menu item / dialog title for editing a report's title, category, and source.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit details'**
+  String get savedReportsEditDetails;
+
+  /// Field label for a report's title in the edit-details dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get savedReportsFieldTitle;
+
+  /// Field label for a report's category.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get savedReportsFieldCategory;
+
+  /// Field label for a report's optional provider/source note.
+  ///
+  /// In en, this message translates to:
+  /// **'Source (optional)'**
+  String get savedReportsFieldSource;
+
+  /// Confirmation dialog title for deleting a saved report.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this report?'**
+  String get savedReportsDeleteTitle;
+
+  /// Confirmation dialog body for deleting a saved report.
+  ///
+  /// In en, this message translates to:
+  /// **'The saved document and its extracted information will be removed. This cannot be undone.'**
+  String get savedReportsDeleteBody;
+
+  /// Dashed-border footer note on the Saved Reports screen. Kept verbatim per pixel-fidelity direction.
+  ///
+  /// In en, this message translates to:
+  /// **'Files stay on this device unless you share them. Attach any report to a reading from its detail view.'**
+  String get savedReportsFooter;
+
+  /// App bar title of the OCR review screen (PROJECT_SPEC.md §5).
+  ///
+  /// In en, this message translates to:
+  /// **'Review extracted information'**
+  String get reviewTitle;
+
+  /// Default title given to a newly saved scanned report.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned report – {date}'**
+  String reviewScannedReportTitle(String date);
+
+  /// Snackbar after saving a report with no readings added to history.
+  ///
+  /// In en, this message translates to:
+  /// **'Report saved.'**
+  String get reviewReportSaved;
+
+  /// Snackbar after saving a report and adding confirmed readings to BP History.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Report saved and 1 reading added to BP History.} other{Report saved and {count} readings added to BP History.}}'**
+  String reviewReportSavedWithReadings(int count);
+
+  /// Confirm button when OCR failed — saves the original document only.
+  ///
+  /// In en, this message translates to:
+  /// **'Save report without extracted info'**
+  String get reviewSaveWithoutInfo;
+
+  /// Confirm button that saves the report and any confirmed readings.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm and save'**
+  String get reviewConfirmAndSave;
+
+  /// Card heading for the category/source fields on the review screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Document details'**
+  String get reviewDocumentDetails;
+
+  /// Hint text for the optional source field.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. Dr. Okafor, Northside Lab'**
+  String get reviewSourceHint;
+
+  /// Shown while OCR is running on the imported pages.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading your report…'**
+  String get reviewProcessing;
+
+  /// OCR-failure heading (PROJECT_SPEC.md §13, exact wording). Any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'We couldn\'t reliably read this report.'**
+  String get reviewOcrFailedTitle;
+
+  /// OCR-failure explanation with the available next steps.
+  ///
+  /// In en, this message translates to:
+  /// **'You can retry, or save the original document without extracted information — you can always add readings manually afterward.'**
+  String get reviewOcrFailedBody;
+
+  /// Button that returns to the scan/import entry point after an OCR failure.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan or import again'**
+  String get reviewScanAgain;
+
+  /// Shown when OCR found no BP readings.
+  ///
+  /// In en, this message translates to:
+  /// **'No blood pressure readings were detected. You can add one manually.'**
+  String get reviewNoReadings;
+
+  /// Instructions above the detected-readings list (PROJECT_SPEC.md §6). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review each detected reading. Only what you confirm and select is added to BP History.'**
+  String get reviewInstructions;
+
+  /// Button that opens the editor to add a reading OCR missed.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a missing reading'**
+  String get reviewAddMissing;
+
+  /// The systolic/diastolic value on a detected-reading card.
+  ///
+  /// In en, this message translates to:
+  /// **'{systolic}/{diastolic} mmHg'**
+  String reviewReadingValue(int systolic, int diastolic);
+
+  /// Low-confidence badge on a detected value (PROJECT_SPEC.md §14, exact wording).
+  ///
+  /// In en, this message translates to:
+  /// **'Needs review'**
+  String get reviewNeedsReview;
+
+  /// Shown on a detected-reading card when OCR found no date.
+  ///
+  /// In en, this message translates to:
+  /// **'No date detected'**
+  String get reviewNoDate;
+
+  /// Button in the reading editor that opens the date/time pickers.
+  ///
+  /// In en, this message translates to:
+  /// **'Change date'**
+  String get reviewChangeDate;
+
   /// Tooltip on the dashboard's document-scanner FAB.
   ///
   /// In en, this message translates to:

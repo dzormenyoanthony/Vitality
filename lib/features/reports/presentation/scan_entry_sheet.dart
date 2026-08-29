@@ -10,6 +10,7 @@ import 'package:printing/printing.dart';
 
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/report_providers.dart';
 import '../domain/saved_report.dart';
 import 'review_extracted_screen.dart';
@@ -41,6 +42,7 @@ class _ScanEntrySheetContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(AppSpacing.lg, 0, AppSpacing.lg, AppSpacing.lg),
@@ -48,23 +50,22 @@ class _ScanEntrySheetContent extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text('Scan BP report', style: Theme.of(context).textTheme.titleLarge),
+            Text(l10n.dashboardScanFabTooltip, style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: AppSpacing.sm),
             Text(
-              'Vitaly will look for blood pressure values, but you always '
-              'review and confirm them before anything is saved.',
+              l10n.scanSheetBody,
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: AppSpacing.lg),
             ListTile(
               leading: const Icon(Icons.camera_alt_outlined),
-              title: const Text('Scan with camera'),
+              title: Text(l10n.scanSheetCamera),
               onTap: () => Navigator.of(context).pop(_EntryChoice.camera),
             ),
             ListTile(
               leading: const Icon(Icons.file_upload_outlined),
-              title: const Text('Import from device'),
-              subtitle: const Text('Image or PDF'),
+              title: Text(l10n.scanSheetImport),
+              subtitle: Text(l10n.scanSheetImportSubtitle),
               onTap: () => Navigator.of(context).pop(_EntryChoice.import),
             ),
           ],
@@ -86,6 +87,7 @@ Future<void> importFromDevice(BuildContext context, WidgetRef ref) => _importFro
 
 Future<void> _scanWithCamera(BuildContext context, WidgetRef ref) async {
   final messenger = ScaffoldMessenger.of(context);
+  final l10n = AppLocalizations.of(context);
   try {
     final scanner = ref.read(documentScannerServiceProvider);
     final result = await scanner.scan();
@@ -98,13 +100,14 @@ Future<void> _scanWithCamera(BuildContext context, WidgetRef ref) async {
     );
   } catch (_) {
     messenger.showSnackBar(
-      const SnackBar(content: Text("Couldn't open the scanner. Please try again.")),
+      SnackBar(content: Text(l10n.scanScannerError)),
     );
   }
 }
 
 Future<void> _importFromDevice(BuildContext context, WidgetRef ref) async {
   final messenger = ScaffoldMessenger.of(context);
+  final l10n = AppLocalizations.of(context);
   try {
     final files = await FilePicker.pickFiles(
       type: FileType.custom,
@@ -139,7 +142,7 @@ Future<void> _importFromDevice(BuildContext context, WidgetRef ref) async {
     }
   } catch (_) {
     messenger.showSnackBar(
-      const SnackBar(content: Text("Couldn't import that file. Please try again.")),
+      SnackBar(content: Text(l10n.scanImportError)),
     );
   }
 }

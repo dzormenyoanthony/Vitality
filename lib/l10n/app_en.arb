@@ -445,6 +445,155 @@
   "reminderFormSelectDay": "Select at least one day.",
   "@reminderFormSelectDay": { "description": "Validation message when no repeat day is selected." },
 
+  "reportCategoryBpReport": "BP report",
+  "@reportCategoryBpReport": { "description": "Saved-report category tag." },
+  "reportCategoryLabResults": "Lab results",
+  "@reportCategoryLabResults": { "description": "Saved-report category tag." },
+  "reportCategoryPrescriptions": "Prescriptions",
+  "@reportCategoryPrescriptions": { "description": "Saved-report category tag." },
+  "reportCategoryEcg": "ECG",
+  "@reportCategoryEcg": { "description": "Saved-report category tag." },
+  "reportCategoryOther": "Other",
+  "@reportCategoryOther": { "description": "Saved-report category tag (unspecified)." },
+
+  "scanSheetBody": "Vitaly will look for blood pressure values, but you always review and confirm them before anything is saved.",
+  "@scanSheetBody": {
+    "description": "Explains the scan flow on the entry sheet (PROJECT_SPEC.md §6). Approved wording; any change needs the §37 review."
+  },
+  "scanSheetCamera": "Scan with camera",
+  "@scanSheetCamera": { "description": "Entry-sheet option to open the document scanner." },
+  "scanSheetImport": "Import from device",
+  "@scanSheetImport": { "description": "Entry-sheet option to pick an existing file." },
+  "scanSheetImportSubtitle": "Image or PDF",
+  "@scanSheetImportSubtitle": { "description": "Subtitle under the import option, listing accepted file types." },
+  "scanScannerError": "Couldn't open the scanner. Please try again.",
+  "@scanScannerError": { "description": "Snackbar when the camera scanner fails to open." },
+  "scanImportError": "Couldn't import that file. Please try again.",
+  "@scanImportError": { "description": "Snackbar when importing a picked file fails." },
+
+  "reportViewerFallbackTitle": "Report",
+  "@reportViewerFallbackTitle": { "description": "App bar title shown while a saved report's own title is still loading." },
+  "reportViewerNotFound": "This report is no longer available.",
+  "@reportViewerNotFound": { "description": "Shown when a report viewer is opened for a deleted report." },
+  "reportViewerNoDocument": "This report's original document isn't available on this device.",
+  "@reportViewerNoDocument": { "description": "Shown when a saved report has no local page files." },
+  "reportViewerPageOffline": "This page isn't available offline.",
+  "@reportViewerPageOffline": { "description": "Shown for a single report page whose file is missing locally." },
+  "reportViewerPageIndicator": "Page {page} of {total}",
+  "@reportViewerPageIndicator": {
+    "description": "Page position indicator under a multi-page report.",
+    "placeholders": { "page": { "type": "int" }, "total": { "type": "int" } }
+  },
+
+  "savedReportsTitle": "My saved reports",
+  "@savedReportsTitle": { "description": "Header of the Saved Reports 'document locker' screen." },
+  "savedReportsEmpty": "No saved reports yet. Scan or import a report to get started.",
+  "@savedReportsEmpty": { "description": "Empty state on the Saved Reports screen." },
+  "savedReportsEmptyCategory": "No reports in this category yet.",
+  "@savedReportsEmptyCategory": { "description": "Shown when a category filter matches no saved reports." },
+  "savedReportsThisMonth": "THIS MONTH",
+  "@savedReportsThisMonth": { "description": "Section label grouping reports dated in the current month." },
+  "savedReportsEarlier": "EARLIER",
+  "@savedReportsEarlier": { "description": "Section label grouping reports dated before the current month." },
+  "savedReportsLockerEyebrow": "YOUR DOCUMENT LOCKER",
+  "@savedReportsLockerEyebrow": { "description": "Eyebrow label on the storage-usage hero card." },
+  "savedReportsLockerFilesSize": "files · {size}",
+  "@savedReportsLockerFilesSize": {
+    "description": "Follows the file count on the locker hero card, e.g. '3  files · 1.8 MB'.",
+    "placeholders": { "size": { "type": "String", "example": "1.8 MB" } }
+  },
+  "savedReportsUpload": "Upload report",
+  "@savedReportsUpload": { "description": "Locker hero button that imports a file from the device." },
+  "savedReportsScanPage": "Scan a page",
+  "@savedReportsScanPage": { "description": "Locker hero button that opens the camera scanner." },
+  "savedReportsCategoryAll": "All {count}",
+  "@savedReportsCategoryAll": {
+    "description": "The 'all categories' filter chip, with the total report count.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "savedReportsCategoryChip": "{label} {count}",
+  "@savedReportsCategoryChip": {
+    "description": "A category filter chip: the category name plus how many reports it holds.",
+    "placeholders": {
+      "label": { "type": "String", "example": "Lab results" },
+      "count": { "type": "int" }
+    }
+  },
+  "savedReportsTypePdf": "PDF",
+  "@savedReportsTypePdf": { "description": "Badge on a report card whose document is a PDF." },
+  "savedReportsTypeImage": "IMG",
+  "@savedReportsTypeImage": { "description": "Badge on a report card whose document is an image." },
+  "savedReportsEditDetails": "Edit details",
+  "@savedReportsEditDetails": { "description": "Menu item / dialog title for editing a report's title, category, and source." },
+  "savedReportsFieldTitle": "Title",
+  "@savedReportsFieldTitle": { "description": "Field label for a report's title in the edit-details dialog." },
+  "savedReportsFieldCategory": "Category",
+  "@savedReportsFieldCategory": { "description": "Field label for a report's category." },
+  "savedReportsFieldSource": "Source (optional)",
+  "@savedReportsFieldSource": { "description": "Field label for a report's optional provider/source note." },
+  "savedReportsDeleteTitle": "Delete this report?",
+  "@savedReportsDeleteTitle": { "description": "Confirmation dialog title for deleting a saved report." },
+  "savedReportsDeleteBody": "The saved document and its extracted information will be removed. This cannot be undone.",
+  "@savedReportsDeleteBody": { "description": "Confirmation dialog body for deleting a saved report." },
+  "savedReportsFooter": "Files stay on this device unless you share them. Attach any report to a reading from its detail view.",
+  "@savedReportsFooter": {
+    "description": "Dashed-border footer note on the Saved Reports screen. Kept verbatim per pixel-fidelity direction."
+  },
+
+  "reviewTitle": "Review extracted information",
+  "@reviewTitle": { "description": "App bar title of the OCR review screen (PROJECT_SPEC.md §5)." },
+  "reviewScannedReportTitle": "Scanned report – {date}",
+  "@reviewScannedReportTitle": {
+    "description": "Default title given to a newly saved scanned report.",
+    "placeholders": { "date": { "type": "String", "example": "Aug 22, 2026 · 14:03" } }
+  },
+  "reviewReportSaved": "Report saved.",
+  "@reviewReportSaved": { "description": "Snackbar after saving a report with no readings added to history." },
+  "reviewReportSavedWithReadings": "{count, plural, =1{Report saved and 1 reading added to BP History.} other{Report saved and {count} readings added to BP History.}}",
+  "@reviewReportSavedWithReadings": {
+    "description": "Snackbar after saving a report and adding confirmed readings to BP History.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "reviewSaveWithoutInfo": "Save report without extracted info",
+  "@reviewSaveWithoutInfo": { "description": "Confirm button when OCR failed — saves the original document only." },
+  "reviewConfirmAndSave": "Confirm and save",
+  "@reviewConfirmAndSave": { "description": "Confirm button that saves the report and any confirmed readings." },
+  "reviewDocumentDetails": "Document details",
+  "@reviewDocumentDetails": { "description": "Card heading for the category/source fields on the review screen." },
+  "reviewSourceHint": "e.g. Dr. Okafor, Northside Lab",
+  "@reviewSourceHint": { "description": "Hint text for the optional source field." },
+  "reviewProcessing": "Reading your report…",
+  "@reviewProcessing": { "description": "Shown while OCR is running on the imported pages." },
+  "reviewOcrFailedTitle": "We couldn't reliably read this report.",
+  "@reviewOcrFailedTitle": {
+    "description": "OCR-failure heading (PROJECT_SPEC.md §13, exact wording). Any change needs the §37 review."
+  },
+  "reviewOcrFailedBody": "You can retry, or save the original document without extracted information — you can always add readings manually afterward.",
+  "@reviewOcrFailedBody": { "description": "OCR-failure explanation with the available next steps." },
+  "reviewScanAgain": "Scan or import again",
+  "@reviewScanAgain": { "description": "Button that returns to the scan/import entry point after an OCR failure." },
+  "reviewNoReadings": "No blood pressure readings were detected. You can add one manually.",
+  "@reviewNoReadings": { "description": "Shown when OCR found no BP readings." },
+  "reviewInstructions": "Review each detected reading. Only what you confirm and select is added to BP History.",
+  "@reviewInstructions": {
+    "description": "Instructions above the detected-readings list (PROJECT_SPEC.md §6). Approved wording; any change needs the §37 review."
+  },
+  "reviewAddMissing": "Add a missing reading",
+  "@reviewAddMissing": { "description": "Button that opens the editor to add a reading OCR missed." },
+  "reviewReadingValue": "{systolic}/{diastolic} mmHg",
+  "@reviewReadingValue": {
+    "description": "The systolic/diastolic value on a detected-reading card.",
+    "placeholders": { "systolic": { "type": "int" }, "diastolic": { "type": "int" } }
+  },
+  "reviewNeedsReview": "Needs review",
+  "@reviewNeedsReview": {
+    "description": "Low-confidence badge on a detected value (PROJECT_SPEC.md §14, exact wording)."
+  },
+  "reviewNoDate": "No date detected",
+  "@reviewNoDate": { "description": "Shown on a detected-reading card when OCR found no date." },
+  "reviewChangeDate": "Change date",
+  "@reviewChangeDate": { "description": "Button in the reading editor that opens the date/time pickers." },
+
   "dashboardScanFabTooltip": "Scan BP report",
   "@dashboardScanFabTooltip": {
     "description": "Tooltip on the dashboard's document-scanner FAB."

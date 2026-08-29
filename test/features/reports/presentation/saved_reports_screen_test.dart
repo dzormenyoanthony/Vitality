@@ -11,6 +11,8 @@ import 'package:vitality/features/reports/domain/extracted_reading.dart';
 import 'package:vitality/features/reports/domain/saved_report.dart';
 import 'package:vitality/features/reports/presentation/saved_reports_screen.dart';
 
+import '../../../support/pump_app.dart';
+
 void main() {
   testWidgets('shows the empty state when there are no saved reports', (tester) async {
     final db = AppDatabase(NativeDatabase.memory());
@@ -19,7 +21,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: SavedReportsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: SavedReportsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -52,7 +58,11 @@ void main() {
       await tester.pumpWidget(
         ProviderScope(
           overrides: [appDatabaseProvider.overrideWithValue(db)],
-          child: const MaterialApp(home: SavedReportsScreen()),
+          child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: SavedReportsScreen(),
+        ),
         ),
       );
       await tester.pump();
@@ -94,7 +104,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: SavedReportsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: SavedReportsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -128,7 +142,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: const MaterialApp(home: SavedReportsScreen()),
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: SavedReportsScreen(),
+        ),
       ),
     );
     await tester.pump();
@@ -169,7 +187,11 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [appDatabaseProvider.overrideWithValue(db)],
-        child: MaterialApp.router(routerConfig: router),
+        child: MaterialApp.router(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          routerConfig: router,
+        ),
       ),
     );
     await tester.pump();
