@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
@@ -14,20 +15,6 @@ import '../domain/bp_classification_service.dart';
 import '../domain/same_time_comparison.dart';
 import 'bp_status_badge.dart';
 import 'measurement_context_label.dart';
-
-const _weekdayNames = [
-  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
-]; // ignore: prefer_const_declarations
-
-const _monthNames = [
-  'January', 'February', 'March', 'April', 'May', 'June',
-  'July', 'August', 'September', 'October', 'November', 'December',
-]; // ignore: prefer_const_declarations
-
-const _shortMonthNames = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-]; // ignore: prefer_const_declarations
 
 /// Full detail of a single reading, with edit and delete actions
 /// (PROJECT_SPEC.md §8, §9). Deletion always requires confirmation.
@@ -132,7 +119,7 @@ class _ReadingDetailBody extends StatelessWidget {
       padding: const EdgeInsets.all(AppSpacing.lg),
       children: [
         Text(
-          _formatFullDate(reading.timestamp),
+          formatLongDateTime(context, reading.timestamp),
           style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurfaceVariant),
         ),
         const SizedBox(height: AppSpacing.sm),
@@ -238,14 +225,6 @@ class _BigReading extends StatelessWidget {
   }
 }
 
-String _formatFullDate(DateTime ts) {
-  final weekday = _weekdayNames[ts.weekday - 1];
-  final month = _monthNames[ts.month - 1];
-  final hh = ts.hour.toString().padLeft(2, '0');
-  final mm = ts.minute.toString().padLeft(2, '0');
-  return '$weekday ${ts.day} $month ${ts.year} · $hh:$mm';
-}
-
 /// Systolic values for the last few readings sharing this reading's
 /// morning/evening bucket — purely a visual comparison of the user's own
 /// past entries, no interpretation (PROJECT_SPEC.md §12-14).
@@ -301,7 +280,7 @@ class _SameTimeOfDayCard extends StatelessWidget {
                         ),
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(_shortDateLabel(r.timestamp), style: theme.textTheme.labelSmall),
+                      Text(formatDayMonth(context, r.timestamp), style: theme.textTheme.labelSmall),
                     ],
                   ),
                 ),
@@ -319,8 +298,6 @@ class _SameTimeOfDayCard extends StatelessWidget {
     );
   }
 }
-
-String _shortDateLabel(DateTime ts) => '${ts.day} ${_shortMonthNames[ts.month - 1]}';
 
 class _DetailRow extends StatelessWidget {
   const _DetailRow({required this.label, required this.value});

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../blood_pressure/domain/reading_validator.dart';
 import '../data/report_providers.dart';
@@ -25,11 +26,6 @@ class ReviewExtractedArgs {
   final ReportDocumentType documentType;
   final ReportSource source;
 }
-
-const _monthShortNames = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-]; // ignore: prefer_const_declarations
 
 /// Runs OCR on the scanned/imported pages, then lets the user review, edit,
 /// delete, and confirm the detected readings before anything is saved
@@ -144,7 +140,7 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
   }
 
   Future<void> _confirm() async {
-    final title = 'Scanned report – ${_formatDate(DateTime.now())}';
+    final title = 'Scanned report – ${formatShortDateTime(context, DateTime.now())}';
     await ref
         .read(confirmReportControllerProvider.notifier)
         .confirmAndSave(
@@ -408,7 +404,7 @@ class _ExtractedReadingCard extends StatelessWidget {
                   Text(
                     [
                       if (reading.pulse != null) 'Pulse ${reading.pulse} bpm',
-                      reading.timestamp == null ? 'No date detected' : _formatDate(reading.timestamp!),
+                      reading.timestamp == null ? 'No date detected' : formatShortDateTime(context, reading.timestamp!),
                     ].join(' · '),
                     style: theme.textTheme.bodySmall?.copyWith(
                       color: theme.colorScheme.onSurfaceVariant,
@@ -551,7 +547,7 @@ class _EditReadingSheetState extends State<_EditReadingSheet> {
             const SizedBox(height: AppSpacing.md),
             Row(
               children: [
-                Expanded(child: Text(_formatDate(_timestamp))),
+                Expanded(child: Text(formatShortDateTime(context, _timestamp))),
                 TextButton(onPressed: _pickDate, child: const Text('Change date')),
               ],
             ),
@@ -564,8 +560,3 @@ class _EditReadingSheetState extends State<_EditReadingSheet> {
   }
 }
 
-String _formatDate(DateTime date) {
-  final hh = date.hour.toString().padLeft(2, '0');
-  final mm = date.minute.toString().padLeft(2, '0');
-  return '${date.day} ${_monthShortNames[date.month - 1]} ${date.year} · $hh:$mm';
-}

@@ -5,6 +5,7 @@ import 'package:printing/printing.dart';
 
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
@@ -16,11 +17,6 @@ import '../domain/trend_calculator.dart';
 import '../domain/trend_summary_lines.dart';
 import 'bp_status_badge.dart';
 import 'trend_pdf_export.dart';
-
-const _monthNames = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-]; // ignore: prefer_const_declarations
 
 /// The four period filters offered on Trends, matching
 /// `design_references/Trends.png` — [TrendPeriod.all] remains available in
@@ -229,7 +225,7 @@ class _ChartCard extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.sm),
                 Text(
-                  _dateRangeLabel(stats.readings),
+                  _dateRangeLabel(context, stats.readings),
                   style: theme.textTheme.bodySmall?.copyWith(
                     color: theme.colorScheme.onSurfaceVariant,
                   ),
@@ -247,9 +243,13 @@ class _ChartCard extends StatelessWidget {
   }
 }
 
-String _dateRangeLabel(List<BloodPressureReading> readings) {
-  String fmt(DateTime d) => '${d.day} ${_monthNames[d.month - 1]}';
-  return '${fmt(readings.first.timestamp)} – ${fmt(readings.last.timestamp)}';
+String _dateRangeLabel(
+  BuildContext context,
+  List<BloodPressureReading> readings,
+) {
+  final first = formatDayMonth(context, readings.first.timestamp);
+  final last = formatDayMonth(context, readings.last.timestamp);
+  return '$first – $last';
 }
 
 class _Legend extends StatelessWidget {
@@ -338,7 +338,7 @@ class _BpChart extends StatelessWidget {
       if (index != 0 && index != midIndex && index != lastIndex) return '';
       if (index < 0 || index > lastIndex) return '';
       final ts = readings[index].timestamp;
-      return '${ts.day} ${_monthNames[ts.month - 1]}';
+      return formatDayMonth(context, ts);
     }
 
     bool isLastSpot(FlSpot spot, LineChartBarData barData) => spot.x == barData.spots.last.x;

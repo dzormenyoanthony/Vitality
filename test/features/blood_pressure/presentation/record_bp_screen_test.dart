@@ -97,10 +97,12 @@ void main() {
     );
 
     expect(find.widgetWithText(TextButton, 'Change'), findsOneWidget);
-    // Friendly format, e.g. "Tue 5 Jan 2026 · 07:15" — not a raw
-    // DateTime.toString() (which would include a millisecond fraction).
+    // Friendly locale-formatted stamp, e.g. "Tue, Jan 5, 2026 · 07:15"
+    // (en_US skeleton) — not a raw DateTime.toString().
     expect(
-      find.textContaining(RegExp(r'^\w{3} \d{1,2} \w{3} \d{4} · \d{2}:\d{2}$')),
+      find.textContaining(
+        RegExp(r'^\w{3}, \w{3} \d{1,2}, \d{4} · \d{2}:\d{2}$'),
+      ),
       findsOneWidget,
     );
   });

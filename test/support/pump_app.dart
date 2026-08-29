@@ -25,6 +25,7 @@ Future<void> pumpApp(
   Widget child, {
   List<Override> overrides = const [],
   Locale? locale,
+  List<Locale> supportedLocales = testSupportedLocales,
   NavigatorObserver? navigatorObserver,
 }) {
   return tester.pumpWidget(
@@ -33,7 +34,7 @@ Future<void> pumpApp(
       child: MaterialApp(
         locale: locale,
         localizationsDelegates: localizationWrappers,
-        supportedLocales: testSupportedLocales,
+        supportedLocales: supportedLocales,
         navigatorObservers: [?navigatorObserver],
         home: child,
       ),

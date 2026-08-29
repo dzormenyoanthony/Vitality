@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
@@ -15,31 +16,6 @@ import '../domain/bp_classification_service.dart';
 import '../domain/history_filter.dart';
 import 'bp_status_badge.dart';
 import 'measurement_context_label.dart';
-
-const _weekdayShortNames = [
-  'MON',
-  'TUE',
-  'WED',
-  'THU',
-  'FRI',
-  'SAT',
-  'SUN',
-]; // ignore: prefer_const_declarations
-
-const _monthShortNames = [
-  'Jan',
-  'Feb',
-  'Mar',
-  'Apr',
-  'May',
-  'Jun',
-  'Jul',
-  'Aug',
-  'Sep',
-  'Oct',
-  'Nov',
-  'Dec',
-]; // ignore: prefer_const_declarations
 
 /// Chronological, day-grouped list of recorded readings (PROJECT_SPEC.md
 /// §8), with a client-side filter and swipe-to-edit/delete on each row.
@@ -277,7 +253,7 @@ class _HistoryList extends StatelessWidget {
         .reduce((a, b) => a.isBefore(b) ? a : b);
     final summary =
         '${allReadings.length} reading${allReadings.length == 1 ? '' : 's'} recorded '
-        'since ${earliest.day} ${_monthShortNames[earliest.month - 1]} ${earliest.year}';
+        'since ${formatShortDate(context, earliest)}';
 
     return ListView.builder(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
@@ -315,9 +291,7 @@ class _DayHeader extends StatelessWidget {
     final now = DateTime.now();
     final isToday =
         day.year == now.year && day.month == now.month && day.day == now.day;
-    final base =
-        '${_weekdayShortNames[day.weekday - 1]} ${day.day} '
-        '${_monthShortNames[day.month - 1].toUpperCase()}';
+    final base = formatWeekdayDayMonth(context, day).toUpperCase();
     final label = isToday ? 'TODAY · $base' : base;
 
     return Padding(
@@ -380,8 +354,7 @@ class _ReadingListTile extends ConsumerWidget {
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final ts = reading.timestamp;
     final isMorning = ts.hour < 12;
-    final timeLabel =
-        '${ts.hour.toString().padLeft(2, '0')}:${ts.minute.toString().padLeft(2, '0')}';
+    final timeLabel = formatTime(context, ts);
     final subtitle = _subtitleFor(reading);
 
     return Column(

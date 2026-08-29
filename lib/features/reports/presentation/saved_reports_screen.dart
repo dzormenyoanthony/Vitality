@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
@@ -12,11 +13,6 @@ import '../../../core/widgets/loading_indicator.dart';
 import '../data/report_providers.dart';
 import '../domain/saved_report.dart';
 import 'scan_entry_sheet.dart';
-
-const _monthShortNames = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-]; // ignore: prefer_const_declarations
 
 /// `bytes` formatted as e.g. "640 KB" or "1.8 MB", matching
 /// `design_references/My document locker.png`'s size labels.
@@ -479,7 +475,7 @@ class _ReportCard extends ConsumerWidget {
     final accents = theme.extension<AppAccentColors>() ?? AppAccentColors.light;
     final (background, foreground) = accents.accents[accentIndex % accents.accents.length];
     final date = report.reportDate ?? report.createdAt;
-    final dateLabel = '${date.day} ${_monthShortNames[date.month - 1]}';
+    final dateLabel = formatDayMonth(context, date);
     final isPdf = report.documentType == ReportDocumentType.pdf;
     final typeLabel = isPdf ? 'PDF' : 'IMG';
 

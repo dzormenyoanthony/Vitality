@@ -4,20 +4,12 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../data/blood_pressure_reading.dart';
 import '../domain/reading_validator.dart';
 import 'measurement_context_label.dart';
 import 'record_bp_controller.dart';
-
-const _weekdayShortNames = [
-  'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun',
-]; // ignore: prefer_const_declarations
-
-const _monthShortNames = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-]; // ignore: prefer_const_declarations
 
 /// Add/edit form for a blood-pressure reading (PROJECT_SPEC.md §6).
 /// Pass [existingReading] to edit it in place; omit it to record a new one.
@@ -286,7 +278,7 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: Text(_formatFriendlyTimestamp(_timestamp), style: theme.textTheme.bodyLarge),
+                      child: Text(formatShortDateTimeWithWeekday(context, _timestamp), style: theme.textTheme.bodyLarge),
                     ),
                     TextButton(
                       onPressed: isSaving ? null : _pickTimestamp,
@@ -450,9 +442,3 @@ class _TagChip extends StatelessWidget {
   MeasurementContext.other => (accents.blueBackground, accents.blueForeground),
 };
 
-String _formatFriendlyTimestamp(DateTime ts) {
-  final hh = ts.hour.toString().padLeft(2, '0');
-  final mm = ts.minute.toString().padLeft(2, '0');
-  return '${_weekdayShortNames[ts.weekday - 1]} ${ts.day} ${_monthShortNames[ts.month - 1]} '
-      '${ts.year} · $hh:$mm';
-}

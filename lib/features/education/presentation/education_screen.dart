@@ -4,14 +4,10 @@ import 'package:go_router/go_router.dart';
 
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../data/article.dart';
 import 'education_providers.dart';
-
-const _monthShortNames = [
-  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-  'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-]; // ignore: prefer_const_declarations
 
 /// Per-article icon, cycling through the same 4-accent palette used
 /// elsewhere in the app (mint/coral/purple/blue) in reading order — purely
@@ -162,7 +158,7 @@ class _FeaturedArticleCard extends StatelessWidget {
               const SizedBox(height: AppSpacing.sm),
               Text(
                 '${article.readTimeMinutes} min read · Reviewed '
-                '${_monthShortNames[article.reviewed.month - 1]} ${article.reviewed.year}',
+                '${formatMonthYear(context, article.reviewed)}',
                 style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.onSurfaceVariant),
               ),
             ],

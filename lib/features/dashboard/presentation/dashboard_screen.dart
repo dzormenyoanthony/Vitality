@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/i18n/formatters.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
@@ -191,12 +192,7 @@ class _Header extends StatelessWidget {
     final greeting = displayName == null
         ? 'Good $timeOfDay'
         : 'Good $timeOfDay, $displayName';
-    const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const monthNames = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-    ]; // ignore: prefer_const_declarations
-    final dateLabel = '${weekdayNames[now.weekday - 1]} ${now.day} ${monthNames[now.month - 1]}';
+    final dateLabel = formatWeekdayDayMonth(context, now);
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,7 +355,7 @@ class _InsightCardState extends ConsumerState<_InsightCard> {
                 onPressed: _isSaving ? null : _setReminder,
                 style: FilledButton.styleFrom(backgroundColor: accents.purpleForeground),
                 child: Text(
-                  'Set ${_formatHourMinute(widget.insight.suggestedHour, widget.insight.suggestedMinute)} reminder',
+                  'Set ${formatClock(context, hour: widget.insight.suggestedHour, minute: widget.insight.suggestedMinute)} reminder',
                 ),
               ),
               OutlinedButton(
@@ -374,11 +370,6 @@ class _InsightCardState extends ConsumerState<_InsightCard> {
     );
   }
 
-  String _formatHourMinute(int hour, int minute) {
-    final h = hour.toString().padLeft(2, '0');
-    final m = minute.toString().padLeft(2, '0');
-    return '$h:$m';
-  }
 }
 
 class _NextReminderTile extends StatelessWidget {
@@ -409,7 +400,7 @@ class _NextReminderTile extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.xs),
               Text(
-                occ == null ? 'No reminders set. Tap to add one.' : _formatWhen(occ.when),
+                occ == null ? 'No reminders set. Tap to add one.' : _formatWhen(context, occ.when),
                 style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface),
               ),
             ],
@@ -419,20 +410,17 @@ class _NextReminderTile extends StatelessWidget {
     );
   }
 
-  String _formatWhen(DateTime when) {
+  String _formatWhen(BuildContext context, DateTime when) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final target = DateTime(when.year, when.month, when.day);
     final dayDiff = target.difference(today).inDays;
-    const weekdayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     final dayLabel = switch (dayDiff) {
       0 => 'Today',
       1 => 'Tomorrow',
-      _ => weekdayNames[when.weekday - 1],
+      _ => formatWeekdayAbbrev(context, when),
     };
-    final hh = when.hour.toString().padLeft(2, '0');
-    final mm = when.minute.toString().padLeft(2, '0');
-    return '$dayLabel $hh:$mm';
+    return '$dayLabel ${formatTime(context, when)}';
   }
 }
 
@@ -474,7 +462,7 @@ class _LatestReadingCard extends StatelessWidget {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerRight,
                       child: Text(
-                        _formatRecency(reading.timestamp),
+                        _formatRecency(context, reading.timestamp),
                         style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
                       ),
                     ),
@@ -549,18 +537,13 @@ class _LatestReadingCard extends StatelessWidget {
     return parts.join(' · ');
   }
 
-  String _formatRecency(DateTime ts) {
+  String _formatRecency(BuildContext context, DateTime ts) {
     final now = DateTime.now();
-    final hh = ts.hour.toString().padLeft(2, '0');
-    final mm = ts.minute.toString().padLeft(2, '0');
+    final time = formatTime(context, ts);
     if (ts.year == now.year && ts.month == now.month && ts.day == now.day) {
-      return 'Today $hh:$mm';
+      return 'Today $time';
     }
-    const monthNames = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
-    ]; // ignore: prefer_const_declarations
-    return '${monthNames[ts.month - 1]} ${ts.day}, $hh:$mm';
+    return '${formatDayMonth(context, ts)}, $time';
   }
 }
 

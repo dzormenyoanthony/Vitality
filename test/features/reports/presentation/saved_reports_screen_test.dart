@@ -59,7 +59,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 100));
 
       expect(find.text('Scanned report'), findsOneWidget);
-      expect(find.textContaining('22 Aug'), findsOneWidget);
+      expect(find.textContaining('Aug 22'), findsOneWidget);
       expect(find.textContaining('Northside Lab'), findsOneWidget);
       expect(find.text('All 1'), findsOneWidget);
       expect(find.text('Lab results 1'), findsOneWidget);
