@@ -69,6 +69,10 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  # Drives the real app on a device for the offline-save-then-sync
+  # integration tests (PROJECT_SPEC.md §22, §37).
+  integration_test:
+    sdk: flutter
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
