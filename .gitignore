@@ -54,3 +54,7 @@ app.*.map.json
 /android/key.properties
 /android/app/*.jks
 /android/app/*.keystore
+
+# Superwall API key, passed at build time via
+# --dart-define-from-file=config/superwall.json (see config/superwall.json.example).
+/config/superwall.json

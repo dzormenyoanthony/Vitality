@@ -1,13 +1,16 @@
 import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:vitality/core/paywall/paywall_providers.dart';
 import 'package:vitality/features/blood_pressure/data/app_database.dart';
 import 'package:vitality/features/blood_pressure/data/blood_pressure_providers.dart';
 import 'package:vitality/features/blood_pressure/data/drift_blood_pressure_repository.dart';
 import 'package:vitality/features/data_export/presentation/export_data_screen.dart';
 
+import '../../../support/fake_paywall_service.dart';
 import '../../../support/pump_app.dart';
 
 void main() {
@@ -29,13 +32,17 @@ void main() {
     return db;
   }
 
-  Future<void> pumpScreen(WidgetTester tester, AppDatabase db) async {
+  Future<void> pumpScreen(
+    WidgetTester tester,
+    AppDatabase db, {
+    List<Override> overrides = const [],
+  }) async {
     tester.view.physicalSize = const Size(500, 1600);
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
       ProviderScope(
-        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        overrides: [appDatabaseProvider.overrideWithValue(db), ...overrides],
         child: const MaterialApp(
           localizationsDelegates: localizationWrappers,
           supportedLocales: testSupportedLocales,
@@ -95,4 +102,55 @@ void main() {
 
     await db.close();
   });
+
+  testWidgets(
+    'tapping Export does not generate a file when the paywall denies access (export_report_data placement)',
+    (tester) async {
+      final db = await seed(recentDays: 3);
+      addTearDown(db.close);
+      final paywall = FakePaywallService(grantsAccess: false);
+      await pumpScreen(
+        tester,
+        db,
+        overrides: [paywallServiceProvider.overrideWithValue(paywall)],
+      );
+
+      await tester.tap(find.byType(FilledButton));
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(paywall.registeredPlacements, ['export_report_data']);
+      // The export flow never ran, so the button never entered its busy
+      // (file-generation-in-progress) state.
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+
+      await db.close();
+    },
+  );
+
+  testWidgets(
+    'tapping Export attempts to generate a file when the paywall grants access (export_report_data placement)',
+    (tester) async {
+      final db = await seed(recentDays: 3);
+      addTearDown(db.close);
+      final paywall = FakePaywallService(grantsAccess: true);
+      await pumpScreen(
+        tester,
+        db,
+        overrides: [paywallServiceProvider.overrideWithValue(paywall)],
+      );
+
+      // Not pumpAndSettle()/a longer wait: the share/save plugins have no
+      // test-harness implementation, so the real export call this kicks
+      // off never resolves. One pump is enough to observe that the gated
+      // flow actually started (rather than being skipped).
+      await tester.tap(find.byType(FilledButton));
+      await tester.pump();
+
+      expect(paywall.registeredPlacements, ['export_report_data']);
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+
+      await db.close();
+    },
+  );
 }

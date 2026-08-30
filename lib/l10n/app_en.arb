@@ -1291,6 +1291,10 @@
   "@settingsSectionData": {
     "description": "Section label above the saved-reports/export card in Settings."
   },
+  "settingsSectionSubscription": "SUBSCRIPTION",
+  "@settingsSectionSubscription": {
+    "description": "Section label above the restore-purchases card in Settings."
+  },
   "settingsSectionAccount": "ACCOUNT",
   "@settingsSectionAccount": {
     "description": "Section label above sign-out / delete-account in Settings."
@@ -1394,6 +1398,26 @@
   "settingsExportFailed": "Couldn't prepare your export. Please try again.",
   "@settingsExportFailed": {
     "description": "Snackbar shown when building the data export fails."
+  },
+  "settingsRestorePurchasesTitle": "Restore purchases",
+  "@settingsRestorePurchasesTitle": {
+    "description": "Subscription-section row that re-links a previous purchase to this device/account."
+  },
+  "settingsRestorePurchasesSubtitle": "Already subscribed? Restore access on this device.",
+  "@settingsRestorePurchasesSubtitle": {
+    "description": "Subtitle for the Restore purchases row."
+  },
+  "settingsRestorePurchasesRestored": "Your subscription was restored.",
+  "@settingsRestorePurchasesRestored": {
+    "description": "Snackbar shown when restoring purchases finds an active subscription."
+  },
+  "settingsRestorePurchasesNotFound": "No active subscription was found to restore.",
+  "@settingsRestorePurchasesNotFound": {
+    "description": "Snackbar shown when restoring purchases completes but finds nothing to restore."
+  },
+  "settingsRestorePurchasesFailed": "Couldn't restore your purchase. Please try again.",
+  "@settingsRestorePurchasesFailed": {
+    "description": "Snackbar shown when restoring purchases fails (e.g. a network error)."
   },
   "settingsDeleteAccountTitle": "Delete your account?",
   "@settingsDeleteAccountTitle": {

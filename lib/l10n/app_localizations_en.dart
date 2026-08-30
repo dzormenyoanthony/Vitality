@@ -1364,6 +1364,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionData => 'DATA';
 
   @override
+  String get settingsSectionSubscription => 'SUBSCRIPTION';
+
+  @override
   String get settingsSectionAccount => 'ACCOUNT';
 
   @override
@@ -1439,6 +1442,25 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsExportFailed =>
       'Couldn\'t prepare your export. Please try again.';
+
+  @override
+  String get settingsRestorePurchasesTitle => 'Restore purchases';
+
+  @override
+  String get settingsRestorePurchasesSubtitle =>
+      'Already subscribed? Restore access on this device.';
+
+  @override
+  String get settingsRestorePurchasesRestored =>
+      'Your subscription was restored.';
+
+  @override
+  String get settingsRestorePurchasesNotFound =>
+      'No active subscription was found to restore.';
+
+  @override
+  String get settingsRestorePurchasesFailed =>
+      'Couldn\'t restore your purchase. Please try again.';
 
   @override
   String get settingsDeleteAccountTitle => 'Delete your account?';

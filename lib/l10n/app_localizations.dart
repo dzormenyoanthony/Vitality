@@ -2337,6 +2337,12 @@ abstract class AppLocalizations {
   /// **'DATA'**
   String get settingsSectionData;
 
+  /// Section label above the restore-purchases card in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'SUBSCRIPTION'**
+  String get settingsSectionSubscription;
+
   /// Section label above sign-out / delete-account in Settings.
   ///
   /// In en, this message translates to:
@@ -2474,6 +2480,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Couldn\'t prepare your export. Please try again.'**
   String get settingsExportFailed;
+
+  /// Subscription-section row that re-links a previous purchase to this device/account.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore purchases'**
+  String get settingsRestorePurchasesTitle;
+
+  /// Subtitle for the Restore purchases row.
+  ///
+  /// In en, this message translates to:
+  /// **'Already subscribed? Restore access on this device.'**
+  String get settingsRestorePurchasesSubtitle;
+
+  /// Snackbar shown when restoring purchases finds an active subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Your subscription was restored.'**
+  String get settingsRestorePurchasesRestored;
+
+  /// Snackbar shown when restoring purchases completes but finds nothing to restore.
+  ///
+  /// In en, this message translates to:
+  /// **'No active subscription was found to restore.'**
+  String get settingsRestorePurchasesNotFound;
+
+  /// Snackbar shown when restoring purchases fails (e.g. a network error).
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t restore your purchase. Please try again.'**
+  String get settingsRestorePurchasesFailed;
 
   /// Confirmation dialog title for account deletion.
   ///

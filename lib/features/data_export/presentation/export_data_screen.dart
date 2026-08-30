@@ -9,6 +9,8 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/i18n/formatters.dart';
+import '../../../core/paywall/paywall_placements.dart';
+import '../../../core/paywall/paywall_providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
@@ -56,8 +58,19 @@ class _ExportDataScreenState extends ConsumerState<ExportDataScreen> {
   String _stamp(DateTime d) =>
       '${d.year.toString().padLeft(4, '0')}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
 
-  Future<void> _export(List<BloodPressureReading> readings) async {
-    if (readings.isEmpty) return;
+  /// Gates the "Export Report/Data" premium action (superwall_paywall.md)
+  /// behind the `export_report_data` placement before any export file is
+  /// generated.
+  Future<void> _export(List<BloodPressureReading> readings) {
+    if (readings.isEmpty) return Future.value();
+    return ref.read(paywallServiceProvider).gateFeature(
+      placement: PaywallPlacements.exportReportData,
+      onAccessGranted: () => _exportImpl(readings),
+    );
+  }
+
+  Future<void> _exportImpl(List<BloodPressureReading> readings) async {
+    if (!mounted) return;
     setState(() => _isExporting = true);
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);

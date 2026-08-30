@@ -9,6 +9,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:superwallkit_flutter/superwallkit_flutter.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz_data;
 
@@ -16,7 +17,11 @@ import 'l10n/app_localizations.dart';
 
 import 'core/analytics/analytics_providers.dart';
 import 'core/analytics/firebase_analytics_service.dart';
+import 'core/config/superwall_config.dart';
 import 'core/constants/app_routes.dart';
+import 'core/paywall/paywall_providers.dart';
+import 'core/paywall/paywall_service.dart';
+import 'core/paywall/superwall_paywall_service.dart';
 import 'core/router/app_router.dart';
 import 'core/router/auth_gate_provider.dart';
 import 'core/services/shared_preferences_provider.dart';
@@ -66,6 +71,25 @@ Future<void> main() async {
   final sharedPreferences = await SharedPreferences.getInstance();
   final db = AppDatabase();
   String? currentUid() => fb.FirebaseAuth.instance.currentUser?.uid;
+
+  // Superwall gates the premium actions listed in PROJECT_SPEC.md §27; see
+  // core/paywall/. Falls back to NoOpPaywallService (paywallServiceProvider's
+  // default, left un-overridden) when no API key was supplied at build
+  // time, so a dev/CI build without the dashboard set up still runs rather
+  // than crashing on a blank key.
+  PaywallService? paywallService;
+  if (SuperwallConfig.isConfigured) {
+    try {
+      Superwall.configure(SuperwallConfig.apiKey);
+      paywallService = const SuperwallPaywallService();
+    } catch (error, stackTrace) {
+      AppLogger.error(
+        'Failed to configure Superwall',
+        error: error,
+        stackTrace: stackTrace,
+      );
+    }
+  }
 
   try {
     await Firebase.initializeApp(
@@ -117,6 +141,8 @@ Future<void> main() async {
               currentUid: currentUid,
             ),
           ),
+          if (paywallService != null)
+            paywallServiceProvider.overrideWithValue(paywallService),
         ],
         child: const VitalyApp(),
       ),
@@ -210,10 +236,18 @@ class _VitalyAppState extends ConsumerState<VitalyApp>
       // carousel again — a later sign-out must land on Sign In, not
       // Onboarding (PROJECT_SPEC.md §30).
       ref.read(onboardingIntroSeenProvider.notifier).markSeen();
+      // Ties entitlement state to the signed-in account so a purchase made
+      // on one device is recognized after signing in on another, and
+      // survives this app restarting while the subscription is active.
+      ref.read(paywallServiceProvider).identify(next.uid);
     } else if (next is AuthGateUnauthenticated) {
       ref.read(bloodPressureRepositoryProvider).deleteAll();
       ref.read(reminderRepositoryProvider).deleteAll();
       ref.read(savedReportRepositoryProvider).deleteAll();
+      // Clears the previous account's identified user so a different
+      // account signing in on the same device doesn't inherit its cached
+      // entitlement state.
+      ref.read(paywallServiceProvider).reset();
     }
   }
 

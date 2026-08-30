@@ -10,6 +10,8 @@ import 'package:printing/printing.dart';
 
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/paywall/paywall_placements.dart';
+import '../../../core/paywall/paywall_providers.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/report_providers.dart';
 import '../domain/saved_report.dart';
@@ -85,7 +87,17 @@ Future<void> scanWithCamera(BuildContext context, WidgetRef ref) => _scanWithCam
 /// card's "Upload report" button counterpart to [scanWithCamera].
 Future<void> importFromDevice(BuildContext context, WidgetRef ref) => _importFromDevice(context, ref);
 
-Future<void> _scanWithCamera(BuildContext context, WidgetRef ref) async {
+/// Gates the "Scan BP Report" premium action (superwall_paywall.md) behind
+/// the `scan_report` placement before opening the camera scanner.
+Future<void> _scanWithCamera(BuildContext context, WidgetRef ref) {
+  return ref.read(paywallServiceProvider).gateFeature(
+    placement: PaywallPlacements.scanReport,
+    onAccessGranted: () => _scanWithCameraImpl(context, ref),
+  );
+}
+
+Future<void> _scanWithCameraImpl(BuildContext context, WidgetRef ref) async {
+  if (!context.mounted) return;
   final messenger = ScaffoldMessenger.of(context);
   final l10n = AppLocalizations.of(context);
   try {
@@ -105,7 +117,18 @@ Future<void> _scanWithCamera(BuildContext context, WidgetRef ref) async {
   }
 }
 
-Future<void> _importFromDevice(BuildContext context, WidgetRef ref) async {
+/// Gates the "Upload/import PDF report" premium action
+/// (superwall_paywall.md) behind the `upload_pdf_report` placement before
+/// opening the device file picker.
+Future<void> _importFromDevice(BuildContext context, WidgetRef ref) {
+  return ref.read(paywallServiceProvider).gateFeature(
+    placement: PaywallPlacements.uploadPdfReport,
+    onAccessGranted: () => _importFromDeviceImpl(context, ref),
+  );
+}
+
+Future<void> _importFromDeviceImpl(BuildContext context, WidgetRef ref) async {
+  if (!context.mounted) return;
   final messenger = ScaffoldMessenger.of(context);
   final l10n = AppLocalizations.of(context);
   try {

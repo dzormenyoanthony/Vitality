@@ -65,6 +65,8 @@ dependencies:
   path: ^1.9.1
   archive: ^4.0.9
   share_plus: ^13.3.0
+  # Paywall/entitlement layer for premium gating (PROJECT_SPEC.md §27).
+  superwallkit_flutter: ^2.4.12
 
 dev_dependencies:
   flutter_test:
@@ -80,8 +82,16 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  drift_dev: ^2.34.5
-  build_runner: ^2.16.0
+  # Pinned below 2.34.3: superwallkit_flutter depends on pigeon ^26.1.5,
+  # whose supported analyzer range (<13.0.0) doesn't overlap the analyzer
+  # ^13.0.0 that drift_dev >=2.34.3 requires. drift_dev 2.34.0 still
+  # supports the same `drift: ^2.34.3` runtime range, so this only affects
+  # the dev-time code generator, not shipped code.
+  drift_dev: 2.34.0
+  # Pinned below 2.16.0 for the same analyzer-range reason as drift_dev
+  # above (2.16.0 requires analyzer >=13.3.0, incompatible with
+  # superwallkit_flutter's pigeon dependency).
+  build_runner: 2.15.1
   fake_cloud_firestore: ^4.2.0
   # Generator-only tool: produces every Android launcher-icon density
   # (plus the adaptive-icon XML) from assets/icon/icon.png. Not shipped

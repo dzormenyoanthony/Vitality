@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
+import '../../../core/paywall/paywall_providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/larger_numbers_provider.dart';
 import '../../../core/theme/theme_mode_provider.dart';
@@ -85,6 +86,10 @@ class SettingsScreen extends ConsumerWidget {
                   _SectionLabel(l10n.settingsSectionData, color: AppColors.dashboardAccentTeal),
                   const SizedBox(height: AppSpacing.sm),
                   const _DataCard(),
+                  const SizedBox(height: AppSpacing.lg),
+                  _SectionLabel(l10n.settingsSectionSubscription, color: AppColors.dashboardAccentTeal),
+                  const SizedBox(height: AppSpacing.sm),
+                  const _SubscriptionCard(),
                   const SizedBox(height: AppSpacing.lg),
                   _SectionLabel(l10n.settingsSectionAccount, color: AppColors.dashboardAccentCoral),
                   const SizedBox(height: AppSpacing.sm),
@@ -440,6 +445,65 @@ class _DataCard extends StatelessWidget {
             onTap: () => context.push(AppRoutes.exportData),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Re-links a previous purchase to this account/device (superwall_paywall.md
+/// "Handle: ... Restore purchases") — needed after a reinstall, or when the
+/// subscription was bought while signed into a different account on this
+/// device. Local busy state, same pattern as [_ExportButton] in the Export
+/// data screen: this is a one-off action, not part of the shared
+/// [settingsControllerProvider] state machine.
+class _SubscriptionCard extends ConsumerStatefulWidget {
+  const _SubscriptionCard();
+
+  @override
+  ConsumerState<_SubscriptionCard> createState() => _SubscriptionCardState();
+}
+
+class _SubscriptionCardState extends ConsumerState<_SubscriptionCard> {
+  bool _isRestoring = false;
+
+  Future<void> _restore() async {
+    setState(() => _isRestoring = true);
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final restored = await ref.read(paywallServiceProvider).restorePurchases();
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(
+            restored
+                ? l10n.settingsRestorePurchasesRestored
+                : l10n.settingsRestorePurchasesNotFound,
+          ),
+        ),
+      );
+    } catch (_) {
+      messenger.showSnackBar(SnackBar(content: Text(l10n.settingsRestorePurchasesFailed)));
+    } finally {
+      if (mounted) setState(() => _isRestoring = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.restore_outlined),
+        title: Text(l10n.settingsRestorePurchasesTitle),
+        subtitle: Text(l10n.settingsRestorePurchasesSubtitle),
+        trailing: _isRestoring
+            ? const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2),
+              )
+            : const Icon(Icons.chevron_right),
+        onTap: _isRestoring ? null : _restore,
       ),
     );
   }
