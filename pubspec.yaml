@@ -83,9 +83,18 @@ dev_dependencies:
   drift_dev: ^2.34.5
   build_runner: ^2.16.0
   fake_cloud_firestore: ^4.2.0
+  # Generator-only tool: produces every Android launcher-icon density
+  # (plus the adaptive-icon XML) from assets/icon/icon.png. Not shipped
+  # in the app; rerun `dart run flutter_launcher_icons` after replacing
+  # the source image.
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
+
+flutter_launcher_icons:
+  android: true
+  image_path: "assets/icon/icon.png"
 
 # The following section is specific to Flutter packages.
 flutter:
