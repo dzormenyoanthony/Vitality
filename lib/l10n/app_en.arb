@@ -832,6 +832,79 @@
     }
   },
 
+  "exportDataTitle": "Export data",
+  "@exportDataTitle": { "description": "Header of the Export data screen." },
+  "exportReadyEyebrow": "READY TO EXPORT",
+  "@exportReadyEyebrow": { "description": "Eyebrow on the Export data hero card." },
+  "exportReadySpan": "{readingsWord} · {span}",
+  "@exportReadySpan": {
+    "description": "Follows the big reading count on the hero card, e.g. '42  readings · Jul 21 – Aug 21'.",
+    "placeholders": {
+      "readingsWord": { "type": "String", "example": "readings" },
+      "span": { "type": "String", "example": "Jul 21 – Aug 21" }
+    }
+  },
+  "exportReadingsWord": "{count, plural, =1{reading} other{readings}}",
+  "@exportReadingsWord": {
+    "description": "The word 'reading(s)' agreeing with the export count.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "exportIncludesDocuments": "{count, plural, =0{No attached documents} =1{Includes 1 attached document ({size})} other{Includes {count} attached documents ({size})}}",
+  "@exportIncludesDocuments": {
+    "description": "Line on the hero card summarising attached scanned documents.",
+    "placeholders": {
+      "count": { "type": "int" },
+      "size": { "type": "String", "example": "24.8 MB" }
+    }
+  },
+  "exportEmptyRange": "No readings in this range yet.",
+  "@exportEmptyRange": { "description": "Shown on the hero card when the selected date range has no readings." },
+  "exportSectionDateRange": "DATE RANGE",
+  "@exportSectionDateRange": { "description": "Section label above the date-range chips." },
+  "exportRangeLast30Days": "Last 30 days",
+  "@exportRangeLast30Days": { "description": "Date-range chip." },
+  "exportRangeLast90Days": "90 days",
+  "@exportRangeLast90Days": { "description": "Date-range chip." },
+  "exportRangeThisYear": "This year",
+  "@exportRangeThisYear": { "description": "Date-range chip." },
+  "exportRangeAllTime": "All time",
+  "@exportRangeAllTime": { "description": "Date-range chip." },
+  "exportSectionFormat": "FORMAT",
+  "@exportSectionFormat": { "description": "Section label above the format options." },
+  "exportFormatPdfTitle": "PDF summary",
+  "@exportFormatPdfTitle": { "description": "Format option: the one-page Trends PDF." },
+  "exportFormatPdfSubtitle": "One page for your doctor — averages, chart, notes",
+  "@exportFormatPdfSubtitle": { "description": "Subtitle for the PDF summary format option." },
+  "exportFormatCsvTitle": "CSV spreadsheet",
+  "@exportFormatCsvTitle": { "description": "Format option: the readings CSV on its own." },
+  "exportFormatCsvSubtitle": "Every reading as a row, for your own analysis",
+  "@exportFormatCsvSubtitle": { "description": "Subtitle for the CSV format option." },
+  "exportFormatArchiveTitle": "Full archive",
+  "@exportFormatArchiveTitle": { "description": "Format option: CSV plus scanned documents, zipped (PROJECT_SPEC.md §28)." },
+  "exportFormatArchiveSubtitle": "Readings plus all scanned documents, zipped",
+  "@exportFormatArchiveSubtitle": { "description": "Subtitle for the full-archive format option." },
+  "exportBadgePdf": "PDF",
+  "@exportBadgePdf": { "description": "File-type badge on the PDF format option." },
+  "exportBadgeCsv": "CSV",
+  "@exportBadgeCsv": { "description": "File-type badge on the CSV format option." },
+  "exportBadgeZip": "ZIP",
+  "@exportBadgeZip": { "description": "File-type badge on the full-archive format option." },
+  "exportToggleNotes": "Include notes and tags",
+  "@exportToggleNotes": { "description": "Toggle: keep the Notes and Measurement Context CSV columns." },
+  "exportToggleDocuments": "Include attached documents",
+  "@exportToggleDocuments": { "description": "Toggle: include the scanned_reports/ folder in the full archive." },
+  "exportTogglePulse": "Include pulse readings",
+  "@exportTogglePulse": { "description": "Toggle: keep the Pulse column/line in the export." },
+  "exportPrivacyNote": "The file is built on this device and handed straight to the app you choose. Vitaly keeps no copy.",
+  "@exportPrivacyNote": {
+    "description": "Privacy caption on the Export data screen (PROJECT_SPEC.md §25, §28)."
+  },
+  "exportButton": "{count, plural, =0{Export} =1{Export 1 reading} other{Export {count} readings}}",
+  "@exportButton": {
+    "description": "The primary export action button, with the count of readings in the selected range.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+
   "validationSystolicRequired": "Enter a systolic value.",
   "@validationSystolicRequired": { "description": "Record-reading form validation." },
   "validationSystolicWholeNumber": "Systolic must be a whole number.",
@@ -1300,9 +1373,9 @@
   "@settingsExportDataTitle": {
     "description": "Data-section row that builds and shares the full data export."
   },
-  "settingsExportDataSubtitle": "BP readings (CSV) and saved report files, as a ZIP",
+  "settingsExportDataSubtitle": "PDF, CSV, or a full archive — your choice",
   "@settingsExportDataSubtitle": {
-    "description": "Subtitle for the Export data row."
+    "description": "Subtitle for the Export data row; opens the Export data screen."
   },
   "settingsExportMissingTitle": "Some report files are unavailable",
   "@settingsExportMissingTitle": {

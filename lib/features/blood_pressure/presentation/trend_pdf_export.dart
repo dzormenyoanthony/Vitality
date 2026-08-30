@@ -13,10 +13,11 @@ import '../domain/trend_summary_lines.dart';
 /// individual readings in the period. No new stats, no interpretation.
 Future<Uint8List> buildTrendSummaryPdf(
   AppLocalizations l10n,
-  TrendStats stats,
-) async {
+  TrendStats stats, {
+  bool includePulse = true,
+}) async {
   final doc = pw.Document();
-  final lines = trendSummaryLines(l10n, stats);
+  final lines = trendSummaryLines(l10n, stats, includePulse: includePulse);
 
   doc.addPage(
     pw.MultiPage(
@@ -33,7 +34,7 @@ Future<Uint8List> buildTrendSummaryPdf(
             l10n.trendPdfColTime,
             l10n.trendPdfColSystolic,
             l10n.trendPdfColDiastolic,
-            l10n.trendPdfColPulse,
+            if (includePulse) l10n.trendPdfColPulse,
           ],
           data: [
             for (final r in stats.readings)
@@ -42,7 +43,7 @@ Future<Uint8List> buildTrendSummaryPdf(
                 _formatTimeOnly(r.timestamp),
                 '${r.systolic} mmHg',
                 '${r.diastolic} mmHg',
-                r.pulse == null ? '-' : '${r.pulse} bpm',
+                if (includePulse) r.pulse == null ? '-' : '${r.pulse} bpm',
               ],
           ],
         ),

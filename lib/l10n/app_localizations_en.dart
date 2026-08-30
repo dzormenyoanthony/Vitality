@@ -811,6 +811,116 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get exportDataTitle => 'Export data';
+
+  @override
+  String get exportReadyEyebrow => 'READY TO EXPORT';
+
+  @override
+  String exportReadySpan(String readingsWord, String span) {
+    return '$readingsWord · $span';
+  }
+
+  @override
+  String exportReadingsWord(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'readings',
+      one: 'reading',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String exportIncludesDocuments(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Includes $count attached documents ($size)',
+      one: 'Includes 1 attached document ($size)',
+      zero: 'No attached documents',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get exportEmptyRange => 'No readings in this range yet.';
+
+  @override
+  String get exportSectionDateRange => 'DATE RANGE';
+
+  @override
+  String get exportRangeLast30Days => 'Last 30 days';
+
+  @override
+  String get exportRangeLast90Days => '90 days';
+
+  @override
+  String get exportRangeThisYear => 'This year';
+
+  @override
+  String get exportRangeAllTime => 'All time';
+
+  @override
+  String get exportSectionFormat => 'FORMAT';
+
+  @override
+  String get exportFormatPdfTitle => 'PDF summary';
+
+  @override
+  String get exportFormatPdfSubtitle =>
+      'One page for your doctor — averages, chart, notes';
+
+  @override
+  String get exportFormatCsvTitle => 'CSV spreadsheet';
+
+  @override
+  String get exportFormatCsvSubtitle =>
+      'Every reading as a row, for your own analysis';
+
+  @override
+  String get exportFormatArchiveTitle => 'Full archive';
+
+  @override
+  String get exportFormatArchiveSubtitle =>
+      'Readings plus all scanned documents, zipped';
+
+  @override
+  String get exportBadgePdf => 'PDF';
+
+  @override
+  String get exportBadgeCsv => 'CSV';
+
+  @override
+  String get exportBadgeZip => 'ZIP';
+
+  @override
+  String get exportToggleNotes => 'Include notes and tags';
+
+  @override
+  String get exportToggleDocuments => 'Include attached documents';
+
+  @override
+  String get exportTogglePulse => 'Include pulse readings';
+
+  @override
+  String get exportPrivacyNote =>
+      'The file is built on this device and handed straight to the app you choose. Vitaly keeps no copy.';
+
+  @override
+  String exportButton(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Export $count readings',
+      one: 'Export 1 reading',
+      zero: 'Export',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String get validationSystolicRequired => 'Enter a systolic value.';
 
   @override
@@ -1316,7 +1426,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsExportDataSubtitle =>
-      'BP readings (CSV) and saved report files, as a ZIP';
+      'PDF, CSV, or a full archive — your choice';
 
   @override
   String get settingsExportMissingTitle => 'Some report files are unavailable';

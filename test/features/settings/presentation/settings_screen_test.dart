@@ -189,7 +189,7 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('Export data'), findsOneWidget);
-    expect(find.text('BP readings (CSV) and saved report files, as a ZIP'), findsOneWidget);
+    expect(find.text('PDF, CSV, or a full archive — your choice'), findsOneWidget);
 
     await db.close();
   });

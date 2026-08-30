@@ -7,14 +7,22 @@ import 'trend_calculator.dart';
 /// (PROJECT_SPEC.md §12) — built from [AppLocalizations] so the on-screen
 /// card and the PDF export render identical copy from one source, rather
 /// than risking the two drifting apart.
-List<String> trendSummaryLines(AppLocalizations l10n, TrendStats stats) {
+///
+/// [includePulse] is set false by the Export screen when the user turns
+/// off "Include pulse readings"; it only suppresses the pulse average
+/// line, nothing else.
+List<String> trendSummaryLines(
+  AppLocalizations l10n,
+  TrendStats stats, {
+  bool includePulse = true,
+}) {
   final period = _periodDescription(l10n, stats.period);
   return [
     if (stats.avgSystolic != null)
       l10n.trendSummaryAvgSystolic(period, stats.avgSystolic!.round()),
     if (stats.avgDiastolic != null)
       l10n.trendSummaryAvgDiastolic(period, stats.avgDiastolic!.round()),
-    if (stats.avgPulse != null)
+    if (includePulse && stats.avgPulse != null)
       l10n.trendSummaryAvgPulse(period, stats.avgPulse!.round()),
     if (stats.avgSystolic != null && stats.avgDiastolic != null)
       l10n.trendSummaryAverageStatus(

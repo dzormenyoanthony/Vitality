@@ -1479,6 +1479,162 @@ abstract class AppLocalizations {
   /// **'You logged {eveningDays} of the last 7 evenings and {morningDays} mornings. An evening reminder would even out the record.'**
   String loggingInsightEveningGap(int eveningDays, int morningDays);
 
+  /// Header of the Export data screen.
+  ///
+  /// In en, this message translates to:
+  /// **'Export data'**
+  String get exportDataTitle;
+
+  /// Eyebrow on the Export data hero card.
+  ///
+  /// In en, this message translates to:
+  /// **'READY TO EXPORT'**
+  String get exportReadyEyebrow;
+
+  /// Follows the big reading count on the hero card, e.g. '42  readings · Jul 21 – Aug 21'.
+  ///
+  /// In en, this message translates to:
+  /// **'{readingsWord} · {span}'**
+  String exportReadySpan(String readingsWord, String span);
+
+  /// The word 'reading(s)' agreeing with the export count.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{reading} other{readings}}'**
+  String exportReadingsWord(int count);
+
+  /// Line on the hero card summarising attached scanned documents.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No attached documents} =1{Includes 1 attached document ({size})} other{Includes {count} attached documents ({size})}}'**
+  String exportIncludesDocuments(int count, String size);
+
+  /// Shown on the hero card when the selected date range has no readings.
+  ///
+  /// In en, this message translates to:
+  /// **'No readings in this range yet.'**
+  String get exportEmptyRange;
+
+  /// Section label above the date-range chips.
+  ///
+  /// In en, this message translates to:
+  /// **'DATE RANGE'**
+  String get exportSectionDateRange;
+
+  /// Date-range chip.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 30 days'**
+  String get exportRangeLast30Days;
+
+  /// Date-range chip.
+  ///
+  /// In en, this message translates to:
+  /// **'90 days'**
+  String get exportRangeLast90Days;
+
+  /// Date-range chip.
+  ///
+  /// In en, this message translates to:
+  /// **'This year'**
+  String get exportRangeThisYear;
+
+  /// Date-range chip.
+  ///
+  /// In en, this message translates to:
+  /// **'All time'**
+  String get exportRangeAllTime;
+
+  /// Section label above the format options.
+  ///
+  /// In en, this message translates to:
+  /// **'FORMAT'**
+  String get exportSectionFormat;
+
+  /// Format option: the one-page Trends PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF summary'**
+  String get exportFormatPdfTitle;
+
+  /// Subtitle for the PDF summary format option.
+  ///
+  /// In en, this message translates to:
+  /// **'One page for your doctor — averages, chart, notes'**
+  String get exportFormatPdfSubtitle;
+
+  /// Format option: the readings CSV on its own.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV spreadsheet'**
+  String get exportFormatCsvTitle;
+
+  /// Subtitle for the CSV format option.
+  ///
+  /// In en, this message translates to:
+  /// **'Every reading as a row, for your own analysis'**
+  String get exportFormatCsvSubtitle;
+
+  /// Format option: CSV plus scanned documents, zipped (PROJECT_SPEC.md §28).
+  ///
+  /// In en, this message translates to:
+  /// **'Full archive'**
+  String get exportFormatArchiveTitle;
+
+  /// Subtitle for the full-archive format option.
+  ///
+  /// In en, this message translates to:
+  /// **'Readings plus all scanned documents, zipped'**
+  String get exportFormatArchiveSubtitle;
+
+  /// File-type badge on the PDF format option.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get exportBadgePdf;
+
+  /// File-type badge on the CSV format option.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV'**
+  String get exportBadgeCsv;
+
+  /// File-type badge on the full-archive format option.
+  ///
+  /// In en, this message translates to:
+  /// **'ZIP'**
+  String get exportBadgeZip;
+
+  /// Toggle: keep the Notes and Measurement Context CSV columns.
+  ///
+  /// In en, this message translates to:
+  /// **'Include notes and tags'**
+  String get exportToggleNotes;
+
+  /// Toggle: include the scanned_reports/ folder in the full archive.
+  ///
+  /// In en, this message translates to:
+  /// **'Include attached documents'**
+  String get exportToggleDocuments;
+
+  /// Toggle: keep the Pulse column/line in the export.
+  ///
+  /// In en, this message translates to:
+  /// **'Include pulse readings'**
+  String get exportTogglePulse;
+
+  /// Privacy caption on the Export data screen (PROJECT_SPEC.md §25, §28).
+  ///
+  /// In en, this message translates to:
+  /// **'The file is built on this device and handed straight to the app you choose. Vitaly keeps no copy.'**
+  String get exportPrivacyNote;
+
+  /// The primary export action button, with the count of readings in the selected range.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Export} =1{Export 1 reading} other{Export {count} readings}}'**
+  String exportButton(int count);
+
   /// Record-reading form validation.
   ///
   /// In en, this message translates to:
@@ -2295,10 +2451,10 @@ abstract class AppLocalizations {
   /// **'Export data'**
   String get settingsExportDataTitle;
 
-  /// Subtitle for the Export data row.
+  /// Subtitle for the Export data row; opens the Export data screen.
   ///
   /// In en, this message translates to:
-  /// **'BP readings (CSV) and saved report files, as a ZIP'**
+  /// **'PDF, CSV, or a full archive — your choice'**
   String get settingsExportDataSubtitle;
 
   /// Dialog title when some report files can't be found for the export.

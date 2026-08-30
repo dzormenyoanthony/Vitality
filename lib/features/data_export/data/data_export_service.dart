@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:archive/archive.dart';
 import 'package:path/path.dart' as p;
 
+import '../../blood_pressure/data/blood_pressure_reading.dart';
 import '../../blood_pressure/data/blood_pressure_repository.dart';
 import '../../reports/data/saved_report_repository.dart';
 import '../domain/bp_readings_csv.dart';
@@ -43,14 +44,32 @@ class DataExportService {
     }
   }
 
-  Future<DataExportResult> buildExport({DateTime? now}) async {
-    final exportDate = now ?? DateTime.now();
-    final readings = await bloodPressureRepository.getAll();
-    final reports = await savedReportRepository.getAll();
+  /// §28's full export over the user's entire history — kept as a
+  /// convenience wrapper around [buildArchive].
+  Future<DataExportResult> buildExport({DateTime? now}) async =>
+      buildArchive(readings: await bloodPressureRepository.getAll(), now: now);
 
+  /// Builds the ZIP for a chosen set of [readings] (already date-filtered
+  /// by the caller). [includeReportFiles] mirrors the export screen's
+  /// "Include attached documents" toggle; [includePulse] /
+  /// [includeNotesAndTags] control the optional CSV columns.
+  Future<DataExportResult> buildArchive({
+    required List<BloodPressureReading> readings,
+    bool includeReportFiles = true,
+    bool includePulse = true,
+    bool includeNotesAndTags = true,
+    DateTime? now,
+  }) async {
+    final exportDate = now ?? DateTime.now();
     final archive = Archive();
 
-    final csvBytes = utf8.encode(buildBpReadingsCsv(readings));
+    final csvBytes = utf8.encode(
+      buildBpReadingsCsv(
+        readings,
+        includePulse: includePulse,
+        includeNotesAndTags: includeNotesAndTags,
+      ),
+    );
     archive.addFile(
       ArchiveFile('vitaly_bp_readings_${_formatDate(exportDate)}.csv', csvBytes.length, csvBytes),
     );
@@ -58,23 +77,26 @@ class DataExportService {
     var includedReportFileCount = 0;
     final missingReportFiles = <String>[];
 
-    for (final report in reports) {
-      final pages = report.localPagePaths;
-      for (var i = 0; i < pages.length; i++) {
-        final bytes = await _readFileBytes(pages[i]);
-        if (bytes == null) {
-          missingReportFiles.add(
-            pages.length > 1 ? '${report.title} (page ${i + 1})' : report.title,
-          );
-          continue;
-        }
+    if (includeReportFiles) {
+      final reports = await savedReportRepository.getAll();
+      for (final report in reports) {
+        final pages = report.localPagePaths;
+        for (var i = 0; i < pages.length; i++) {
+          final bytes = await _readFileBytes(pages[i]);
+          if (bytes == null) {
+            missingReportFiles.add(
+              pages.length > 1 ? '${report.title} (page ${i + 1})' : report.title,
+            );
+            continue;
+          }
 
-        final extension = p.extension(pages[i]);
-        final entryName = pages.length > 1
-            ? 'report_${report.id}_page_${i + 1}$extension'
-            : 'report_${report.id}$extension';
-        archive.addFile(ArchiveFile('scanned_reports/$entryName', bytes.length, bytes));
-        includedReportFileCount++;
+          final extension = p.extension(pages[i]);
+          final entryName = pages.length > 1
+              ? 'report_${report.id}_page_${i + 1}$extension'
+              : 'report_${report.id}$extension';
+          archive.addFile(ArchiveFile('scanned_reports/$entryName', bytes.length, bytes));
+          includedReportFileCount++;
+        }
       }
     }
 

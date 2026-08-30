@@ -17,6 +17,7 @@ abstract final class AppRoutes {
   static const String reminders = '/reminders';
   static const String reminderForm = '/reminder-form';
   static const String settings = '/settings';
+  static const String exportData = '/export-data';
   static const String education = '/education';
   static const String educationArticle = '/education/:id';
   static const String reviewExtracted = '/review-extracted';

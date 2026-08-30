@@ -88,6 +88,57 @@ void main() {
     expect(rows[1], contains('"doctor said ""monitor closely"""'));
   });
 
+  test('drops the Pulse column when includePulse is false', () {
+    final csv = buildBpReadingsCsv([_reading(pulse: 72)], includePulse: false);
+    final rows = csv.trim().split('\n');
+
+    expect(
+      rows.first,
+      'Date,Time,Systolic (mmHg),Diastolic (mmHg),Notes,'
+      'Measurement Context,Reading Source,Related Report ID',
+    );
+    expect(rows[1], isNot(contains('72')));
+    expect(rows[1], '2026-03-05,08:30,120,80,,,Manual Entry,');
+  });
+
+  test('drops Notes and Measurement Context when includeNotesAndTags is false', () {
+    final csv = buildBpReadingsCsv(
+      [
+        _reading(
+          pulse: 72,
+          notes: 'felt fine',
+          measurementContexts: const [MeasurementContext.morning],
+        ),
+      ],
+      includeNotesAndTags: false,
+    );
+    final rows = csv.trim().split('\n');
+
+    expect(
+      rows.first,
+      'Date,Time,Systolic (mmHg),Diastolic (mmHg),Pulse (bpm),'
+      'Reading Source,Related Report ID',
+    );
+    expect(rows[1], '2026-03-05,08:30,120,80,72,Manual Entry,');
+    expect(rows[1], isNot(contains('felt fine')));
+    expect(rows[1], isNot(contains('Morning')));
+  });
+
+  test('required columns survive with every optional column off', () {
+    final csv = buildBpReadingsCsv(
+      [_reading(source: ReadingSource.importedReport, sourceReportId: 7)],
+      includePulse: false,
+      includeNotesAndTags: false,
+    );
+    final rows = csv.trim().split('\n');
+
+    expect(
+      rows.first,
+      'Date,Time,Systolic (mmHg),Diastolic (mmHg),Reading Source,Related Report ID',
+    );
+    expect(rows[1], '2026-03-05,08:30,120,80,Imported Report,7');
+  });
+
   test('writes one row per reading, in the order given', () {
     final csv = buildBpReadingsCsv([
       _reading(id: 1, systolic: 110, diastolic: 70),

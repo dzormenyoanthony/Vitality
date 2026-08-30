@@ -12,8 +12,6 @@ import '../../../core/widgets/loading_indicator.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../authentication/data/auth_providers.dart';
 import '../../authentication/domain/credentials_validator.dart';
-import '../../data_export/data/data_export_providers.dart';
-import '../../data_export/presentation/data_export_share.dart';
 import '../../onboarding/data/user_profile_providers.dart';
 import 'settings_controller.dart';
 
@@ -417,59 +415,8 @@ class _ThemeOptionCard extends StatelessWidget {
   }
 }
 
-class _DataCard extends ConsumerStatefulWidget {
+class _DataCard extends StatelessWidget {
   const _DataCard();
-
-  @override
-  ConsumerState<_DataCard> createState() => _DataCardState();
-}
-
-class _DataCardState extends ConsumerState<_DataCard> {
-  bool _isExporting = false;
-
-  Future<void> _exportData() async {
-    setState(() => _isExporting = true);
-    final l10n = AppLocalizations.of(context);
-    final messenger = ScaffoldMessenger.of(context);
-    try {
-      final result = await ref.read(dataExportServiceProvider).buildExport();
-      if (!mounted) return;
-
-      if (result.hasMissingFiles) {
-        final proceed = await showDialog<bool>(
-          context: context,
-          builder: (dialogContext) => AlertDialog(
-            title: Text(l10n.settingsExportMissingTitle),
-            content: Text(
-              l10n.settingsExportMissingBody(
-                result.missingReportFiles.join('\n'),
-              ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(false),
-                child: Text(l10n.commonCancel),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(dialogContext).pop(true),
-                child: Text(l10n.commonContinue),
-              ),
-            ],
-          ),
-        );
-        if (proceed != true || !mounted) return;
-      }
-
-      await shareDataExport(result);
-    } catch (_) {
-      if (!mounted) return;
-      messenger.showSnackBar(
-        SnackBar(content: Text(l10n.settingsExportFailed)),
-      );
-    } finally {
-      if (mounted) setState(() => _isExporting = false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -489,14 +436,8 @@ class _DataCardState extends ConsumerState<_DataCard> {
             leading: const Icon(Icons.ios_share_outlined),
             title: Text(l10n.settingsExportDataTitle),
             subtitle: Text(l10n.settingsExportDataSubtitle),
-            trailing: _isExporting
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.chevron_right),
-            onTap: _isExporting ? null : _exportData,
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push(AppRoutes.exportData),
           ),
         ],
       ),
