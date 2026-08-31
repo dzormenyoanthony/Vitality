@@ -479,27 +479,32 @@ class _LatestReadingCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  Flexible(
-                    child: Text(
+              // Wrap, not Row+Spacer: at large system text sizes the label
+              // and the recency text can't always share one line without
+              // truncating the label (worse) or shrinking the recency text
+              // illegibly small — dropping the recency text to its own
+              // line keeps both fully readable. SizedBox(width: infinity)
+              // forces it to the card's full width — this Column's
+              // crossAxisAlignment.start otherwise gives Wrap only loose
+              // constraints, so it shrinks to fit its content and
+              // spaceBetween has no extra width left to distribute.
+              SizedBox(
+                width: double.infinity,
+                child: Wrap(
+                  alignment: WrapAlignment.spaceBetween,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  runSpacing: 2,
+                  children: [
+                    Text(
                       l10n.dashboardLatestReadingLabel,
                       style: theme.textTheme.labelMedium?.copyWith(color: Colors.white70),
-                      overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  const Spacer(),
-                  Flexible(
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: Alignment.centerRight,
-                      child: Text(
-                        _formatRecency(context, l10n, reading.timestamp),
-                        style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
-                      ),
+                    Text(
+                      _formatRecency(context, l10n, reading.timestamp),
+                      style: theme.textTheme.bodyMedium?.copyWith(color: Colors.white70),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: AppSpacing.sm),
               FittedBox(
