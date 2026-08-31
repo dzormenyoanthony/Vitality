@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "749553349568-9fiaa4q3065cqnbe5ap6js1aiuaf4mah.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vitality.app.vitality",
+            "certificate_hash": "d26cd40e323c676bd2faa12b5d08f5cb964496d6"
+          }
+        },
+        {
           "client_id": "749553349568-ke9804hgks5km0p2rije66mupkdua4gi.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -36,6 +44,14 @@
           "android_info": {
             "package_name": "com.vitality.app.vitality",
             "certificate_hash": "a250a61a659b1af9f22ac10b2b52b17c03078a93"
+          }
+        },
+        {
+          "client_id": "749553349568-q7gsotr9652878i5qnohblu1nm4mpid8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vitality.app.vitality",
+            "certificate_hash": "4eb29214e4063ca455a3214ecdbd963d7d79a795"
           }
         },
         {
