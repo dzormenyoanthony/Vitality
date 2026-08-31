@@ -210,10 +210,13 @@ class _ChartCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
-                Text(
-                  _dateRangeLabel(context, stats.readings),
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: theme.colorScheme.onSurfaceVariant,
+                Flexible(
+                  child: Text(
+                    _dateRangeLabel(context, stats.readings),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onSurfaceVariant,
+                    ),
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ),
               ],
@@ -245,15 +248,42 @@ class _Legend extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
-    return Row(
+    // Wrap, not Row: at large system text sizes both legend labels can't
+    // always fit on one line — wrapping the second item below keeps both
+    // fully readable instead of overflowing horizontally.
+    return Wrap(
+      crossAxisAlignment: WrapCrossAlignment.center,
+      spacing: AppSpacing.lg,
+      runSpacing: AppSpacing.xs,
       children: [
-        Container(width: 16, height: 3, color: AppColors.dashboardAccentTeal),
-        const SizedBox(width: AppSpacing.xs),
-        Text(l10n.trendsLegendSystolic, style: theme.textTheme.bodySmall),
-        const SizedBox(width: AppSpacing.lg),
-        _DashedSwatch(color: AppColors.dashboardAccentCoral),
-        const SizedBox(width: AppSpacing.xs),
-        Text(l10n.trendsLegendDiastolic, style: theme.textTheme.bodySmall),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 16, height: 3, color: AppColors.dashboardAccentTeal),
+            const SizedBox(width: AppSpacing.xs),
+            Flexible(
+              child: Text(
+                l10n.trendsLegendSystolic,
+                style: theme.textTheme.bodySmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _DashedSwatch(color: AppColors.dashboardAccentCoral),
+            const SizedBox(width: AppSpacing.xs),
+            Flexible(
+              child: Text(
+                l10n.trendsLegendDiastolic,
+                style: theme.textTheme.bodySmall,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }

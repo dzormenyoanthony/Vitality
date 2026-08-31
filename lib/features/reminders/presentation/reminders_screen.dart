@@ -81,7 +81,13 @@ class _RemindersScreenState extends ConsumerState<RemindersScreen> with WidgetsB
                       icon: const Icon(Icons.arrow_back),
                       tooltip: l10n.commonBack,
                     ),
-                    Text(l10n.remindersTitle, style: theme.textTheme.headlineMedium),
+                    Expanded(
+                      child: Text(
+                        l10n.remindersTitle,
+                        style: theme.textTheme.headlineMedium,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -455,18 +461,25 @@ class _NewReminderCardState extends ConsumerState<_NewReminderCard> {
           Row(
             children: [
               for (var weekday = 1; weekday <= 7; weekday++) ...[
-                _DayCircle(
-                  label: weekdayNarrowLabel(context, weekday),
-                  selected: _selectedDays.contains(weekday),
-                  onTap: _isSaving
-                      ? null
-                      : () => setState(() {
-                          if (_selectedDays.contains(weekday)) {
-                            _selectedDays.remove(weekday);
-                          } else {
-                            _selectedDays.add(weekday);
-                          }
-                        }),
+                // Expanded, not a fixed-size circle: 7 always-fixed-width
+                // circles in one Row didn't leave room to shrink on a
+                // narrow phone, let alone a narrow phone with large system
+                // text — sharing the row's width equally keeps all 7 on
+                // one line (matching the week-strip design) at any scale.
+                Expanded(
+                  child: _DayCircle(
+                    label: weekdayNarrowLabel(context, weekday),
+                    selected: _selectedDays.contains(weekday),
+                    onTap: _isSaving
+                        ? null
+                        : () => setState(() {
+                            if (_selectedDays.contains(weekday)) {
+                              _selectedDays.remove(weekday);
+                            } else {
+                              _selectedDays.add(weekday);
+                            }
+                          }),
+                  ),
                 ),
                 if (weekday != 7) const SizedBox(width: AppSpacing.xs),
               ],
@@ -552,20 +565,31 @@ class _DayCircle extends StatelessWidget {
     return InkWell(
       customBorder: const CircleBorder(),
       onTap: onTap,
-      child: Container(
-        width: 40,
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: selected ? AppColors.dashboardAccentTeal : null,
-          border: selected ? null : Border.all(color: theme.colorScheme.outlineVariant),
-        ),
-        child: Text(
-          label,
-          style: TextStyle(
-            color: selected ? Colors.white : theme.colorScheme.onSurfaceVariant,
-            fontWeight: FontWeight.w600,
+      // AspectRatio, not a fixed width/height: the circle now takes
+      // whatever width its Expanded parent gives it (see the Row above)
+      // and stays round. The day-abbreviation label is pinned to 1x text
+      // scale — a single letter/short abbreviation stays fully legible at
+      // any size, and there's no room in a fixed circle to grow into.
+      child: AspectRatio(
+        aspectRatio: 1,
+        child: MediaQuery(
+          data: MediaQuery.of(
+            context,
+          ).copyWith(textScaler: const TextScaler.linear(1)),
+          child: Container(
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: selected ? AppColors.dashboardAccentTeal : null,
+              border: selected ? null : Border.all(color: theme.colorScheme.outlineVariant),
+            ),
+            child: Text(
+              label,
+              style: TextStyle(
+                color: selected ? Colors.white : theme.colorScheme.onSurfaceVariant,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
           ),
         ),
       ),

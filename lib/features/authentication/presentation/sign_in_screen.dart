@@ -159,14 +159,18 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                 color: theme.colorScheme.outlineVariant,
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.sm,
-                              ),
-                              child: Text(
-                                l10n.authDividerOr,
-                                style: theme.textTheme.labelMedium?.copyWith(
-                                  color: theme.colorScheme.onSurfaceVariant,
+                            Flexible(
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm,
+                                ),
+                                child: Text(
+                                  l10n.authDividerOr,
+                                  textAlign: TextAlign.center,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: theme.textTheme.labelMedium?.copyWith(
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                  ),
                                 ),
                               ),
                             ),
@@ -271,21 +275,34 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                               CredentialsValidator.validatePassword(l10n, v),
                           onFieldSubmitted: (_) => _submit(),
                         ),
-                        Row(
+                        // Wrap, not Row: at large system text sizes the
+                        // checkbox label and "Forgot?" link can't both fit
+                        // on one line without truncating either the label
+                        // or the (must-stay-tappable) link — wrapping the
+                        // link onto its own line keeps both fully readable
+                        // instead of overflowing horizontally.
+                        Wrap(
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          runSpacing: AppSpacing.xs,
                           children: [
-                            Checkbox(
-                              value: keepSignedIn,
-                              onChanged: isLoading
-                                  ? null
-                                  : (value) => ref
-                                        .read(keepSignedInProvider.notifier)
-                                        .setKeepSignedIn(value ?? true),
-                            ),
-                            Expanded(
-                              child: Text(
-                                l10n.signInKeepSignedIn,
-                                style: theme.textTheme.bodyMedium,
-                              ),
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Checkbox(
+                                  value: keepSignedIn,
+                                  onChanged: isLoading
+                                      ? null
+                                      : (value) => ref
+                                            .read(keepSignedInProvider.notifier)
+                                            .setKeepSignedIn(value ?? true),
+                                ),
+                                Flexible(
+                                  child: Text(
+                                    l10n.signInKeepSignedIn,
+                                    style: theme.textTheme.bodyMedium,
+                                  ),
+                                ),
+                              ],
                             ),
                             TextButton(
                               onPressed: isLoading

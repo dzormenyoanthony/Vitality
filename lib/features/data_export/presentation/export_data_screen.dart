@@ -187,9 +187,12 @@ class _ExportDataScreenState extends ConsumerState<ExportDataScreen> {
                           }
                         },
                       ),
-                      Text(
-                        l10n.exportDataTitle,
-                        style: theme.textTheme.headlineMedium,
+                      Expanded(
+                        child: Text(
+                          l10n.exportDataTitle,
+                          style: theme.textTheme.headlineMedium,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ],
                   ),
@@ -510,23 +513,33 @@ class _FormatOptionCard extends StatelessWidget {
                     color: accents.mintBackground,
                     borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.insert_drive_file_outlined,
-                        size: 16,
-                        color: accents.mintForeground,
-                      ),
-                      Text(
-                        badge,
-                        style: theme.textTheme.labelSmall?.copyWith(
+                  // Pinned to 1x text scale: a fixed-size icon badge has no
+                  // room to grow, and the format it names (PDF/CSV/ZIP) is
+                  // redundant with the title text beside it, which does
+                  // scale normally — so nothing is lost by keeping this
+                  // badge's own tiny caption fixed.
+                  child: MediaQuery(
+                    data: MediaQuery.of(
+                      context,
+                    ).copyWith(textScaler: const TextScaler.linear(1)),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.insert_drive_file_outlined,
+                          size: 16,
                           color: accents.mintForeground,
-                          fontSize: 8,
-                          letterSpacing: 0.4,
                         ),
-                      ),
-                    ],
+                        Text(
+                          badge,
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            color: accents.mintForeground,
+                            fontSize: 8,
+                            letterSpacing: 0.4,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.md),

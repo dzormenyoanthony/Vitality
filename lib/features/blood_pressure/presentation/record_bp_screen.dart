@@ -190,6 +190,13 @@ class _RecordBpScreenState extends ConsumerState<RecordBpScreen> {
                     Expanded(
                       child: DropdownButtonFormField<CuffArm?>(
                         initialValue: _cuffArm,
+                        // The dropdown's own outer width already shrinks
+                        // to fit (it's in an Expanded above), but without
+                        // isExpanded the *selected item* row inside it
+                        // doesn't — at large system text sizes its label
+                        // overflowed the narrowed field instead of
+                        // eliding.
+                        isExpanded: true,
                         decoration: InputDecoration(
                           labelText: l10n.recordCuffArmLabel,
                           floatingLabelBehavior: FloatingLabelBehavior.always,

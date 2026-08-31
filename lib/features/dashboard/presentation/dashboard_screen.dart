@@ -481,9 +481,12 @@ class _LatestReadingCard extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Text(
-                    l10n.dashboardLatestReadingLabel,
-                    style: theme.textTheme.labelMedium?.copyWith(color: Colors.white70),
+                  Flexible(
+                    child: Text(
+                      l10n.dashboardLatestReadingLabel,
+                      style: theme.textTheme.labelMedium?.copyWith(color: Colors.white70),
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
                   const Spacer(),
                   Flexible(

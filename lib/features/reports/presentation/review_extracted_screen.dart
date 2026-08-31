@@ -243,6 +243,10 @@ class _ReviewExtractedScreenState extends ConsumerState<ReviewExtractedScreen> {
             const SizedBox(height: AppSpacing.md),
             DropdownButtonFormField<ReportCategory>(
               initialValue: _category,
+              // Without isExpanded, the selected item's own label doesn't
+              // shrink/ellipsize with the field — it overflowed at large
+              // system text sizes even though the field itself has room.
+              isExpanded: true,
               decoration: InputDecoration(labelText: l10n.savedReportsFieldCategory),
               items: [
                 for (final category in ReportCategory.values)

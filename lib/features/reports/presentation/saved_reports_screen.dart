@@ -250,25 +250,29 @@ class _DocumentLockerHeroState extends ConsumerState<_DocumentLockerHero> {
           FutureBuilder<int>(
             future: _totalBytesFuture,
             builder: (context, snapshot) {
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(
-                    '${widget.reports.length}',
-                    style: theme.textTheme.displaySmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
+              return FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(
+                      '${widget.reports.length}',
+                      style: theme.textTheme.displaySmall?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text(
-                    l10n.savedReportsLockerFilesSize(formatFileSize(snapshot.data ?? 0)),
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: AppColors.documentLockerMetaText,
+                    const SizedBox(width: AppSpacing.sm),
+                    Text(
+                      l10n.savedReportsLockerFilesSize(formatFileSize(snapshot.data ?? 0)),
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: AppColors.documentLockerMetaText,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               );
             },
           ),
@@ -411,6 +415,7 @@ class _ReportCard extends ConsumerWidget {
               const SizedBox(height: AppSpacing.md),
               DropdownButtonFormField<ReportCategory>(
                 initialValue: category,
+                isExpanded: true,
                 decoration: InputDecoration(labelText: l10n.savedReportsFieldCategory),
                 items: [
                   for (final c in ReportCategory.values)
@@ -508,23 +513,32 @@ class _ReportCard extends ConsumerWidget {
                   color: background,
                   borderRadius: BorderRadius.circular(AppSpacing.radiusMd),
                 ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      isPdf ? Icons.insert_drive_file_outlined : Icons.image_outlined,
-                      color: foreground,
-                      size: 18,
-                    ),
-                    Text(
-                      typeLabel,
-                      style: theme.textTheme.labelSmall?.copyWith(
+                // Pinned to 1x text scale, same reasoning as Export data's
+                // format badge: a fixed-size icon badge has no room to
+                // grow, and the type it names (PDF/IMAGE) is redundant
+                // with the metadata line below, which does scale normally.
+                child: MediaQuery(
+                  data: MediaQuery.of(
+                    context,
+                  ).copyWith(textScaler: const TextScaler.linear(1)),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        isPdf ? Icons.insert_drive_file_outlined : Icons.image_outlined,
                         color: foreground,
-                        fontSize: 8,
-                        letterSpacing: 0.4,
+                        size: 18,
                       ),
-                    ),
-                  ],
+                      Text(
+                        typeLabel,
+                        style: theme.textTheme.labelSmall?.copyWith(
+                          color: foreground,
+                          fontSize: 8,
+                          letterSpacing: 0.4,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: AppSpacing.md),

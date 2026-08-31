@@ -13,8 +13,12 @@ class ErrorView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // A scrollable Center, not a bare one: at large system text sizes the
+    // message can wrap to enough lines that icon + message + retry button
+    // no longer fit the available height — scrolling keeps everything
+    // reachable instead of overflowing (CLAUDE.md §8).
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,

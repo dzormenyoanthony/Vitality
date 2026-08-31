@@ -14,8 +14,10 @@ class EmptyView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Scrollable, same reasoning as ErrorView: keeps the message reachable
+    // at large system text sizes instead of overflowing.
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           mainAxisSize: MainAxisSize.min,
