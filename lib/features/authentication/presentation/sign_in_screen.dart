@@ -159,18 +159,21 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                 color: theme.colorScheme.outlineVariant,
                               ),
                             ),
-                            Flexible(
-                              child: Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.sm,
-                                ),
-                                child: Text(
-                                  l10n.authDividerOr,
-                                  textAlign: TextAlign.center,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: theme.textTheme.labelMedium?.copyWith(
-                                    color: theme.colorScheme.onSurfaceVariant,
-                                  ),
+                            // Plain (not Flexible): "OR" is short enough
+                            // that it can't realistically overflow, and as
+                            // the Row's one non-flex child it centers
+                            // correctly between the two equal-share
+                            // Expanded dividers — a Flexible sibling here
+                            // sizes to content but isn't recentered
+                            // afterward, pushing it off-center.
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.sm,
+                              ),
+                              child: Text(
+                                l10n.authDividerOr,
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
                                 ),
                               ),
                             ),
