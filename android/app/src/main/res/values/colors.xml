@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches AppColors.splashBackground (lib/core/theme/app_colors.dart)
+         so the native cold-start launch screen reads as a continuation of
+         the branded Splash screen that follows it, not a separate white
+         flash before it. -->
+    <color name="launch_background">#FF0C4F4A</color>
+</resources>
