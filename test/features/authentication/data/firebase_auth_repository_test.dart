@@ -33,5 +33,19 @@ void main() {
       );
       expect(failure, isA<UnexpectedFailure>());
     });
+
+    test('maps requires-recent-login to a ReauthRequiredFailure', () {
+      final failure = mapFirebaseAuthException(
+        FirebaseAuthException(code: 'requires-recent-login'),
+      );
+      expect(failure, isA<ReauthRequiredFailure>());
+    });
+
+    test('maps user-mismatch to a ValidationFailure', () {
+      final failure = mapFirebaseAuthException(
+        FirebaseAuthException(code: 'user-mismatch'),
+      );
+      expect(failure, isA<ValidationFailure>());
+    });
   });
 }

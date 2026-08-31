@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/utils/logger.dart';
 import '../../authentication/data/auth_providers.dart';
 import '../../blood_pressure/data/blood_pressure_providers.dart';
 import '../../onboarding/data/user_profile_providers.dart';
@@ -23,34 +24,55 @@ class SettingsController extends AsyncNotifier<void> {
     });
   }
 
-  /// Deletes the account and every piece of data tied to it. Local storage
-  /// isn't partitioned per user, so this also wipes local readings and
-  /// reminders (PROJECT_SPEC.md §25) — otherwise they'd be stranded on the
-  /// device with no owning account. The Firebase Auth user is deleted last:
-  /// if an earlier step fails, the account is still intact and the user can
-  /// retry, rather than being left signed-out with a half-deleted account.
+  /// Deletes the account and every piece of data tied to it
+  /// (PROJECT_SPEC.md §24, §25).
+  ///
+  /// Order matters. The account and its cloud profile are removed *before*
+  /// any local data, so a failure can't leave readings/reminders stranded
+  /// on the device under an account that's already gone — the previous
+  /// order wiped everything first and then hit `requires-recent-login` on
+  /// `user.delete()`, leaving the account alive but empty.
+  ///
+  /// 1. Re-verify identity. If this fails (a stale session that needs a
+  ///    fresh sign-in, or the user backing out) nothing has been touched.
+  /// 2. Delete the cloud profile while still authenticated, then the auth
+  ///    user itself.
+  /// 3. Wipe local, device-only data. Best-effort: the account is already
+  ///    gone, so a failure here is logged, not surfaced as a retry.
   Future<void> deleteAccount(String uid) async {
     state = const AsyncLoading();
     state = await AsyncValue.guard(() async {
-      final scheduler = ref.read(notificationSchedulerProvider);
-      final reminderRepository = ref.read(reminderRepositoryProvider);
-      final reminders = await reminderRepository.getAll();
-      for (final reminder in reminders) {
-        await scheduler.cancelReminder(reminder.id);
-      }
-      await reminderRepository.deleteAll();
-      await ref.read(bloodPressureRepositoryProvider).deleteAll();
+      final authRepository = ref.read(authRepositoryProvider);
 
-      final reportRepository = ref.read(savedReportRepositoryProvider);
-      final reportStorage = ref.read(reportDocumentStorageProvider);
-      final reports = await reportRepository.getAll();
-      for (final report in reports) {
-        await reportStorage.deleteLocalPages(report.localPagePaths);
-      }
-      await reportRepository.deleteAll();
+      await authRepository.reauthenticate();
 
       await ref.read(userProfileRepositoryProvider).deleteProfile(uid);
-      await ref.read(authRepositoryProvider).deleteAccount();
+      await authRepository.deleteAccount();
+
+      try {
+        final scheduler = ref.read(notificationSchedulerProvider);
+        final reminderRepository = ref.read(reminderRepositoryProvider);
+        final reminders = await reminderRepository.getAll();
+        for (final reminder in reminders) {
+          await scheduler.cancelReminder(reminder.id);
+        }
+        await reminderRepository.deleteAll();
+        await ref.read(bloodPressureRepositoryProvider).deleteAll();
+
+        final reportRepository = ref.read(savedReportRepositoryProvider);
+        final reportStorage = ref.read(reportDocumentStorageProvider);
+        final reports = await reportRepository.getAll();
+        for (final report in reports) {
+          await reportStorage.deleteLocalPages(report.localPagePaths);
+        }
+        await reportRepository.deleteAll();
+      } catch (error, stackTrace) {
+        AppLogger.error(
+          'Local data wipe after account deletion did not fully complete',
+          error: error,
+          stackTrace: stackTrace,
+        );
+      }
     });
   }
 }

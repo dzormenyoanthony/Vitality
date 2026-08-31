@@ -29,7 +29,19 @@ abstract interface class AuthRepository {
 
   Future<void> sendPasswordResetEmail(String email);
 
+  /// Re-verifies the signed-in user's identity so a following
+  /// [deleteAccount] isn't rejected for a stale session. Call this first,
+  /// before destroying any of the user's data.
+  ///
+  /// For a Google user this re-runs the Google flow (may show the account
+  /// picker). For a provider that can't be re-verified without extra input
+  /// (email/password), it does nothing here and lets [deleteAccount]
+  /// surface [ReauthRequiredFailure] instead. Throws [CancelledFailure] if
+  /// the user backs out.
+  Future<void> reauthenticate();
+
   /// Permanently deletes the current user's account
-  /// (PROJECT_SPEC.md §20, §24).
+  /// (PROJECT_SPEC.md §20, §24). Call [reauthenticate] first — Firebase
+  /// rejects this with a [ReauthRequiredFailure] if the sign-in is old.
   Future<void> deleteAccount();
 }

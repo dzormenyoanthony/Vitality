@@ -4,6 +4,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:vitality/core/errors/failure.dart';
 import 'package:vitality/features/authentication/data/auth_providers.dart';
 import 'package:vitality/features/authentication/data/fake_auth_repository.dart';
 import 'package:vitality/features/blood_pressure/data/app_database.dart';
@@ -129,15 +130,39 @@ void main() {
       expect(await container.read(savedReportRepositoryProvider).watchById(reportId).first, isNull);
       expect(await profileRepository.watchProfile(uid).first, isNull);
       expect(authRepository.currentUser, isNull);
+      // The Google grant is revoked so a later sign-in starts clean.
+      expect(authRepository.googleSessionCleared, isTrue);
     },
   );
 
-  test('deleteAccount surfaces a failure without deleting local data', () async {
-    await authRepository.signOut(); // No current user -> deleteAccount() throws.
+  test(
+    'deleteAccount touches nothing when re-authentication is required',
+    () async {
+      await container
+          .read(bloodPressureRepositoryProvider)
+          .addReading(systolic: 118, diastolic: 76, timestamp: DateTime.now());
+      await _waitFor(
+        container,
+        () => container.read(readingsStreamProvider).value ?? const [],
+        (value) => value.isNotEmpty,
+      );
 
-    await container.read(settingsControllerProvider.notifier).deleteAccount(uid);
+      // Firebase would reject user.delete() for a stale session.
+      authRepository.simulateRequiresRecentLogin = true;
 
-    final state = container.read(settingsControllerProvider);
-    expect(state.hasError, isTrue);
-  });
+      await container.read(settingsControllerProvider.notifier).deleteAccount(uid);
+
+      final state = container.read(settingsControllerProvider);
+      expect(state.hasError, isTrue);
+      expect(state.error, isA<ReauthRequiredFailure>());
+
+      // Nothing was destroyed: account, profile and local readings all survive.
+      expect(authRepository.currentUser, isNotNull);
+      expect(await profileRepository.watchProfile(uid).first, isNotNull);
+      expect(
+        container.read(readingsStreamProvider).value ?? const [],
+        isNotEmpty,
+      );
+    },
+  );
 }

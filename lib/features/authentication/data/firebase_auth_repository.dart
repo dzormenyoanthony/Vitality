@@ -98,7 +98,50 @@ class FirebaseAuthRepository implements AuthRepository {
   }
 
   @override
-  Future<void> signOut() => _firebaseAuth.signOut();
+  Future<void> reauthenticate() async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) return;
+    final isGoogleUser = user.providerData.any(
+      (info) => info.providerId == 'google.com',
+    );
+    // Only Google can be re-verified silently here. Password users fall
+    // through: deleteAccount() then surfaces ReauthRequiredFailure and the
+    // UI sends them back through a full sign-in.
+    if (!isGoogleUser) return;
+    try {
+      await _ensureGoogleSignInInitialized();
+      final account = await gsi.GoogleSignIn.instance.authenticate();
+      final idToken = account.authentication.idToken;
+      if (idToken == null) {
+        throw const UnexpectedFailure("Google didn't return a sign-in token.");
+      }
+      await user.reauthenticateWithCredential(
+        fb.GoogleAuthProvider.credential(idToken: idToken),
+      );
+    } on gsi.GoogleSignInException catch (e) {
+      if (e.code == gsi.GoogleSignInExceptionCode.canceled) {
+        throw const CancelledFailure();
+      }
+      AppLogger.error('Google re-auth failed: code=${e.code}', error: e);
+      throw const UnexpectedFailure();
+    } on fb.FirebaseAuthException catch (e) {
+      throw mapFirebaseAuthException(e);
+    }
+  }
+
+  @override
+  Future<void> signOut() async {
+    // Clear the Google Sign-In session too, otherwise the plugin keeps the
+    // account authorized and the next "Continue with Google" can silently
+    // reuse stale state. No-op / harmless for a non-Google user.
+    try {
+      await _ensureGoogleSignInInitialized();
+      await gsi.GoogleSignIn.instance.signOut();
+    } catch (e) {
+      AppLogger.error('Google sign-out skipped', error: e);
+    }
+    await _firebaseAuth.signOut();
+  }
 
   @override
   Future<void> sendPasswordResetEmail(String email) async {
@@ -115,10 +158,24 @@ class FirebaseAuthRepository implements AuthRepository {
     if (user == null) {
       throw const UnexpectedFailure('No signed-in user to delete.');
     }
+    final isGoogleUser = user.providerData.any(
+      (info) => info.providerId == 'google.com',
+    );
     try {
       await user.delete();
     } on fb.FirebaseAuthException catch (e) {
       throw mapFirebaseAuthException(e);
+    }
+    if (isGoogleUser) {
+      // Revoke the Google grant so signing in again with the same account
+      // starts a fresh consent instead of reusing the deleted user's
+      // authorization. Best-effort: the account is already gone.
+      try {
+        await _ensureGoogleSignInInitialized();
+        await gsi.GoogleSignIn.instance.disconnect();
+      } catch (e) {
+        AppLogger.error('Google disconnect after deletion skipped', error: e);
+      }
     }
   }
 }
@@ -157,8 +214,10 @@ Failure mapFirebaseAuthException(fb.FirebaseAuthException e) {
     case 'network-request-failed':
       return const NetworkFailure();
     case 'requires-recent-login':
+      return const ReauthRequiredFailure();
+    case 'user-mismatch':
       return const ValidationFailure(
-        'Please sign in again to complete this action.',
+        'That is a different account than the one you are signed in with.',
       );
     default:
       return const UnexpectedFailure();

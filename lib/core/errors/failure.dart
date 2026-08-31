@@ -34,6 +34,18 @@ final class CancelledFailure extends Failure {
   const CancelledFailure([super.message = 'Sign-in was cancelled.']);
 }
 
+/// A sensitive action (account deletion) needs a fresher sign-in than the
+/// current session. Firebase rejects `user.delete()` with
+/// `requires-recent-login`; the user must sign out and sign back in, then
+/// retry. Distinct type so the deletion flow can bail out *before*
+/// touching any data.
+final class ReauthRequiredFailure extends Failure {
+  const ReauthRequiredFailure([
+    super.message =
+        'For your security, please sign out and sign in again, then try deleting your account.',
+  ]);
+}
+
 /// Extracts a safe, user-facing message from anything a repository might
 /// throw. Non-[Failure] errors (a bug, an unmapped exception) fall back to
 /// a generic message rather than surfacing internals (CLAUDE.md §12).

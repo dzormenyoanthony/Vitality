@@ -17,6 +17,15 @@ class FakeAuthRepository implements AuthRepository {
   /// user dismissed the account picker, instead of succeeding.
   bool simulateGoogleCancel = false;
 
+  /// Test-only: makes [reauthenticate] fail as Firebase would for a stale
+  /// session (`requires-recent-login`), so the deletion flow's "don't
+  /// touch data until re-auth succeeds" behavior can be exercised.
+  bool simulateRequiresRecentLogin = false;
+
+  /// Test-only: records that the Google session was cleared, so tests can
+  /// assert sign-out / deletion revokes it.
+  bool googleSessionCleared = false;
+
   @override
   Stream<AppUser?> authStateChanges() async* {
     // Mirrors Firebase Auth's real behavior: emit the current state
@@ -85,7 +94,16 @@ class FakeAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<void> reauthenticate() async {
+    if (_currentUser == null) return;
+    if (simulateRequiresRecentLogin) {
+      throw const ReauthRequiredFailure();
+    }
+  }
+
+  @override
   Future<void> signOut() async {
+    googleSessionCleared = true;
     _currentUser = null;
     _changes.add(null);
   }
@@ -104,6 +122,7 @@ class FakeAuthRepository implements AuthRepository {
       throw const UnexpectedFailure('No signed-in user to delete.');
     }
     _accounts.remove(user.email);
+    googleSessionCleared = true;
     _currentUser = null;
     _changes.add(null);
   }

@@ -539,7 +539,9 @@ class _AccountSection extends ConsumerWidget {
     await ref.read(settingsControllerProvider.notifier).deleteAccount(uid);
 
     final state = ref.read(settingsControllerProvider);
-    if (state.hasError && context.mounted) {
+    // A CancelledFailure means the user backed out of the re-auth prompt —
+    // a normal action, not an error worth a red banner.
+    if (state.hasError && state.error is! CancelledFailure && context.mounted) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text(friendlyMessage(state.error!))));
