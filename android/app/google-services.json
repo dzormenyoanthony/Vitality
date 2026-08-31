@@ -1,4 +1,4 @@
-  {
+{
   "project_info": {
     "project_number": "749553349568",
     "firebase_url": "https://vitality-23966-default-rtdb.firebaseio.com",
@@ -14,6 +14,22 @@
         }
       },
       "oauth_client": [
+        {
+          "client_id": "749553349568-ke9804hgks5km0p2rije66mupkdua4gi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vitality.app.vitality",
+            "certificate_hash": "eaadf0528de63db1d51a2878191f158b054275e5"
+          }
+        },
+        {
+          "client_id": "749553349568-km3dfcn3f5p2g9hdnipspgebfjq5m53h.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.vitality.app.vitality",
+            "certificate_hash": "111c2de2fd3a660a11fa717ddf1d29a5be3f12de"
+          }
+        },
         {
           "client_id": "749553349568-kn96bp43fktr9jgo9souvhkrtj2n1g4m.apps.googleusercontent.com",
           "client_type": 1,
