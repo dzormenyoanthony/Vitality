@@ -265,7 +265,7 @@ abstract class AppLocalizations {
   /// Divider between Google sign-in and the email form on Create Account.
   ///
   /// In en, this message translates to:
-  /// **'OR USE EMAIL'**
+  /// **'OR'**
   String get authDividerOrUseEmail;
 
   /// Uppercase floating label on the email input in the auth forms.

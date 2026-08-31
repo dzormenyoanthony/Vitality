@@ -117,7 +117,7 @@
   "@authDividerOr": {
     "description": "Divider between Google sign-in and the email form on Sign In."
   },
-  "authDividerOrUseEmail": "OR USE EMAIL",
+  "authDividerOrUseEmail": "OR",
   "@authDividerOrUseEmail": {
     "description": "Divider between Google sign-in and the email form on Create Account."
   },

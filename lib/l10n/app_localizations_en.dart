@@ -94,7 +94,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get authDividerOr => 'OR';
 
   @override
-  String get authDividerOrUseEmail => 'OR USE EMAIL';
+  String get authDividerOrUseEmail => 'OR';
 
   @override
   String get authEmailFieldLabel => 'EMAIL';
