@@ -197,7 +197,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                     FloatingLabelBehavior.always,
                                 prefixIcon: const Icon(Icons.mail_outline),
                               ),
-                              validator: (v) => CredentialsValidator.validateEmail(l10n, v),
+                              validator: (v) =>
+                                  CredentialsValidator.validateEmail(l10n, v),
                             ),
                             const SizedBox(height: AppSpacing.md),
                             TextFormField(
@@ -226,7 +227,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                   ),
                                 ),
                               ),
-                              validator: (v) => CredentialsValidator.validatePassword(l10n, v),
+                              validator: (v) =>
+                                  CredentialsValidator.validatePassword(
+                                    l10n,
+                                    v,
+                                  ),
                             ),
                             const SizedBox(height: AppSpacing.md),
                             TextFormField(
@@ -289,7 +294,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                                   .onSurfaceVariant,
                                             ),
                                         children: [
-                                          TextSpan(text: l10n.signUpAgreePrefix),
+                                          TextSpan(
+                                            text: l10n.signUpAgreePrefix,
+                                          ),
                                           TextSpan(
                                             text: l10n.signUpTermsLink,
                                             style: const TextStyle(
@@ -313,7 +320,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                           // no Terms/Privacy Policy document to
                                           // point to yet, so making these tap
                                           // targets would go nowhere.
-                                          TextSpan(text: l10n.signUpAgreeSuffix),
+                                          TextSpan(
+                                            text: l10n.signUpAgreeSuffix,
+                                          ),
                                         ],
                                       ),
                                     ),
@@ -375,7 +384,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                       color: theme.colorScheme.onSurfaceVariant,
                                     ),
                                     children: [
-                                      TextSpan(text: l10n.signUpHasAccountPrompt),
+                                      TextSpan(
+                                        text: l10n.signUpHasAccountPrompt,
+                                      ),
                                       TextSpan(
                                         text: l10n.signUpSignInAction,
                                         style: const TextStyle(
@@ -428,129 +439,143 @@ class _HeroHeader extends StatelessWidget {
     // fixed pixels) so their scale relative to the box matches the
     // reference across device sizes — same approach as
     // design_references/Splash.png's blobs.
-    return ClipRect(
-      child: LayoutBuilder(
-        builder: (context, constraints) {
-          final width = constraints.maxWidth;
-          return Stack(
-            clipBehavior: Clip.hardEdge,
-            children: [
-              // Solid background, painted first. Positioned.fill (not a
-              // bare Container) so it sizes to match the Stack instead
-              // of trying to size itself under unbounded constraints —
-              // the Stack's actual height is driven by the text content
-              // below, its only non-positioned sizing child.
-              const Positioned.fill(
-                child: ColoredBox(color: AppColors.heroFill),
-              ),
-              // A large, mostly off-screen circle whose bottom-right arc
-              // creates the lighter-teal "quarter pill" filling the top-left
-              // of the header — matching the reference exactly. Painted
-              // before the coral/peach circles so it sits behind them.
-              Positioned(
-                top: -width * 0.3,
-                left: -width * 0.3,
-                child: _Circle(
-                  diameter: width * 1.15,
-                  color: AppColors.dashboardAccentTeal,
+    //
+    // Pinned to 1x text scale: this header's copy is a fixed marketing
+    // tagline, not interactive content, so it doesn't need to grow with
+    // the system font size — and at large accessibility text sizes,
+    // letting it grow was pushing the real sign-up form below the fold
+    // (reported by a tester on a 6.7" phone with a large text-size
+    // setting: `RenderFlex overflowed` on this screen's root Column). The
+    // actual form fields/buttons below still scale normally.
+    return MediaQuery(
+      data: MediaQuery.of(context)
+          .copyWith(textScaler: const TextScaler.linear(1)),
+      child: ClipRect(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final width = constraints.maxWidth;
+            return Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                // Solid background, painted first. Positioned.fill (not a
+                // bare Container) so it sizes to match the Stack instead
+                // of trying to size itself under unbounded constraints —
+                // the Stack's actual height is driven by the text content
+                // below, its only non-positioned sizing child.
+                const Positioned.fill(
+                  child: ColoredBox(color: AppColors.heroFill),
                 ),
-              ),
-              // Decorative circles, painted over the background but
-              // *behind* the text below — matching the reference, where
-              // the headline stays fully legible even though the coral
-              // circle's arc crosses behind it.
-              Positioned(
-                top: -width * 0.16,
-                right: -width * 0.1,
-                child: _Circle(
-                  diameter: width * 0.46,
-                  color: AppColors.signUpAccentCoral,
-                ),
-              ),
-              Positioned(
-                top: width * 0.33,
-                right: width * 0.03,
-                child: _Circle(
-                  diameter: width * 0.22,
-                  color: AppColors.signUpAccentPeach,
-                ),
-              ),
-              Positioned(
-                top: width * 0.03,
-                left: width * 0.2,
-                child: Container(
-                  width: width * 0.32,
-                  height: width * 0.32,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white24),
+                // A large, mostly off-screen circle whose bottom-right arc
+                // creates the lighter-teal "quarter pill" filling the top-left
+                // of the header — matching the reference exactly. Painted
+                // before the coral/peach circles so it sits behind them.
+                Positioned(
+                  top: -width * 0.3,
+                  left: -width * 0.3,
+                  child: _Circle(
+                    diameter: width * 1.15,
+                    color: AppColors.dashboardAccentTeal,
                   ),
                 ),
-              ),
-              // Text content, painted last so it's always on top.
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.xxl,
+                // Decorative circles, painted over the background but
+                // *behind* the text below — matching the reference, where
+                // the headline stays fully legible even though the coral
+                // circle's arc crosses behind it.
+                Positioned(
+                  top: -width * 0.16,
+                  right: -width * 0.1,
+                  child: _Circle(
+                    diameter: width * 0.46,
+                    color: AppColors.signUpAccentCoral,
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: AppColors.splashIconBackground,
-                            borderRadius: BorderRadius.circular(
-                              AppSpacing.radiusMd,
+                Positioned(
+                  top: width * 0.33,
+                  right: width * 0.03,
+                  child: _Circle(
+                    diameter: width * 0.22,
+                    color: AppColors.signUpAccentPeach,
+                  ),
+                ),
+                Positioned(
+                  top: width * 0.03,
+                  left: width * 0.2,
+                  child: Container(
+                    width: width * 0.32,
+                    height: width * 0.32,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white24),
+                    ),
+                  ),
+                ),
+                // Text content, painted last so it's always on top.
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.xxl,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColors.splashIconBackground,
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMd,
+                              ),
+                            ),
+                            child: const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CustomPaint(
+                                painter: _PulsePainter(
+                                  color: AppColors.heroFill,
+                                ),
+                              ),
                             ),
                           ),
-                          child: const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CustomPaint(
-                              painter: _PulsePainter(color: AppColors.heroFill),
+                          const SizedBox(width: AppSpacing.sm),
+                          Text(
+                            l10n.splashWordmark,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 3,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Text(
-                          l10n.splashWordmark,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 3,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    Text(
-                      l10n.signUpHeroTitle,
-                      style: theme.textTheme.headlineMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w800,
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      l10n.signUpHeroSubtitle,
-                      style: theme.textTheme.bodyLarge?.copyWith(
-                        color: Colors.white70,
+                      const SizedBox(height: AppSpacing.lg),
+                      Text(
+                        l10n.signUpHeroTitle,
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        l10n.signUpHeroSubtitle,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          color: Colors.white70,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }

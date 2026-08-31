@@ -148,6 +148,42 @@ void main() {
     );
 
     testWidgets(
+      'does not overflow at a large system text scale on a large phone (regression)',
+      (tester) async {
+        // Roughly a 6.7" phone at 3x device pixel ratio — a tester reported
+        // the sign-in form cut off at the bottom half of the screen with a
+        // large text-size accessibility setting on a device this size.
+        tester.view.physicalSize = const Size(1220, 2712);
+        tester.view.devicePixelRatio = 3.0;
+        addTearDown(tester.view.reset);
+
+        final authRepository = FakeAuthRepository();
+        addTearDown(authRepository.dispose);
+        final prefs = await mockPrefs();
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              authRepositoryProvider.overrideWithValue(authRepository),
+              sharedPreferencesProvider.overrideWithValue(prefs),
+            ],
+            child: MediaQuery(
+              data: const MediaQueryData(textScaler: TextScaler.linear(2.0)),
+              child: const MaterialApp(
+                localizationsDelegates: localizationWrappers,
+                supportedLocales: testSupportedLocales,
+                home: SignInScreen(),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets(
       'unchecking "Keep me signed in" persists the preference as false',
       (tester) async {
         final authRepository = FakeAuthRepository();
@@ -308,6 +344,39 @@ void main() {
 
         expect(authRepository.currentUser, isNull);
         expect(find.text('Sign-in was cancelled.'), findsNothing);
+      },
+    );
+
+    testWidgets(
+      'does not overflow at a large system text scale on a large phone (regression)',
+      (tester) async {
+        // Same class of bug as SignInScreen's equivalent regression test
+        // above — a tester reported the sign-up form cut off at the bottom
+        // half of the screen on a 6.7" phone with a large text-size
+        // accessibility setting.
+        tester.view.physicalSize = const Size(1220, 2712);
+        tester.view.devicePixelRatio = 3.0;
+        addTearDown(tester.view.reset);
+
+        final authRepository = FakeAuthRepository();
+        addTearDown(authRepository.dispose);
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
+            child: MediaQuery(
+              data: const MediaQueryData(textScaler: TextScaler.linear(2.0)),
+              child: const MaterialApp(
+                localizationsDelegates: localizationWrappers,
+                supportedLocales: testSupportedLocales,
+                home: SignUpScreen(),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+
+        expect(tester.takeException(), isNull);
       },
     );
   });

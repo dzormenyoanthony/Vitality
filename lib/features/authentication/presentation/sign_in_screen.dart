@@ -211,7 +211,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                             ),
                             prefixIcon: const Icon(Icons.mail_outline),
                           ),
-                          validator: (v) => CredentialsValidator.validateEmail(l10n, v),
+                          validator: (v) =>
+                              CredentialsValidator.validateEmail(l10n, v),
                         ),
                         const SizedBox(height: AppSpacing.md),
                         TextFormField(
@@ -266,7 +267,8 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                               ),
                             ),
                           ),
-                          validator: (v) => CredentialsValidator.validatePassword(l10n, v),
+                          validator: (v) =>
+                              CredentialsValidator.validatePassword(l10n, v),
                           onFieldSubmitted: (_) => _submit(),
                         ),
                         Row(
@@ -291,7 +293,9 @@ class _SignInScreenState extends ConsumerState<SignInScreen> {
                                   : () => context.go(AppRoutes.forgotPassword),
                               child: Text(
                                 l10n.signInForgot,
-                                style: const TextStyle(fontWeight: FontWeight.w700),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
                           ],
@@ -379,92 +383,104 @@ class _HeroBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = constraints.maxWidth;
-        return ClipRRect(
-          borderRadius: BorderRadius.only(
-            bottomLeft: Radius.circular(width * 0.22),
-            bottomRight: Radius.circular(width * 0.06),
-          ),
-          child: Stack(
-            clipBehavior: Clip.hardEdge,
-            children: [
-              const Positioned.fill(
-                child: ColoredBox(color: AppColors.onboardingIllustrationBg),
-              ),
-              // Decorative circle, cropped at the header's top-right edge —
-              // matching the reference's pale shape behind the avatar.
-              Positioned(
-                top: -width * 0.12,
-                right: -width * 0.18,
-                child: _Circle(
-                  diameter: width * 0.68,
-                  color: AppColors.onboardingIllustrationCircleBright,
+    // Pinned to 1x text scale: this banner is static illustrative content
+    // (see the file-level doc comment), not real data or interactive
+    // controls, so it doesn't need to grow with the system font size — and
+    // at large accessibility text sizes, letting it grow was pushing the
+    // real sign-in form below the fold (reported by a tester on a 6.7"
+    // phone with a large text-size setting: `RenderFlex overflowed` on
+    // this screen's root Column). The actual form fields/buttons below
+    // still scale normally.
+    return MediaQuery(
+      data: MediaQuery.of(context)
+          .copyWith(textScaler: const TextScaler.linear(1)),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          return ClipRRect(
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(width * 0.22),
+              bottomRight: Radius.circular(width * 0.06),
+            ),
+            child: Stack(
+              clipBehavior: Clip.hardEdge,
+              children: [
+                const Positioned.fill(
+                  child: ColoredBox(color: AppColors.onboardingIllustrationBg),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.lg,
-                  AppSpacing.xl,
+                // Decorative circle, cropped at the header's top-right edge —
+                // matching the reference's pale shape behind the avatar.
+                Positioned(
+                  top: -width * 0.12,
+                  right: -width * 0.18,
+                  child: _Circle(
+                    diameter: width * 0.68,
+                    color: AppColors.onboardingIllustrationCircleBright,
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Container(
-                          width: 40,
-                          height: 40,
-                          alignment: Alignment.center,
-                          decoration: BoxDecoration(
-                            color: AppColors.heroFill,
-                            borderRadius: BorderRadius.circular(
-                              AppSpacing.radiusMd,
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.xl,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 40,
+                            height: 40,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: AppColors.heroFill,
+                              borderRadius: BorderRadius.circular(
+                                AppSpacing.radiusMd,
+                              ),
+                            ),
+                            child: const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CustomPaint(
+                                painter: _PulsePainter(color: Colors.white),
+                              ),
                             ),
                           ),
-                          child: const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CustomPaint(
-                              painter: _PulsePainter(color: Colors.white),
+                          const SizedBox(width: AppSpacing.sm),
+                          Text(
+                            AppLocalizations.of(context).splashWordmark,
+                            style: theme.textTheme.titleMedium?.copyWith(
+                              color: AppColors.heroFill,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 3,
                             ),
                           ),
-                        ),
-                        const SizedBox(width: AppSpacing.sm),
-                        Text(
-                          AppLocalizations.of(context).splashWordmark,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: AppColors.heroFill,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 3,
+                        ],
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Expanded(child: _ReadingSummaryCard()),
+                          const SizedBox(width: 40),
+                          const Padding(
+                            padding: EdgeInsets.only(top: AppSpacing.md),
+                            child: _AvatarBadge(),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.lg),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Expanded(child: _ReadingSummaryCard()),
-                        const SizedBox(width: 40),
-                        const Padding(
-                          padding: EdgeInsets.only(top: AppSpacing.md),
-                          child: _AvatarBadge(),
-                        ),
-                      ],
-                    ),
-                  ],
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
