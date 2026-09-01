@@ -105,6 +105,15 @@ dev_dependencies:
 flutter_launcher_icons:
   android: true
   image_path: "assets/icon/icon.png"
+  # Adaptive icon (Android 8+): the launcher no longer pads the square
+  # icon.png onto a white circle. The background layer is a full-bleed
+  # version of the brand green gradient; the foreground layer is the
+  # pulse-wave mark, sized so it still clears every launcher mask after
+  # the generator's 16% foreground inset. Both layers are derived from
+  # icon.png by tool/generate_adaptive_icon.py - regenerate them if
+  # icon.png changes, then rerun `dart run flutter_launcher_icons`.
+  adaptive_icon_background: "assets/icon/icon_adaptive_background.png"
+  adaptive_icon_foreground: "assets/icon/icon_adaptive_foreground.png"
 
 # The following section is specific to Flutter packages.
 flutter:
