@@ -56,11 +56,29 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
     parent: _controller,
     curve: const Interval(0.3, 1, curve: Curves.easeOut),
   );
+  // The badge starts exactly where the native launch screen leaves it
+  // (screen centre) and glides up to its resting position (matching
+  // design_references/Splash.png) as the scene assembles - so the handoff
+  // from the OS splash has no jump, and the composition still lands on the
+  // mockup.
+  late final CurvedAnimation _badgeSettle = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.easeOutCubic,
+  );
+
+  /// Resting vertical centre of the badge, as a fraction of screen height —
+  /// measured from `design_references/Splash.png` (badge centre y ≈ 0.474).
+  static const _badgeCenterY = 0.474;
+
+  /// How far below its resting position the badge starts, as a fraction of
+  /// screen height: 0.5 (native splash centre) − [_badgeCenterY].
+  static const _badgeSettleTravel = 0.5 - _badgeCenterY;
 
   @override
   void dispose() {
     _backdrop.dispose();
     _foreground.dispose();
+    _badgeSettle.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -88,11 +106,9 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
           final width = constraints.maxWidth;
           final height = constraints.maxHeight;
           final iconSize = width * 0.241;
-          // The badge sits dead-centre, exactly where the native Android
-          // launch screen (values-v31 windowSplashScreenAnimatedIcon) places
-          // it, so it does not shift when this screen takes over. The rings
-          // and floating dots are anchored to the same point.
-          final iconCenter = Offset(width / 2, height / 2);
+          // Rings and floating dots are anchored to the badge's resting
+          // centre; they fade in as the badge arrives there.
+          final iconCenter = Offset(width / 2, height * _badgeCenterY);
 
           return Stack(
             children: [
@@ -176,7 +192,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               // Floating mint dot, lower-left, near the heartbeat trace.
               Positioned(
                 left: width * 0.135,
-                top: height * 0.715,
+                top: height * 0.695,
                 child: FadeTransition(
                   opacity: _backdrop,
                   child: _Dot(
@@ -189,7 +205,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               Positioned(
                 left: 0,
                 right: 0,
-                top: height * 0.72,
+                top: height * 0.70,
                 child: FadeTransition(
                   opacity: _backdrop,
                   child: SizedBox(
@@ -203,31 +219,46 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                   ),
                 ),
               ),
-              // The badge renders immediately at full opacity, dead-centre,
-              // so it is continuous with the native launch screen — no jump
-              // when this screen replaces it.
-              Center(
-                child: Container(
-                  width: iconSize,
-                  height: iconSize,
-                  decoration: BoxDecoration(
-                    color: AppColors.splashIconBackground,
-                    borderRadius: BorderRadius.circular(iconSize * 0.3),
+              // The badge renders immediately at full opacity. It starts at
+              // screen centre — exactly where the native launch screen left
+              // it (no jump) — and glides up to its resting position as the
+              // scene assembles.
+              Positioned(
+                top: height * _badgeCenterY - iconSize / 2,
+                left: (width - iconSize) / 2,
+                child: AnimatedBuilder(
+                  animation: _badgeSettle,
+                  builder: (context, child) => Transform.translate(
+                    offset: Offset(
+                      0,
+                      (1 - _badgeSettle.value) *
+                          height *
+                          _badgeSettleTravel,
+                    ),
+                    child: child,
                   ),
-                  alignment: Alignment.center,
-                  child: SizedBox(
-                    width: iconSize * 0.44,
-                    height: iconSize * 0.44,
-                    child: CustomPaint(
-                      painter: _PulsePainter(color: fill),
+                  child: Container(
+                    width: iconSize,
+                    height: iconSize,
+                    decoration: BoxDecoration(
+                      color: AppColors.splashIconBackground,
+                      borderRadius: BorderRadius.circular(iconSize * 0.3),
+                    ),
+                    alignment: Alignment.center,
+                    child: SizedBox(
+                      width: iconSize * 0.44,
+                      height: iconSize * 0.44,
+                      child: CustomPaint(
+                        painter: _PulsePainter(color: fill),
+                      ),
                     ),
                   ),
                 ),
               ),
-              // Wordmark + tagline, pinned just below the centred badge and
-              // faded in with the rest of the scene.
+              // Wordmark + tagline, pinned just below the badge's resting
+              // position and faded in with the rest of the scene.
               Positioned(
-                top: height / 2 + iconSize / 2 + height * 0.035,
+                top: height * _badgeCenterY + iconSize / 2 + height * 0.035,
                 left: 0,
                 right: 0,
                 child: FadeTransition(
