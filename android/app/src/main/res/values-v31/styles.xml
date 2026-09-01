@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ system splash. The icon (drawable-nodpi/splash_badge.png)
+         is the pulse badge lifted pixel-for-pixel from design_references/Splash.png,
+         on the same brand teal background. The OS splash only supports a
+         background colour plus one centered icon - it cannot draw that
+         reference's gradient, blobs, rings, wordmark, tagline, heartbeat trace
+         or loading bar. Those render on the Flutter SplashScreen
+         (lib/features/splash/presentation/splash_screen.dart) a moment later,
+         so the handoff is seamless. NormalTheme is inherited from values/. -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Light.NoTitleBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:windowSplashScreenBackground">@color/launch_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_badge</item>
+    </style>
+</resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Android 12+ system splash, dark-mode variant. The branded SplashScreen
+         is a fixed brand moment (always the same teal), so the splash visuals
+         match the light variant; only the base theme differs. See
+         values-v31/styles.xml for the rationale and platform limits. -->
+    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+        <item name="android:windowSplashScreenBackground">@color/launch_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/splash_badge</item>
+    </style>
+</resources>

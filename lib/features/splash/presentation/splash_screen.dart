@@ -23,11 +23,50 @@ import '../../onboarding/data/user_profile_providers.dart';
 /// and a "NOT A MEDICAL DEVICE" caption. Geometry and colors below are
 /// measured directly from that reference image, expressed as fractions of
 /// the screen so they hold up across device sizes.
-class SplashScreen extends ConsumerWidget {
+///
+/// The first frame is deliberately just the teal fill + the badge, matching
+/// the native Android launch screen (see
+/// `android/app/src/main/res/values-v31/styles.xml` and
+/// `drawable/splash_badge.png`). The rest of the scene fades in over
+/// [_introDuration] so the OS splash and this screen read as one continuous
+/// splash rather than two: the badge is the fixed anchor across the handoff.
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SplashScreen> createState() => _SplashScreenState();
+}
+
+class _SplashScreenState extends ConsumerState<SplashScreen>
+    with SingleTickerProviderStateMixin {
+  static const _introDuration = Duration(milliseconds: 550);
+
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: _introDuration,
+  )..forward();
+
+  // Background decoration settles first; foreground text/controls trail it
+  // slightly so the scene builds outward from the badge.
+  late final CurvedAnimation _backdrop = CurvedAnimation(
+    parent: _controller,
+    curve: const Interval(0, 0.75, curve: Curves.easeOut),
+  );
+  late final CurvedAnimation _foreground = CurvedAnimation(
+    parent: _controller,
+    curve: const Interval(0.3, 1, curve: Curves.easeOut),
+  );
+
+  @override
+  void dispose() {
+    _backdrop.dispose();
+    _foreground.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final gate = ref.watch(authGateProvider);
 
@@ -49,22 +88,29 @@ class SplashScreen extends ConsumerWidget {
           final width = constraints.maxWidth;
           final height = constraints.maxHeight;
           final iconSize = width * 0.241;
-          final iconCenter = Offset(width / 2, height * 0.475);
+          // The badge sits dead-centre, exactly where the native Android
+          // launch screen (values-v31 windowSplashScreenAnimatedIcon) places
+          // it, so it does not shift when this screen takes over. The rings
+          // and floating dots are anchored to the same point.
+          final iconCenter = Offset(width / 2, height / 2);
 
           return Stack(
             children: [
               // Radial glow behind the icon, fading to the flat background
               // toward the edges.
               Positioned.fill(
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    gradient: RadialGradient(
-                      center: Alignment.center,
-                      radius: 0.9,
-                      colors: [
-                        AppColors.splashBlobBright.withValues(alpha: 0.35),
-                        fill,
-                      ],
+                child: FadeTransition(
+                  opacity: _backdrop,
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        center: Alignment.center,
+                        radius: 0.9,
+                        colors: [
+                          AppColors.splashBlobBright.withValues(alpha: 0.35),
+                          fill,
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -74,9 +120,12 @@ class SplashScreen extends ConsumerWidget {
               Positioned(
                 top: -height * 0.09,
                 left: -width * 0.17,
-                child: _Blob(
-                  diameter: width * 0.63,
-                  color: AppColors.splashBlobBright.withValues(alpha: 0.55),
+                child: FadeTransition(
+                  opacity: _backdrop,
+                  child: _Blob(
+                    diameter: width * 0.63,
+                    color: AppColors.splashBlobBright.withValues(alpha: 0.55),
+                  ),
                 ),
               ),
               // Large, muted circle — bottom-right, cut off by the bottom
@@ -84,9 +133,12 @@ class SplashScreen extends ConsumerWidget {
               Positioned(
                 bottom: -height * 0.11,
                 right: -width * 0.2,
-                child: _Blob(
-                  diameter: width * 0.82,
-                  color: AppColors.splashBlobSmall.withValues(alpha: 0.4),
+                child: FadeTransition(
+                  opacity: _backdrop,
+                  child: _Blob(
+                    diameter: width * 0.82,
+                    color: AppColors.splashBlobSmall.withValues(alpha: 0.4),
+                  ),
                 ),
               ),
               // Faint concentric rings centered on the icon, echoing a pulse
@@ -95,13 +147,16 @@ class SplashScreen extends ConsumerWidget {
                 Positioned(
                   left: iconCenter.dx - (iconSize * scale) / 2,
                   top: iconCenter.dy - (iconSize * scale) / 2,
-                  child: Container(
-                    width: iconSize * scale,
-                    height: iconSize * scale,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.1),
+                  child: FadeTransition(
+                    opacity: _backdrop,
+                    child: Container(
+                      width: iconSize * scale,
+                      height: iconSize * scale,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.1),
+                        ),
                       ),
                     ),
                   ),
@@ -110,55 +165,76 @@ class SplashScreen extends ConsumerWidget {
               Positioned(
                 left: iconCenter.dx + iconSize * 0.42,
                 top: iconCenter.dy - iconSize * 0.55,
-                child: const _Dot(diameter: 11, color: AppColors.splashAccent),
+                child: FadeTransition(
+                  opacity: _backdrop,
+                  child: const _Dot(
+                    diameter: 11,
+                    color: AppColors.splashAccent,
+                  ),
+                ),
               ),
               // Floating mint dot, lower-left, near the heartbeat trace.
               Positioned(
                 left: width * 0.135,
-                top: height * 0.655,
-                child: _Dot(
-                  diameter: 8,
-                  color: AppColors.splashIconBackground.withValues(alpha: 0.8),
+                top: height * 0.715,
+                child: FadeTransition(
+                  opacity: _backdrop,
+                  child: _Dot(
+                    diameter: 8,
+                    color: AppColors.splashIconBackground.withValues(alpha: 0.8),
+                  ),
                 ),
               ),
               // Horizontal heartbeat trace spanning the full width.
               Positioned(
                 left: 0,
                 right: 0,
-                top: height * 0.66,
-                child: SizedBox(
-                  height: height * 0.075,
-                  child: CustomPaint(
-                    painter: _HeartbeatLinePainter(
-                      color: Colors.white.withValues(alpha: 0.22),
+                top: height * 0.72,
+                child: FadeTransition(
+                  opacity: _backdrop,
+                  child: SizedBox(
+                    height: height * 0.075,
+                    child: CustomPaint(
+                      painter: _HeartbeatLinePainter(
+                        color: Colors.white.withValues(alpha: 0.22),
+                      ),
+                      size: Size.infinite,
                     ),
-                    size: Size.infinite,
                   ),
                 ),
               ),
+              // The badge renders immediately at full opacity, dead-centre,
+              // so it is continuous with the native launch screen — no jump
+              // when this screen replaces it.
               Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
+                child: Container(
+                  width: iconSize,
+                  height: iconSize,
+                  decoration: BoxDecoration(
+                    color: AppColors.splashIconBackground,
+                    borderRadius: BorderRadius.circular(iconSize * 0.3),
+                  ),
+                  alignment: Alignment.center,
+                  child: SizedBox(
+                    width: iconSize * 0.44,
+                    height: iconSize * 0.44,
+                    child: CustomPaint(
+                      painter: _PulsePainter(color: fill),
+                    ),
+                  ),
+                ),
+              ),
+              // Wordmark + tagline, pinned just below the centred badge and
+              // faded in with the rest of the scene.
+              Positioned(
+                top: height / 2 + iconSize / 2 + height * 0.035,
+                left: 0,
+                right: 0,
+                child: FadeTransition(
+                  opacity: _foreground,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        width: iconSize,
-                        height: iconSize,
-                        decoration: BoxDecoration(
-                          color: AppColors.splashIconBackground,
-                          borderRadius: BorderRadius.circular(iconSize * 0.3),
-                        ),
-                        alignment: Alignment.center,
-                        child: SizedBox(
-                          width: iconSize * 0.44,
-                          height: iconSize * 0.44,
-                          child: CustomPaint(
-                            painter: _PulsePainter(color: fill),
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: height * 0.035),
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.center,
@@ -190,7 +266,8 @@ class SplashScreen extends ConsumerWidget {
                         children: [
                           _TaglineDash(),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
                               l10n.splashTagline,
                               style: const TextStyle(
@@ -211,16 +288,19 @@ class SplashScreen extends ConsumerWidget {
                 left: 0,
                 right: 0,
                 bottom: height * 0.09,
-                child: Center(
-                  child: SizedBox(
-                    width: width * 0.33,
-                    height: 4,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(2),
-                      child: const LinearProgressIndicator(
-                        backgroundColor: AppColors.splashProgressTrack,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          AppColors.splashAccent,
+                child: FadeTransition(
+                  opacity: _foreground,
+                  child: Center(
+                    child: SizedBox(
+                      width: width * 0.33,
+                      height: 4,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(2),
+                        child: const LinearProgressIndicator(
+                          backgroundColor: AppColors.splashProgressTrack,
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            AppColors.splashAccent,
+                          ),
                         ),
                       ),
                     ),
@@ -231,14 +311,17 @@ class SplashScreen extends ConsumerWidget {
                 left: 0,
                 right: 0,
                 bottom: height * 0.045,
-                child: Text(
-                  l10n.splashNotAMedicalDevice,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    color: Colors.white38,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 2,
+                child: FadeTransition(
+                  opacity: _foreground,
+                  child: Text(
+                    l10n.splashNotAMedicalDevice,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.white38,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 2,
+                    ),
                   ),
                 ),
               ),
