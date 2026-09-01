@@ -177,9 +177,11 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
                     ),
                   ),
                 ),
-              // Floating coral dot, unattached, above-right of the icon.
+              // Floating coral dot, unattached, clear to the upper-right of
+              // the badge (matches design_references/Splash.png: dot centre
+              // ~0.74 screen width, level with the badge's top edge).
               Positioned(
-                left: iconCenter.dx + iconSize * 0.42,
+                left: iconCenter.dx + iconSize * 0.92,
                 top: iconCenter.dy - iconSize * 0.55,
                 child: FadeTransition(
                   opacity: _backdrop,
