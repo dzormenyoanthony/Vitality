@@ -31,6 +31,14 @@ import 'package:vitality/main.dart';
 /// reconnect / catch-up pass) stays wired to the fake. "Online" wires the
 /// repository to the fake so its push lands immediately. Both share one
 /// in-memory Drift database.
+///
+/// Deliberately split into many small `testWidgets`, each doing one boot
+/// plus a couple of steps: on a resource-constrained emulator a single
+/// long-running test gets starved by background SQLite contention and
+/// hangs mid-sync (project memory `integration_test_ondevice_stall`).
+/// Only ONE test drives the real Record BP form; the rest add readings via
+/// the repository so they stay short — the form itself is covered by
+/// `test/features/blood_pressure/presentation/record_bp_screen_test.dart`.
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
@@ -96,7 +104,17 @@ void main() {
     return _Harness(container, firestore, user.uid);
   }
 
-  Future<void> recordReading(
+  Future<void> addReadingViaRepository(
+    _Harness h, {
+    required int systolic,
+    required int diastolic,
+  }) => h.container.read(bloodPressureRepositoryProvider).addReading(
+    systolic: systolic,
+    diastolic: diastolic,
+    timestamp: DateTime.now(),
+  );
+
+  Future<void> recordReadingViaForm(
     WidgetTester tester, {
     required String systolic,
     required String diastolic,
@@ -115,21 +133,47 @@ void main() {
     await _settle(tester);
   }
 
+  testWidgets('the signed-in app boots to the Dashboard', (tester) async {
+    await boot(tester, repoOnline: false);
+
+    expect(find.text('Add reading'), findsOneWidget);
+  });
+
   testWidgets(
-    'offline: a reading saves locally and syncs up once the connection is restored',
+    'a reading entered on the Record BP form appears on the Dashboard',
+    (tester) async {
+      await boot(tester, repoOnline: false);
+
+      await recordReadingViaForm(tester, systolic: '128', diastolic: '82');
+
+      expect(find.text('128'), findsWidgets);
+      expect(find.text('82'), findsWidgets);
+    },
+  );
+
+  testWidgets(
+    'offline: a locally saved reading is not pushed to Firestore',
     (tester) async {
       final h = await boot(tester, repoOnline: false);
 
-      await recordReading(tester, systolic: '128', diastolic: '82');
+      await addReadingViaRepository(h, systolic: 128, diastolic: 82);
+      await _settle(tester);
 
       // Saved locally — the Dashboard latest-reading card shows it.
       expect(find.text('128'), findsWidgets);
-      expect(find.text('82'), findsWidgets);
-
       // Nothing pushed while offline.
       expect((await _remoteReadings(h)).docs, isEmpty);
+    },
+  );
 
-      // Connection restored → the catch-up sync pushes the backlog.
+  testWidgets(
+    'offline: the local backlog reaches Firestore once the catch-up sync runs',
+    (tester) async {
+      final h = await boot(tester, repoOnline: false);
+
+      await addReadingViaRepository(h, systolic: 128, diastolic: 82);
+      await _settle(tester);
+
       await h.container.read(syncCoordinatorProvider).syncAll(h.uid);
 
       final remote = await _remoteReadings(h);
@@ -179,7 +223,7 @@ void main() {
     (tester) async {
       final h = await boot(tester, repoOnline: true);
 
-      await recordReading(tester, systolic: '120', diastolic: '78');
+      await addReadingViaRepository(h, systolic: 120, diastolic: 78);
 
       // The repository's best-effort push is fire-and-forget; give it a
       // moment to land, then confirm.
