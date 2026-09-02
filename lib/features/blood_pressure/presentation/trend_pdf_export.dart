@@ -109,6 +109,9 @@ pw.Widget _bpTrendChart(List<BloodPressureReading> readings) {
           _xTicks(readings.length),
           format: (v) => _xLabel(readings, v.toInt()),
           divisions: false,
+          // Inset the plot start so the first date label clears the
+          // y-axis number column instead of overprinting it.
+          marginStart: 22,
         ),
         yAxis: pw.FixedAxis<double>(
           range.ticks,
