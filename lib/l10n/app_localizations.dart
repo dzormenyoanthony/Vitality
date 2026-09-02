@@ -1431,6 +1431,24 @@ abstract class AppLocalizations {
   /// **'Readings in this period'**
   String get trendPdfReadingsHeader;
 
+  /// Section header above the systolic/diastolic line chart in the exported Trends PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic / diastolic (mmHg)'**
+  String get trendPdfChartHeader;
+
+  /// Section header above the pulse line chart in the exported Trends PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse (bpm)'**
+  String get trendPdfPulseChartHeader;
+
+  /// Shown in place of the chart in the exported Trends PDF when the period has only one reading.
+  ///
+  /// In en, this message translates to:
+  /// **'A chart needs at least two readings in this period.'**
+  String get trendPdfChartOmittedSingleReading;
+
   /// Trends PDF reading-table column header.
   ///
   /// In en, this message translates to:

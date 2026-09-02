@@ -612,9 +612,12 @@ Exact pricing and subscription plans will be determined separately.
 Vitaly implements two distinct exports; do not conflate them:
 
 **Trends PDF summary** (Section 11) — a non-diagnostic PDF of a selected
-Trends period (summary sentences plus the individual readings in that
-period), shared via the system share sheet. This was already approved and
-implemented before the full data export below.
+Trends period (summary sentences, a plain systolic/diastolic line chart —
+plus a pulse chart when pulse data is present and included — and the
+individual readings in that period), shared via the system share sheet.
+The chart mirrors the on-screen Trends chart exactly: data lines only, no
+reference bands, thresholds, or color-coded zones (Section 14). This was
+already approved and implemented before the full data export below.
 
 **Full data export** — approved scope, implemented as a single ZIP package
 so scanned/saved report files (images/PDFs, which a CSV cannot contain) can

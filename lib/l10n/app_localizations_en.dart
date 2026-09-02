@@ -782,6 +782,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get trendPdfReadingsHeader => 'Readings in this period';
 
   @override
+  String get trendPdfChartHeader => 'Systolic / diastolic (mmHg)';
+
+  @override
+  String get trendPdfPulseChartHeader => 'Pulse (bpm)';
+
+  @override
+  String get trendPdfChartOmittedSingleReading =>
+      'A chart needs at least two readings in this period.';
+
+  @override
   String get trendPdfColDate => 'Date';
 
   @override
