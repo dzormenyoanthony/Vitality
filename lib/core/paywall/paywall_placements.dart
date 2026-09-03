@@ -6,4 +6,12 @@ abstract final class PaywallPlacements {
   static const String scanReport = 'scan_report';
   static const String uploadPdfReport = 'upload_pdf_report';
   static const String exportReportData = 'export_report_data';
+
+  /// Shown once, right after a user finishes onboarding, before the
+  /// dashboard. Unlike the placements above it gates nothing: Superwall
+  /// skips it for users with an active subscription, and everyone else
+  /// reaches the dashboard whether or not they purchase. The campaign for
+  /// this placement must be configured "not gated" in the Superwall
+  /// dashboard.
+  static const String onboardingComplete = 'onboarding_complete';
 }
