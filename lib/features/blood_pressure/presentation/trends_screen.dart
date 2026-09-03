@@ -6,11 +6,13 @@ import 'package:printing/printing.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/i18n/formatters.dart';
+import '../../../core/router/auth_gate_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../reports/data/report_providers.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
 import '../domain/bp_classification_service.dart';
@@ -721,18 +723,18 @@ class _DisclaimerCard extends StatelessWidget {
   }
 }
 
-class _ExportButton extends StatelessWidget {
+class _ExportButton extends ConsumerWidget {
   const _ExportButton({required this.stats});
 
   final TrendStats stats;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
-        onPressed: () => _exportPdf(context),
+        onPressed: () => _exportPdf(context, ref),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.dashboardAccentTeal,
           side: const BorderSide(color: AppColors.dashboardAccentTeal),
@@ -750,8 +752,14 @@ class _ExportButton extends StatelessWidget {
     );
   }
 
-  Future<void> _exportPdf(BuildContext context) async {
-    final bytes = await buildTrendSummaryPdf(AppLocalizations.of(context), stats);
+  Future<void> _exportPdf(BuildContext context, WidgetRef ref) async {
+    final gate = ref.read(authGateProvider);
+    final bytes = await buildTrendSummaryPdf(
+      AppLocalizations.of(context),
+      stats,
+      patientName: gate is AuthGateReady ? gate.displayName : null,
+      reports: ref.read(savedReportsStreamProvider).value ?? const [],
+    );
     if (!context.mounted) return;
     await Printing.sharePdf(bytes: bytes, filename: 'vitaly-trend-summary.pdf');
   }

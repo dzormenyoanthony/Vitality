@@ -1485,6 +1485,258 @@ abstract class AppLocalizations {
   /// **'This is a record of self-reported home readings. It does not diagnose or interpret your blood pressure. Share it with your healthcare professional.'**
   String get trendPdfDisclaimer;
 
+  /// Main title of the exported trend-summary PDF report.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood Pressure Trend Summary'**
+  String get trendReportTitle;
+
+  /// Subtitle under the report title.
+  ///
+  /// In en, this message translates to:
+  /// **'Vitaly Health Report'**
+  String get trendReportSubtitle;
+
+  /// Generation timestamp line in the report header.
+  ///
+  /// In en, this message translates to:
+  /// **'Generated {timestamp}'**
+  String trendReportGeneratedLine(String timestamp);
+
+  /// Reporting-period line in the report header, showing the period name and its start and end dates.
+  ///
+  /// In en, this message translates to:
+  /// **'Reporting period: {period} ({start} to {end})'**
+  String trendReportPeriodLine(String period, String start, String end);
+
+  /// Section header for the patient block in the report.
+  ///
+  /// In en, this message translates to:
+  /// **'Patient information'**
+  String get trendReportPatientHeader;
+
+  /// Label for the patient name row in the report.
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get trendReportPatientName;
+
+  /// Section header for the averages summary grid in the report.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get trendReportSummaryHeader;
+
+  /// Summary card label: average systolic.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. systolic'**
+  String get trendReportStatAvgSystolic;
+
+  /// Summary card label: average diastolic.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. diastolic'**
+  String get trendReportStatAvgDiastolic;
+
+  /// Summary card label: average pulse.
+  ///
+  /// In en, this message translates to:
+  /// **'Avg. pulse'**
+  String get trendReportStatAvgPulse;
+
+  /// Summary card label: total number of readings in the period.
+  ///
+  /// In en, this message translates to:
+  /// **'Readings'**
+  String get trendReportStatReadings;
+
+  /// Neutral non-diagnostic line under the report summary grid, replacing the old "Average status" phrasing (PROJECT_SPEC.md §12, §23). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Context: review this pattern with your healthcare professional.'**
+  String get trendReportContextLine;
+
+  /// Section header for the factual tracking-activity section in the report.
+  ///
+  /// In en, this message translates to:
+  /// **'Tracking activity'**
+  String get trendReportActivityHeader;
+
+  /// Tracking-activity line: number of readings in the reporting period.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 reading recorded in this reporting period} other{{count} readings recorded in this reporting period}}'**
+  String trendReportActivityInPeriod(int count);
+
+  /// Tracking-activity line: number of readings in the equivalent prior window.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No readings in the previous period of the same length} =1{1 reading in the previous period of the same length} other{{count} readings in the previous period of the same length}}'**
+  String trendReportActivityPreviousPeriod(int count);
+
+  /// Tracking-activity line: the most recently recorded reading in the period.
+  ///
+  /// In en, this message translates to:
+  /// **'Most recent reading: {value} mmHg on {timestamp}'**
+  String trendReportActivityMostRecent(String value, String timestamp);
+
+  /// Section header for the systolic/diastolic chart in the report.
+  ///
+  /// In en, this message translates to:
+  /// **'Blood pressure trend'**
+  String get trendReportBpChartHeader;
+
+  /// Section header for the pulse chart in the report.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse trend'**
+  String get trendReportPulseChartHeader;
+
+  /// Caption under the blood pressure chart header.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic and diastolic values in mmHg, in the order they were recorded.'**
+  String get trendReportChartCaptionBp;
+
+  /// Caption under the pulse chart header.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse values in bpm, in the order they were recorded.'**
+  String get trendReportChartCaptionPulse;
+
+  /// Shown in place of the chart when the period has only one reading.
+  ///
+  /// In en, this message translates to:
+  /// **'A trend chart needs at least two readings in this reporting period.'**
+  String get trendReportChartNeedsTwo;
+
+  /// Shown in place of the chart when the period has no readings.
+  ///
+  /// In en, this message translates to:
+  /// **'No readings were recorded in this reporting period.'**
+  String get trendReportNoReadings;
+
+  /// Chart legend entry for the systolic series.
+  ///
+  /// In en, this message translates to:
+  /// **'Systolic (mmHg)'**
+  String get trendReportLegendSystolic;
+
+  /// Chart legend entry for the diastolic series.
+  ///
+  /// In en, this message translates to:
+  /// **'Diastolic (mmHg)'**
+  String get trendReportLegendDiastolic;
+
+  /// Chart legend entry for the pulse series.
+  ///
+  /// In en, this message translates to:
+  /// **'Pulse (bpm)'**
+  String get trendReportLegendPulse;
+
+  /// Section header for the full readings table in the report.
+  ///
+  /// In en, this message translates to:
+  /// **'Readings'**
+  String get trendReportReadingsHeader;
+
+  /// Readings table column header: how the reading was entered.
+  ///
+  /// In en, this message translates to:
+  /// **'Source'**
+  String get trendReportColSource;
+
+  /// Readings table column header: measurement context and body position tags.
+  ///
+  /// In en, this message translates to:
+  /// **'Context'**
+  String get trendReportColContext;
+
+  /// Readings table column header: free-text notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes'**
+  String get trendReportColNotes;
+
+  /// Readings table column header: the linked Document Locker report id, if any.
+  ///
+  /// In en, this message translates to:
+  /// **'Report ID'**
+  String get trendReportColReport;
+
+  /// Readings table Source value for a manually entered reading.
+  ///
+  /// In en, this message translates to:
+  /// **'Manual'**
+  String get trendReportSourceManual;
+
+  /// Readings table Source value for a reading confirmed from a scanned/imported report.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported'**
+  String get trendReportSourceImported;
+
+  /// Section header for the index of linked Document Locker reports.
+  ///
+  /// In en, this message translates to:
+  /// **'Supporting documents'**
+  String get trendReportDocsHeader;
+
+  /// Intro line under the Supporting documents header.
+  ///
+  /// In en, this message translates to:
+  /// **'Documents in your Vitaly locker that readings in this report were imported from. The document files themselves are not included here.'**
+  String get trendReportDocsIntro;
+
+  /// One entry in the Supporting documents index: document title, its id, and how many readings in this report came from it.
+  ///
+  /// In en, this message translates to:
+  /// **'{title} (ID {id}) - {count, plural, =1{1 linked reading} other{{count} linked readings}}'**
+  String trendReportDocsLine(String title, String id, int count);
+
+  /// Fallback title when a linked report id is no longer present in the Document Locker.
+  ///
+  /// In en, this message translates to:
+  /// **'Report no longer in locker'**
+  String get trendReportDocsUnknownTitle;
+
+  /// Section header for the clinician-facing note in the report.
+  ///
+  /// In en, this message translates to:
+  /// **'For your healthcare professional'**
+  String get trendReportForClinicianHeader;
+
+  /// Clinician-facing note in the report (PROJECT_SPEC.md §12-14). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'This report summarises blood pressure information that the user recorded or imported in Vitaly during the selected period. It can be shared with a qualified healthcare professional. Vitaly does not diagnose, treat, or interpret medical conditions.'**
+  String get trendReportForClinicianBody;
+
+  /// Privacy reminder in the report (PROJECT_SPEC.md §25). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'This report contains personal health information. Share it only with people you trust.'**
+  String get trendReportPrivacyNotice;
+
+  /// Non-diagnostic safety disclaimer at the end of the trend report (PROJECT_SPEC.md §12-14, §28). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'The readings in this report were recorded or imported by the user in Vitaly, a personal tracking and record-keeping tool. This report does not provide a medical diagnosis and does not replace advice from a qualified healthcare professional.'**
+  String get trendReportDisclaimer;
+
+  /// Report id shown in the report footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Report {id}'**
+  String trendReportFooterReportId(String id);
+
+  /// Page number shown in the report footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {total}'**
+  String trendReportFooterPage(int page, int total);
+
   /// Dashboard nudge shown when mornings are underrepresented, derived only from logging counts (PROJECT_SPEC.md §12-14) — never a comment on reading values.
   ///
   /// In en, this message translates to:

@@ -11,6 +11,7 @@ import '../../../core/errors/failure.dart';
 import '../../../core/i18n/formatters.dart';
 import '../../../core/paywall/paywall_placements.dart';
 import '../../../core/paywall/paywall_providers.dart';
+import '../../../core/router/auth_gate_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
@@ -83,10 +84,13 @@ class _ExportDataScreenState extends ConsumerState<ExportDataScreen> {
             TrendPeriod.all,
             DateTime.now(),
           );
+          final gate = ref.read(authGateProvider);
           final bytes = await buildTrendSummaryPdf(
             l10n,
             stats,
             includePulse: _options.includePulse,
+            patientName: gate is AuthGateReady ? gate.displayName : null,
+            reports: ref.read(savedReportsStreamProvider).value ?? const [],
           );
           if (!mounted) return;
           await shareExportFile(

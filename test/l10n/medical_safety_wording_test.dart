@@ -100,6 +100,34 @@ void main() {
     );
   });
 
+  test('trend report medical-safety wording (§12-14, §23, §25, §28)', () {
+    // Replaces the old "Average status (N readings): this reading is high"
+    // phrasing in the exported report with neutral, non-diagnostic framing.
+    expect(
+      l10n.trendReportContextLine,
+      'Context: review this pattern with your healthcare professional.',
+    );
+    expect(
+      l10n.trendReportForClinicianBody,
+      'This report summarises blood pressure information that the user '
+      'recorded or imported in Vitaly during the selected period. It can be '
+      'shared with a qualified healthcare professional. Vitaly does not '
+      'diagnose, treat, or interpret medical conditions.',
+    );
+    expect(
+      l10n.trendReportPrivacyNotice,
+      'This report contains personal health information. Share it only with '
+      'people you trust.',
+    );
+    expect(
+      l10n.trendReportDisclaimer,
+      'The readings in this report were recorded or imported by the user in '
+      'Vitaly, a personal tracking and record-keeping tool. This report does '
+      'not provide a medical diagnosis and does not replace advice from a '
+      'qualified healthcare professional.',
+    );
+  });
+
   test('"Average of N recorded readings" framing (§23)', () {
     expect(l10n.trendsAverageOfReadings(1), 'Average of 1 recorded reading');
     expect(l10n.trendsAverageOfReadings(20), 'Average of 20 recorded readings');

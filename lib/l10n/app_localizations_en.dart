@@ -811,6 +811,177 @@ class AppLocalizationsEn extends AppLocalizations {
       'This is a record of self-reported home readings. It does not diagnose or interpret your blood pressure. Share it with your healthcare professional.';
 
   @override
+  String get trendReportTitle => 'Blood Pressure Trend Summary';
+
+  @override
+  String get trendReportSubtitle => 'Vitaly Health Report';
+
+  @override
+  String trendReportGeneratedLine(String timestamp) {
+    return 'Generated $timestamp';
+  }
+
+  @override
+  String trendReportPeriodLine(String period, String start, String end) {
+    return 'Reporting period: $period ($start to $end)';
+  }
+
+  @override
+  String get trendReportPatientHeader => 'Patient information';
+
+  @override
+  String get trendReportPatientName => 'Name';
+
+  @override
+  String get trendReportSummaryHeader => 'Summary';
+
+  @override
+  String get trendReportStatAvgSystolic => 'Avg. systolic';
+
+  @override
+  String get trendReportStatAvgDiastolic => 'Avg. diastolic';
+
+  @override
+  String get trendReportStatAvgPulse => 'Avg. pulse';
+
+  @override
+  String get trendReportStatReadings => 'Readings';
+
+  @override
+  String get trendReportContextLine =>
+      'Context: review this pattern with your healthcare professional.';
+
+  @override
+  String get trendReportActivityHeader => 'Tracking activity';
+
+  @override
+  String trendReportActivityInPeriod(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count readings recorded in this reporting period',
+      one: '1 reading recorded in this reporting period',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String trendReportActivityPreviousPeriod(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count readings in the previous period of the same length',
+      one: '1 reading in the previous period of the same length',
+      zero: 'No readings in the previous period of the same length',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String trendReportActivityMostRecent(String value, String timestamp) {
+    return 'Most recent reading: $value mmHg on $timestamp';
+  }
+
+  @override
+  String get trendReportBpChartHeader => 'Blood pressure trend';
+
+  @override
+  String get trendReportPulseChartHeader => 'Pulse trend';
+
+  @override
+  String get trendReportChartCaptionBp =>
+      'Systolic and diastolic values in mmHg, in the order they were recorded.';
+
+  @override
+  String get trendReportChartCaptionPulse =>
+      'Pulse values in bpm, in the order they were recorded.';
+
+  @override
+  String get trendReportChartNeedsTwo =>
+      'A trend chart needs at least two readings in this reporting period.';
+
+  @override
+  String get trendReportNoReadings =>
+      'No readings were recorded in this reporting period.';
+
+  @override
+  String get trendReportLegendSystolic => 'Systolic (mmHg)';
+
+  @override
+  String get trendReportLegendDiastolic => 'Diastolic (mmHg)';
+
+  @override
+  String get trendReportLegendPulse => 'Pulse (bpm)';
+
+  @override
+  String get trendReportReadingsHeader => 'Readings';
+
+  @override
+  String get trendReportColSource => 'Source';
+
+  @override
+  String get trendReportColContext => 'Context';
+
+  @override
+  String get trendReportColNotes => 'Notes';
+
+  @override
+  String get trendReportColReport => 'Report ID';
+
+  @override
+  String get trendReportSourceManual => 'Manual';
+
+  @override
+  String get trendReportSourceImported => 'Imported';
+
+  @override
+  String get trendReportDocsHeader => 'Supporting documents';
+
+  @override
+  String get trendReportDocsIntro =>
+      'Documents in your Vitaly locker that readings in this report were imported from. The document files themselves are not included here.';
+
+  @override
+  String trendReportDocsLine(String title, String id, int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count linked readings',
+      one: '1 linked reading',
+    );
+    return '$title (ID $id) - $_temp0';
+  }
+
+  @override
+  String get trendReportDocsUnknownTitle => 'Report no longer in locker';
+
+  @override
+  String get trendReportForClinicianHeader =>
+      'For your healthcare professional';
+
+  @override
+  String get trendReportForClinicianBody =>
+      'This report summarises blood pressure information that the user recorded or imported in Vitaly during the selected period. It can be shared with a qualified healthcare professional. Vitaly does not diagnose, treat, or interpret medical conditions.';
+
+  @override
+  String get trendReportPrivacyNotice =>
+      'This report contains personal health information. Share it only with people you trust.';
+
+  @override
+  String get trendReportDisclaimer =>
+      'The readings in this report were recorded or imported by the user in Vitaly, a personal tracking and record-keeping tool. This report does not provide a medical diagnosis and does not replace advice from a qualified healthcare professional.';
+
+  @override
+  String trendReportFooterReportId(String id) {
+    return 'Report $id';
+  }
+
+  @override
+  String trendReportFooterPage(int page, int total) {
+    return 'Page $page of $total';
+  }
+
+  @override
   String loggingInsightMorningGap(int morningDays, int eveningDays) {
     return 'You logged $morningDays of the last 7 mornings and $eveningDays evenings. A morning reminder would even out the record.';
   }

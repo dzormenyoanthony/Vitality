@@ -821,6 +821,137 @@
     "description": "Non-diagnostic disclaimer in the exported Trends PDF (PROJECT_SPEC.md §12, §28). Approved wording; any change needs the §37 review."
   },
 
+  "trendReportTitle": "Blood Pressure Trend Summary",
+  "@trendReportTitle": { "description": "Main title of the exported trend-summary PDF report." },
+  "trendReportSubtitle": "Vitaly Health Report",
+  "@trendReportSubtitle": { "description": "Subtitle under the report title." },
+  "trendReportGeneratedLine": "Generated {timestamp}",
+  "@trendReportGeneratedLine": {
+    "description": "Generation timestamp line in the report header.",
+    "placeholders": { "timestamp": { "type": "String", "example": "2026-09-03 14:20" } }
+  },
+  "trendReportPeriodLine": "Reporting period: {period} ({start} to {end})",
+  "@trendReportPeriodLine": {
+    "description": "Reporting-period line in the report header, showing the period name and its start and end dates.",
+    "placeholders": {
+      "period": { "type": "String", "example": "30 days" },
+      "start": { "type": "String", "example": "2026-08-04" },
+      "end": { "type": "String", "example": "2026-09-03" }
+    }
+  },
+  "trendReportPatientHeader": "Patient information",
+  "@trendReportPatientHeader": { "description": "Section header for the patient block in the report." },
+  "trendReportPatientName": "Name",
+  "@trendReportPatientName": { "description": "Label for the patient name row in the report." },
+  "trendReportSummaryHeader": "Summary",
+  "@trendReportSummaryHeader": { "description": "Section header for the averages summary grid in the report." },
+  "trendReportStatAvgSystolic": "Avg. systolic",
+  "@trendReportStatAvgSystolic": { "description": "Summary card label: average systolic." },
+  "trendReportStatAvgDiastolic": "Avg. diastolic",
+  "@trendReportStatAvgDiastolic": { "description": "Summary card label: average diastolic." },
+  "trendReportStatAvgPulse": "Avg. pulse",
+  "@trendReportStatAvgPulse": { "description": "Summary card label: average pulse." },
+  "trendReportStatReadings": "Readings",
+  "@trendReportStatReadings": { "description": "Summary card label: total number of readings in the period." },
+  "trendReportContextLine": "Context: review this pattern with your healthcare professional.",
+  "@trendReportContextLine": {
+    "description": "Neutral non-diagnostic line under the report summary grid, replacing the old \"Average status\" phrasing (PROJECT_SPEC.md §12, §23). Approved wording; any change needs the §37 review."
+  },
+  "trendReportActivityHeader": "Tracking activity",
+  "@trendReportActivityHeader": { "description": "Section header for the factual tracking-activity section in the report." },
+  "trendReportActivityInPeriod": "{count, plural, =1{1 reading recorded in this reporting period} other{{count} readings recorded in this reporting period}}",
+  "@trendReportActivityInPeriod": {
+    "description": "Tracking-activity line: number of readings in the reporting period.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "trendReportActivityPreviousPeriod": "{count, plural, =0{No readings in the previous period of the same length} =1{1 reading in the previous period of the same length} other{{count} readings in the previous period of the same length}}",
+  "@trendReportActivityPreviousPeriod": {
+    "description": "Tracking-activity line: number of readings in the equivalent prior window.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "trendReportActivityMostRecent": "Most recent reading: {value} mmHg on {timestamp}",
+  "@trendReportActivityMostRecent": {
+    "description": "Tracking-activity line: the most recently recorded reading in the period.",
+    "placeholders": {
+      "value": { "type": "String", "example": "128/82" },
+      "timestamp": { "type": "String", "example": "2026-09-01 08:15" }
+    }
+  },
+  "trendReportBpChartHeader": "Blood pressure trend",
+  "@trendReportBpChartHeader": { "description": "Section header for the systolic/diastolic chart in the report." },
+  "trendReportPulseChartHeader": "Pulse trend",
+  "@trendReportPulseChartHeader": { "description": "Section header for the pulse chart in the report." },
+  "trendReportChartCaptionBp": "Systolic and diastolic values in mmHg, in the order they were recorded.",
+  "@trendReportChartCaptionBp": { "description": "Caption under the blood pressure chart header." },
+  "trendReportChartCaptionPulse": "Pulse values in bpm, in the order they were recorded.",
+  "@trendReportChartCaptionPulse": { "description": "Caption under the pulse chart header." },
+  "trendReportChartNeedsTwo": "A trend chart needs at least two readings in this reporting period.",
+  "@trendReportChartNeedsTwo": { "description": "Shown in place of the chart when the period has only one reading." },
+  "trendReportNoReadings": "No readings were recorded in this reporting period.",
+  "@trendReportNoReadings": { "description": "Shown in place of the chart when the period has no readings." },
+  "trendReportLegendSystolic": "Systolic (mmHg)",
+  "@trendReportLegendSystolic": { "description": "Chart legend entry for the systolic series." },
+  "trendReportLegendDiastolic": "Diastolic (mmHg)",
+  "@trendReportLegendDiastolic": { "description": "Chart legend entry for the diastolic series." },
+  "trendReportLegendPulse": "Pulse (bpm)",
+  "@trendReportLegendPulse": { "description": "Chart legend entry for the pulse series." },
+  "trendReportReadingsHeader": "Readings",
+  "@trendReportReadingsHeader": { "description": "Section header for the full readings table in the report." },
+  "trendReportColSource": "Source",
+  "@trendReportColSource": { "description": "Readings table column header: how the reading was entered." },
+  "trendReportColContext": "Context",
+  "@trendReportColContext": { "description": "Readings table column header: measurement context and body position tags." },
+  "trendReportColNotes": "Notes",
+  "@trendReportColNotes": { "description": "Readings table column header: free-text notes." },
+  "trendReportColReport": "Report ID",
+  "@trendReportColReport": { "description": "Readings table column header: the linked Document Locker report id, if any." },
+  "trendReportSourceManual": "Manual",
+  "@trendReportSourceManual": { "description": "Readings table Source value for a manually entered reading." },
+  "trendReportSourceImported": "Imported",
+  "@trendReportSourceImported": { "description": "Readings table Source value for a reading confirmed from a scanned/imported report." },
+  "trendReportDocsHeader": "Supporting documents",
+  "@trendReportDocsHeader": { "description": "Section header for the index of linked Document Locker reports." },
+  "trendReportDocsIntro": "Documents in your Vitaly locker that readings in this report were imported from. The document files themselves are not included here.",
+  "@trendReportDocsIntro": { "description": "Intro line under the Supporting documents header." },
+  "trendReportDocsLine": "{title} (ID {id}) - {count, plural, =1{1 linked reading} other{{count} linked readings}}",
+  "@trendReportDocsLine": {
+    "description": "One entry in the Supporting documents index: document title, its id, and how many readings in this report came from it.",
+    "placeholders": {
+      "title": { "type": "String", "example": "Clinic visit — August" },
+      "id": { "type": "String", "example": "12" },
+      "count": { "type": "int" }
+    }
+  },
+  "trendReportDocsUnknownTitle": "Report no longer in locker",
+  "@trendReportDocsUnknownTitle": { "description": "Fallback title when a linked report id is no longer present in the Document Locker." },
+  "trendReportForClinicianHeader": "For your healthcare professional",
+  "@trendReportForClinicianHeader": { "description": "Section header for the clinician-facing note in the report." },
+  "trendReportForClinicianBody": "This report summarises blood pressure information that the user recorded or imported in Vitaly during the selected period. It can be shared with a qualified healthcare professional. Vitaly does not diagnose, treat, or interpret medical conditions.",
+  "@trendReportForClinicianBody": {
+    "description": "Clinician-facing note in the report (PROJECT_SPEC.md §12-14). Approved wording; any change needs the §37 review."
+  },
+  "trendReportPrivacyNotice": "This report contains personal health information. Share it only with people you trust.",
+  "@trendReportPrivacyNotice": {
+    "description": "Privacy reminder in the report (PROJECT_SPEC.md §25). Approved wording; any change needs the §37 review."
+  },
+  "trendReportDisclaimer": "The readings in this report were recorded or imported by the user in Vitaly, a personal tracking and record-keeping tool. This report does not provide a medical diagnosis and does not replace advice from a qualified healthcare professional.",
+  "@trendReportDisclaimer": {
+    "description": "Non-diagnostic safety disclaimer at the end of the trend report (PROJECT_SPEC.md §12-14, §28). Approved wording; any change needs the §37 review."
+  },
+  "trendReportFooterReportId": "Report {id}",
+  "@trendReportFooterReportId": {
+    "description": "Report id shown in the report footer.",
+    "placeholders": { "id": { "type": "String", "example": "VITALY-20260903-142012" } }
+  },
+  "trendReportFooterPage": "Page {page} of {total}",
+  "@trendReportFooterPage": {
+    "description": "Page number shown in the report footer.",
+    "placeholders": {
+      "page": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+
   "loggingInsightMorningGap": "You logged {morningDays} of the last 7 mornings and {eveningDays} evenings. A morning reminder would even out the record.",
   "@loggingInsightMorningGap": {
     "description": "Dashboard nudge shown when mornings are underrepresented, derived only from logging counts (PROJECT_SPEC.md §12-14) — never a comment on reading values.",
