@@ -2055,11 +2055,11 @@ abstract class AppLocalizations {
   /// **'Sort: oldest first'**
   String get historySortOldestFirst;
 
-  /// Snackbar shown when the History export button is tapped (feature not built here).
+  /// Snackbar shown when building or sharing the History CSV export fails.
   ///
   /// In en, this message translates to:
-  /// **'Export isn\'t available yet.'**
-  String get historyExportUnavailable;
+  /// **'Couldn\'t prepare your export. Please try again.'**
+  String get historyExportFailed;
 
   /// Empty state on the History screen.
   ///

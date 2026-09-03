@@ -1,3 +1,6 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -6,11 +9,15 @@ import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/i18n/formatters.dart';
+import '../../../core/paywall/paywall_placements.dart';
+import '../../../core/paywall/paywall_providers.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/empty_view.dart';
 import '../../../core/widgets/error_view.dart';
 import '../../../core/widgets/loading_indicator.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../data_export/domain/bp_readings_csv.dart';
+import '../../data_export/presentation/data_export_share.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
 import '../domain/bp_classification_service.dart';
@@ -34,12 +41,63 @@ class HistoryScreen extends ConsumerStatefulWidget {
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   HistoryFilter _filter = HistoryFilter.all;
   bool _newestFirst = true;
+  bool _exporting = false;
+
+  /// The readings currently shown: [all] narrowed by the active [_filter]
+  /// and ordered by the [_newestFirst] toggle. Single source of truth for
+  /// both the list and the CSV export.
+  List<BloodPressureReading> _visibleReadings(List<BloodPressureReading> all) {
+    final filtered = filterReadings(all, _filter);
+    return _newestFirst ? filtered : filtered.reversed.toList();
+  }
+
+  /// Exports the readings currently shown (the active filter and sort) as
+  /// a CSV and opens the system Share/Save sheet. Routes through the same
+  /// `export_report_data` paywall gate as Settings > Export data so this
+  /// second entry point can't bypass premium gating (PROJECT_SPEC.md §27).
+  Future<void> _exportHistory(List<BloodPressureReading> readings) {
+    if (readings.isEmpty) return Future.value();
+    return ref.read(paywallServiceProvider).gateFeature(
+      placement: PaywallPlacements.exportReportData,
+      onAccessGranted: () => _exportHistoryImpl(readings),
+    );
+  }
+
+  Future<void> _exportHistoryImpl(List<BloodPressureReading> readings) async {
+    if (!mounted) return;
+    setState(() => _exporting = true);
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final csv = buildBpReadingsCsv(readings);
+      final now = DateTime.now();
+      final stamp = '${now.year.toString().padLeft(4, '0')}-'
+          '${now.month.toString().padLeft(2, '0')}-'
+          '${now.day.toString().padLeft(2, '0')}';
+      await shareExportFile(
+        bytes: Uint8List.fromList(utf8.encode(csv)),
+        filename: 'vitaly_bp_readings_$stamp.csv',
+        mimeType: 'text/csv',
+      );
+    } catch (_) {
+      if (mounted) {
+        messenger.showSnackBar(
+          SnackBar(content: Text(l10n.historyExportFailed)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final l10n = AppLocalizations.of(context);
     final readingsState = ref.watch(readingsStreamProvider);
+    final visibleReadings = _visibleReadings(
+      readingsState.value ?? const <BloodPressureReading>[],
+    );
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -80,12 +138,16 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                   ),
                   IconButton(
                     tooltip: l10n.commonExport,
-                    icon: const Icon(Icons.file_download_outlined),
-                    onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(l10n.historyExportUnavailable),
-                      ),
-                    ),
+                    icon: _exporting
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Icon(Icons.file_download_outlined),
+                    onPressed: _exporting || visibleReadings.isEmpty
+                        ? null
+                        : () => _exportHistory(visibleReadings),
                   ),
                 ],
               ),
@@ -104,10 +166,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
                       icon: Icons.monitor_heart_outlined,
                     );
                   }
-                  final filtered = filterReadings(readings, _filter);
-                  final ordered = _newestFirst
-                      ? filtered
-                      : filtered.reversed.toList();
+                  final ordered = _visibleReadings(readings);
                   return Column(
                     children: [
                       Padding(

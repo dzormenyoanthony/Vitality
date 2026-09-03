@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:vitality/core/paywall/paywall_providers.dart';
 import 'package:vitality/features/blood_pressure/data/app_database.dart';
 import 'package:vitality/features/blood_pressure/data/blood_pressure_providers.dart';
 import 'package:vitality/features/blood_pressure/data/drift_blood_pressure_repository.dart';
 import 'package:vitality/features/blood_pressure/presentation/history_screen.dart';
 
+import '../../../support/fake_paywall_service.dart';
 import '../../../support/pump_app.dart';
 
 void main() {
@@ -106,6 +108,153 @@ void main() {
 
     expect(find.text('120/80'), findsOneWidget);
     expect(find.text('130/85'), findsNothing);
+
+    await db.close();
+  });
+
+  testWidgets('the Export button is disabled while there are no readings', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: HistoryScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+
+    final exportButton = tester.widget<IconButton>(
+      find.widgetWithIcon(IconButton, Icons.file_download_outlined),
+    );
+    expect(exportButton.onPressed, isNull);
+
+    await db.close();
+  });
+
+  testWidgets(
+    'tapping Export registers the export_report_data placement and starts the export when access is granted',
+    (tester) async {
+      final db = AppDatabase(NativeDatabase.memory());
+      addTearDown(db.close);
+      await DriftBloodPressureRepository(db).addReading(
+        systolic: 120,
+        diastolic: 80,
+        timestamp: DateTime(2026, 1, 1, 8),
+      );
+      final paywall = FakePaywallService(grantsAccess: true);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            appDatabaseProvider.overrideWithValue(db),
+            paywallServiceProvider.overrideWithValue(paywall),
+          ],
+          child: const MaterialApp(
+            localizationsDelegates: localizationWrappers,
+            supportedLocales: testSupportedLocales,
+            home: HistoryScreen(),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 100));
+
+      // One pump only: the share/save plugin has no test-harness
+      // implementation, so the real share call never resolves. Enough to
+      // see the gated flow started and the button went busy.
+      await tester.tap(find.byTooltip('Export'));
+      await tester.pump();
+
+      expect(paywall.registeredPlacements, ['export_report_data']);
+      expect(
+        find.descendant(
+          of: find.byTooltip('Export'),
+          matching: find.byType(CircularProgressIndicator),
+        ),
+        findsOneWidget,
+      );
+
+      await db.close();
+    },
+  );
+
+  testWidgets('the Export button follows the active filter selection', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    // A single morning reading, so switching to the Evening filter leaves
+    // nothing visible to export.
+    await DriftBloodPressureRepository(db).addReading(
+      systolic: 120,
+      diastolic: 80,
+      timestamp: DateTime(2026, 1, 1, 8),
+    );
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [appDatabaseProvider.overrideWithValue(db)],
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: HistoryScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    IconButton exportButton() => tester.widget<IconButton>(
+      find.widgetWithIcon(IconButton, Icons.file_download_outlined),
+    );
+
+    expect(exportButton().onPressed, isNotNull);
+
+    await tester.tap(find.text('Evening'));
+    await tester.pump();
+    expect(exportButton().onPressed, isNull);
+
+    await tester.tap(find.text('Morning'));
+    await tester.pump();
+    expect(exportButton().onPressed, isNotNull);
+
+    await db.close();
+  });
+
+  testWidgets('tapping Export generates nothing when the paywall denies access', (tester) async {
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await DriftBloodPressureRepository(db).addReading(
+      systolic: 120,
+      diastolic: 80,
+      timestamp: DateTime(2026, 1, 1, 8),
+    );
+    final paywall = FakePaywallService(grantsAccess: false);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          paywallServiceProvider.overrideWithValue(paywall),
+        ],
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: HistoryScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    await tester.tap(find.byTooltip('Export'));
+    await tester.pump();
+
+    expect(paywall.registeredPlacements, ['export_report_data']);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
 
     await db.close();
   });

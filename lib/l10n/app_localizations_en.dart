@@ -1172,7 +1172,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get historySortOldestFirst => 'Sort: oldest first';
 
   @override
-  String get historyExportUnavailable => 'Export isn\'t available yet.';
+  String get historyExportFailed =>
+      'Couldn\'t prepare your export. Please try again.';
 
   @override
   String get historyEmpty =>
