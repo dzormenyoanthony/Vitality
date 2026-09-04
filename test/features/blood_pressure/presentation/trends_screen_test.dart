@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import 'package:vitality/core/paywall/paywall_providers.dart';
 import 'package:vitality/features/blood_pressure/data/app_database.dart';
 import 'package:vitality/features/blood_pressure/data/blood_pressure_providers.dart';
 import 'package:vitality/features/blood_pressure/data/drift_blood_pressure_repository.dart';
 import 'package:vitality/features/blood_pressure/presentation/trends_screen.dart';
 
+import '../../../support/fake_paywall_service.dart';
 import '../../../support/pump_app.dart';
 
 void main() {
@@ -196,6 +198,46 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.widgetWithText(OutlinedButton, 'Export 7-day summary (PDF)'), findsOneWidget);
+
+    await db.close();
+  });
+
+  testWidgets('tapping Export PDF generates nothing when the paywall denies access', (tester) async {
+    tester.view.physicalSize = const Size(400, 1400);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    await DriftBloodPressureRepository(db).addReading(
+      systolic: 120,
+      diastolic: 80,
+      timestamp: DateTime.now(),
+    );
+    final paywall = FakePaywallService(grantsAccess: false);
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          paywallServiceProvider.overrideWithValue(paywall),
+        ],
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: TrendsScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    await tester.tap(find.widgetWithText(OutlinedButton, 'Export 7-day summary (PDF)'));
+    await tester.pump();
+
+    expect(paywall.registeredPlacements, ['export_report_data']);
+    expect(find.byType(CircularProgressIndicator), findsNothing);
 
     await db.close();
   });

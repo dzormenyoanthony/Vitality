@@ -39,6 +39,7 @@ import 'features/blood_pressure/data/app_database.dart';
 import 'features/blood_pressure/data/blood_pressure_providers.dart';
 import 'features/blood_pressure/data/drift_blood_pressure_repository.dart';
 import 'features/reminders/data/drift_reminder_repository.dart';
+import 'features/reminders/data/engagement_notification_coordinator.dart';
 import 'features/reminders/data/flutter_local_notifications_scheduler.dart';
 import 'features/reminders/data/reminder_deep_link_provider.dart';
 import 'features/reminders/data/reminder_providers.dart';
@@ -236,6 +237,11 @@ class _VitalyAppState extends ConsumerState<VitalyApp>
     if (gate is AuthGateReady) {
       ref.read(syncCoordinatorProvider).syncAll(gate.uid);
     }
+    // Recomputes streak/re-engagement notifications (PROJECT_SPEC.md §23)
+    // against the latest state every time the app comes back to the
+    // foreground, so a stale notification never outlives the state it was
+    // scheduled from.
+    ref.read(engagementNotificationCoordinatorProvider).reschedule();
   }
 
   void _consumeDeepLinkIfReady(WidgetRef ref, GoRouter router) {
@@ -254,6 +260,7 @@ class _VitalyAppState extends ConsumerState<VitalyApp>
     final justOnboarded = _onboardingCompletion.onGateState(next);
     if (next is AuthGateReady) {
       ref.read(syncCoordinatorProvider).syncAll(next.uid);
+      ref.read(engagementNotificationCoordinatorProvider).reschedule();
       // Once fully onboarded, this device should never show the intro
       // carousel again — a later sign-out must land on Sign In, not
       // Onboarding (PROJECT_SPEC.md §30).

@@ -132,7 +132,7 @@ class _DashboardBody extends StatelessWidget {
       );
     }
 
-    final streak = computeLoggingStreak(readings, now);
+    final streak = computeStreakStats(readings, now);
     final insight = computeLoggingInsight(readings, now);
     final latest = readings.first;
     final monthly = TrendCalculator.compute(readings, TrendPeriod.thirtyDays, now);
@@ -156,14 +156,14 @@ class _DashboardBody extends StatelessWidget {
           _InsightCard(insight: insight),
         ],
         const SizedBox(height: AppSpacing.lg),
-        if (streak > 1)
+        if (streak.currentStreak > 1)
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(child: _NextReminderTile(occurrence: nextReminder)),
                 const SizedBox(width: AppSpacing.md),
-                Expanded(child: _StreakTile(streak: streak)),
+                Expanded(child: _StreakTile(stats: streak, readings: readings)),
               ],
             ),
           )
@@ -239,9 +239,10 @@ class _Header extends StatelessWidget {
 }
 
 class _StreakTile extends StatelessWidget {
-  const _StreakTile({required this.streak});
+  const _StreakTile({required this.stats, required this.readings});
 
-  final int streak;
+  final StreakStats stats;
+  final List<BloodPressureReading> readings;
 
   @override
   Widget build(BuildContext context) {
@@ -274,10 +275,63 @@ class _StreakTile extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            l10n.dashboardStreakDays(streak),
+            l10n.dashboardStreakDays(stats.currentStreak),
             style: theme.textTheme.titleMedium?.copyWith(color: theme.colorScheme.onSurface),
           ),
+          const SizedBox(height: 2),
+          Text(
+            l10n.dashboardStreakBest(stats.bestStreak),
+            style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.onSurfaceVariant),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          _StreakWeekDots(readings: readings, foreground: accents.mintForeground),
         ],
+      ),
+    );
+  }
+}
+
+/// A row of 7 small dots, oldest to newest, marking which of the last 7
+/// calendar days had at least one qualifying reading — a lightweight
+/// consistency visual, not a count of measurements.
+class _StreakWeekDots extends StatelessWidget {
+  const _StreakWeekDots({required this.readings, required this.foreground});
+
+  final List<BloodPressureReading> readings;
+  final Color foreground;
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final days = readings.map((r) => DateTime(r.timestamp.year, r.timestamp.month, r.timestamp.day)).toSet();
+    final recordedCount = List.generate(
+      7,
+      (i) => days.contains(today.subtract(Duration(days: 6 - i))),
+    ).where((recorded) => recorded).length;
+
+    return Semantics(
+      label: AppLocalizations.of(context).dashboardStreakDotsSemantics(recordedCount),
+      child: ExcludeSemantics(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 6; i >= 0; i--)
+              Padding(
+                padding: const EdgeInsets.only(right: 3),
+                child: Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: days.contains(today.subtract(Duration(days: i)))
+                        ? foreground
+                        : foreground.withValues(alpha: 0.25),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

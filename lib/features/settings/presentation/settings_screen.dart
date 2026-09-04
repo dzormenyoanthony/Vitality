@@ -14,6 +14,8 @@ import '../../../l10n/app_localizations.dart';
 import '../../authentication/data/auth_providers.dart';
 import '../../authentication/domain/credentials_validator.dart';
 import '../../onboarding/data/user_profile_providers.dart';
+import '../../reminders/data/engagement_notification_coordinator.dart';
+import '../../reminders/data/engagement_notification_preferences.dart';
 import 'settings_controller.dart';
 
 /// Profile and settings (PROJECT_SPEC.md §24): preferred name, account
@@ -82,6 +84,10 @@ class SettingsScreen extends ConsumerWidget {
                     trailing: const Icon(Icons.chevron_right),
                     onTap: () => context.push(AppRoutes.reminders),
                   ),
+                  const SizedBox(height: AppSpacing.lg),
+                  _SectionLabel(l10n.settingsSectionNotifications, color: AppColors.dashboardAccentTeal),
+                  const SizedBox(height: AppSpacing.sm),
+                  const _NotificationsCard(),
                   const SizedBox(height: AppSpacing.lg),
                   _SectionLabel(l10n.settingsSectionData, color: AppColors.dashboardAccentTeal),
                   const SizedBox(height: AppSpacing.sm),
@@ -443,6 +449,51 @@ class _DataCard extends StatelessWidget {
             subtitle: Text(l10n.settingsExportDataSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => context.push(AppRoutes.exportData),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Streak and re-engagement notification toggles (PROJECT_SPEC.md §23-24).
+/// BP measurement reminders themselves stay controlled per-reminder on the
+/// Reminders screen (linked just above); these two categories are app-wide
+/// switches, off by default until the user opts in here.
+class _NotificationsCard extends ConsumerWidget {
+  const _NotificationsCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final streakEnabled = ref.watch(streakRemindersEnabledProvider);
+    final reEngagementEnabled = ref.watch(reEngagementNotificationsEnabledProvider);
+
+    Future<void> onStreakChanged(bool value) async {
+      await ref.read(streakRemindersEnabledProvider.notifier).setEnabled(value);
+      await ref.read(engagementNotificationCoordinatorProvider).reschedule();
+    }
+
+    Future<void> onReEngagementChanged(bool value) async {
+      await ref.read(reEngagementNotificationsEnabledProvider.notifier).setEnabled(value);
+      await ref.read(engagementNotificationCoordinatorProvider).reschedule();
+    }
+
+    return Card(
+      child: Column(
+        children: [
+          SwitchListTile(
+            title: Text(l10n.settingsStreakRemindersTitle),
+            subtitle: Text(l10n.settingsStreakRemindersSubtitle),
+            value: streakEnabled,
+            onChanged: onStreakChanged,
+          ),
+          const Divider(height: 1),
+          SwitchListTile(
+            title: Text(l10n.settingsReEngagementTitle),
+            subtitle: Text(l10n.settingsReEngagementSubtitle),
+            value: reEngagementEnabled,
+            onChanged: onReEngagementChanged,
           ),
         ],
       ),

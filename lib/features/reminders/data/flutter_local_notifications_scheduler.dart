@@ -15,6 +15,15 @@ const _channelDescription = 'Reminders to record a blood pressure measurement';
 /// reminder tap from any other notification the app might show in future.
 const _reminderPayload = 'record_bp_reminder';
 
+/// Separate Android channel for the streak/re-engagement notifications
+/// (PROJECT_SPEC.md §23) — a distinct channel from [_channelId] means
+/// Android's own per-channel notification settings let a user mute this
+/// category without touching their measurement reminders.
+const _engagementChannelId = 'bp_engagement';
+const _engagementChannelName = 'Vitaly activity reminders';
+const _engagementChannelDescription =
+    'Occasional streak and check-in reminders about your blood pressure tracking';
+
 /// Real [NotificationScheduler] backed by `flutter_local_notifications`.
 class FlutterLocalNotificationsScheduler implements NotificationScheduler {
   FlutterLocalNotificationsScheduler(this._plugin);
@@ -124,6 +133,65 @@ class FlutterLocalNotificationsScheduler implements NotificationScheduler {
       await _plugin.cancel(id: _notificationId(reminderId, weekday));
     }
   }
+
+  @override
+  Future<void> scheduleOneOff({
+    required int id,
+    required String title,
+    required String body,
+    required DateTime scheduledDate,
+  }) async {
+    await cancelById(id);
+    final scheduled = tz.TZDateTime.from(scheduledDate, tz.local);
+    if (!scheduled.isAfter(tz.TZDateTime.now(tz.local))) return;
+
+    await _plugin.zonedSchedule(
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: scheduled,
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          _engagementChannelId,
+          _engagementChannelName,
+          channelDescription: _engagementChannelDescription,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+    );
+  }
+
+  @override
+  Future<void> scheduleWeekly({
+    required int id,
+    required String title,
+    required String body,
+    required int weekday,
+    required int hour,
+    required int minute,
+  }) async {
+    await cancelById(id);
+    await _plugin.zonedSchedule(
+      id: id,
+      title: title,
+      body: body,
+      scheduledDate: _nextInstanceOfWeekdayAndTime(weekday, hour, minute),
+      notificationDetails: const NotificationDetails(
+        android: AndroidNotificationDetails(
+          _engagementChannelId,
+          _engagementChannelName,
+          channelDescription: _engagementChannelDescription,
+        ),
+        iOS: DarwinNotificationDetails(),
+      ),
+      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+    );
+  }
+
+  @override
+  Future<void> cancelById(int id) => _plugin.cancel(id: id);
 
   int _notificationId(int reminderId, int weekday) => reminderId * 10 + weekday;
 

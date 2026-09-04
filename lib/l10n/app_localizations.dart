@@ -688,6 +688,54 @@ abstract class AppLocalizations {
   /// **'System notifications for Vitaly are switched off. '**
   String get remindersNotificationsOffPrefix;
 
+  /// Title of the local notification sent when the user's logging streak is at risk (PROJECT_SPEC.md §23) — non-alarming, tracking-focused wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep your streak going'**
+  String get streakAtRiskTitle;
+
+  /// Body of the streak-at-risk local notification. Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{You\'ve got a 1-day streak going 🔥\nRecord today\'s reading to keep it going.} other{You\'ve got a {count}-day streak going 🔥\nRecord today\'s reading to keep it going.}}'**
+  String streakAtRiskBody(int count);
+
+  /// Title of the short-gap re-engagement local notification (PROJECT_SPEC.md §23). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Time to check in'**
+  String get missedTrackingTitle;
+
+  /// Body of the short-gap re-engagement local notification. Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'You haven\'t recorded a reading recently.\nReady to update your Vitaly log?'**
+  String get missedTrackingBody;
+
+  /// Title of the longer-gap inactivity local notification (PROJECT_SPEC.md §23). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Your records are waiting'**
+  String get inactivityReminderTitle;
+
+  /// Body of the longer-gap inactivity local notification. Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Your BP history is waiting for you.\nOpen Vitaly to keep your records up to date.'**
+  String get inactivityReminderBody;
+
+  /// Title of the weekly-summary local notification (PROJECT_SPEC.md §23). Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'Your weekly summary is ready'**
+  String get weeklySummaryTitle;
+
+  /// Body of the weekly-summary local notification. Approved wording; any change needs the §37 review.
+  ///
+  /// In en, this message translates to:
+  /// **'See your recent BP tracking activity in Vitaly.'**
+  String get weeklySummaryBody;
+
   /// Link in the notifications-disabled banner that opens the OS notification settings.
   ///
   /// In en, this message translates to:
@@ -2061,6 +2109,18 @@ abstract class AppLocalizations {
   /// **'{count, plural, =1{1 day} other{{count} days}}'**
   String dashboardStreakDays(int count);
 
+  /// Best (longest-ever) streak, shown under the current streak on the dashboard streak tile.
+  ///
+  /// In en, this message translates to:
+  /// **'Best: {count, plural, =1{1 day} other{{count} days}}'**
+  String dashboardStreakBest(int count);
+
+  /// Screen-reader label for the 7-dot streak visual on the dashboard streak tile.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{No readings in the last 7 days} =1{1 of the last 7 days recorded} other{{count} of the last 7 days recorded}}'**
+  String dashboardStreakDotsSemantics(int count);
+
   /// Button on the dashboard nudge card that creates a reminder at the suggested time.
   ///
   /// In en, this message translates to:
@@ -2463,6 +2523,12 @@ abstract class AppLocalizations {
   /// **'{period, select, sevenDays{7-day} thirtyDays{30-day} ninetyDays{90-day} oneYear{1-year} other{all-time}}'**
   String trendsExportPeriodName(String period);
 
+  /// Snackbar shown when building or sharing the Trends PDF export fails.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t prepare your PDF. Please try again.'**
+  String get trendsExportFailed;
+
   /// Header above the systolic/diastolic line chart on Trends.
   ///
   /// In en, this message translates to:
@@ -2624,6 +2690,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Manage reminders'**
   String get settingsManageReminders;
+
+  /// Section label above the streak/re-engagement notification toggles in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'NOTIFICATIONS'**
+  String get settingsSectionNotifications;
+
+  /// Settings toggle enabling the streak-at-risk local notification.
+  ///
+  /// In en, this message translates to:
+  /// **'Streak reminders'**
+  String get settingsStreakRemindersTitle;
+
+  /// Subtitle explaining the streak reminders toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'A gentle nudge when your logging streak is about to lapse.'**
+  String get settingsStreakRemindersSubtitle;
+
+  /// Settings toggle enabling the missed-tracking/inactivity/weekly-summary local notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Activity reminders'**
+  String get settingsReEngagementTitle;
+
+  /// Subtitle explaining the re-engagement notifications toggle.
+  ///
+  /// In en, this message translates to:
+  /// **'Occasional reminders to check in if you haven\'t logged a reading in a while.'**
+  String get settingsReEngagementSubtitle;
 
   /// Field label above the editable preferred-name input in Settings.
   ///

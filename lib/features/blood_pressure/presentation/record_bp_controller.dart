@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/analytics/analytics_providers.dart';
+import '../../reminders/data/engagement_notification_coordinator.dart';
 import '../data/blood_pressure_providers.dart';
 import '../data/blood_pressure_reading.dart';
 
@@ -52,6 +53,11 @@ class RecordBpController extends AsyncNotifier<void> {
           cuffArm: cuffArm,
         );
       }
+      // A reading just changed today's streak/inactivity state — reschedule
+      // immediately so an already-satisfied streak-at-risk notification
+      // doesn't linger (PROJECT_SPEC.md §23's anti-spam requirement) rather
+      // than waiting for the next app resume.
+      await ref.read(engagementNotificationCoordinatorProvider).reschedule();
     });
   }
 }

@@ -320,6 +320,42 @@ class AppLocalizationsEn extends AppLocalizations {
       'System notifications for Vitaly are switched off. ';
 
   @override
+  String get streakAtRiskTitle => 'Keep your streak going';
+
+  @override
+  String streakAtRiskBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'You\'ve got a $count-day streak going 🔥\nRecord today\'s reading to keep it going.',
+      one: 'You\'ve got a 1-day streak going 🔥\nRecord today\'s reading to keep it going.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get missedTrackingTitle => 'Time to check in';
+
+  @override
+  String get missedTrackingBody =>
+      'You haven\'t recorded a reading recently.\nReady to update your Vitaly log?';
+
+  @override
+  String get inactivityReminderTitle => 'Your records are waiting';
+
+  @override
+  String get inactivityReminderBody =>
+      'Your BP history is waiting for you.\nOpen Vitaly to keep your records up to date.';
+
+  @override
+  String get weeklySummaryTitle => 'Your weekly summary is ready';
+
+  @override
+  String get weeklySummaryBody =>
+      'See your recent BP tracking activity in Vitaly.';
+
+  @override
   String get remindersOpenAndroidSettings => 'Open Android settings';
 
   @override
@@ -1211,6 +1247,29 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String dashboardStreakBest(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days',
+      one: '1 day',
+    );
+    return 'Best: $_temp0';
+  }
+
+  @override
+  String dashboardStreakDotsSemantics(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count of the last 7 days recorded',
+      one: '1 of the last 7 days recorded',
+      zero: 'No readings in the last 7 days',
+    );
+    return '$_temp0';
+  }
+
+  @override
   String dashboardSetReminderButton(String time) {
     return 'Set $time reminder';
   }
@@ -1458,6 +1517,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get trendsExportFailed =>
+      'Couldn\'t prepare your PDF. Please try again.';
+
+  @override
   String get trendsChartHeader => 'SYSTOLIC / DIASTOLIC · mmHg';
 
   @override
@@ -1553,6 +1616,23 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsManageReminders => 'Manage reminders';
+
+  @override
+  String get settingsSectionNotifications => 'NOTIFICATIONS';
+
+  @override
+  String get settingsStreakRemindersTitle => 'Streak reminders';
+
+  @override
+  String get settingsStreakRemindersSubtitle =>
+      'A gentle nudge when your logging streak is about to lapse.';
+
+  @override
+  String get settingsReEngagementTitle => 'Activity reminders';
+
+  @override
+  String get settingsReEngagementSubtitle =>
+      'Occasional reminders to check in if you haven\'t logged a reading in a while.';
 
   @override
   String get settingsPreferredNameLabel => 'Preferred name';

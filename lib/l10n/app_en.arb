@@ -397,6 +397,40 @@
   },
   "remindersNotificationsOffPrefix": "System notifications for Vitaly are switched off. ",
   "@remindersNotificationsOffPrefix": { "description": "Leading text of the notifications-disabled banner; followed by the settings link." },
+
+  "streakAtRiskTitle": "Keep your streak going",
+  "@streakAtRiskTitle": {
+    "description": "Title of the local notification sent when the user's logging streak is at risk (PROJECT_SPEC.md §23) — non-alarming, tracking-focused wording; any change needs the §37 review."
+  },
+  "streakAtRiskBody": "{count, plural, =1{You've got a 1-day streak going 🔥\nRecord today's reading to keep it going.} other{You've got a {count}-day streak going 🔥\nRecord today's reading to keep it going.}}",
+  "@streakAtRiskBody": {
+    "description": "Body of the streak-at-risk local notification. Approved wording; any change needs the §37 review.",
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "missedTrackingTitle": "Time to check in",
+  "@missedTrackingTitle": {
+    "description": "Title of the short-gap re-engagement local notification (PROJECT_SPEC.md §23). Approved wording; any change needs the §37 review."
+  },
+  "missedTrackingBody": "You haven't recorded a reading recently.\nReady to update your Vitaly log?",
+  "@missedTrackingBody": {
+    "description": "Body of the short-gap re-engagement local notification. Approved wording; any change needs the §37 review."
+  },
+  "inactivityReminderTitle": "Your records are waiting",
+  "@inactivityReminderTitle": {
+    "description": "Title of the longer-gap inactivity local notification (PROJECT_SPEC.md §23). Approved wording; any change needs the §37 review."
+  },
+  "inactivityReminderBody": "Your BP history is waiting for you.\nOpen Vitaly to keep your records up to date.",
+  "@inactivityReminderBody": {
+    "description": "Body of the longer-gap inactivity local notification. Approved wording; any change needs the §37 review."
+  },
+  "weeklySummaryTitle": "Your weekly summary is ready",
+  "@weeklySummaryTitle": {
+    "description": "Title of the weekly-summary local notification (PROJECT_SPEC.md §23). Approved wording; any change needs the §37 review."
+  },
+  "weeklySummaryBody": "See your recent BP tracking activity in Vitaly.",
+  "@weeklySummaryBody": {
+    "description": "Body of the weekly-summary local notification. Approved wording; any change needs the §37 review."
+  },
   "remindersOpenAndroidSettings": "Open Android settings",
   "@remindersOpenAndroidSettings": { "description": "Link in the notifications-disabled banner that opens the OS notification settings." },
   "remindersDeleteTitle": "Delete this reminder?",
@@ -1143,6 +1177,20 @@
       "count": { "type": "int" }
     }
   },
+  "dashboardStreakBest": "Best: {count, plural, =1{1 day} other{{count} days}}",
+  "@dashboardStreakBest": {
+    "description": "Best (longest-ever) streak, shown under the current streak on the dashboard streak tile.",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "dashboardStreakDotsSemantics": "{count, plural, =0{No readings in the last 7 days} =1{1 of the last 7 days recorded} other{{count} of the last 7 days recorded}}",
+  "@dashboardStreakDotsSemantics": {
+    "description": "Screen-reader label for the 7-dot streak visual on the dashboard streak tile.",
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
   "dashboardSetReminderButton": "Set {time} reminder",
   "@dashboardSetReminderButton": {
     "description": "Button on the dashboard nudge card that creates a reminder at the suggested time.",
@@ -1347,6 +1395,8 @@
     "description": "Adjective form of a trend period, interpolated into trendsExportButton.",
     "placeholders": { "period": { "type": "String", "example": "oneYear" } }
   },
+  "trendsExportFailed": "Couldn't prepare your PDF. Please try again.",
+  "@trendsExportFailed": { "description": "Snackbar shown when building or sharing the Trends PDF export fails." },
   "trendsChartHeader": "SYSTOLIC / DIASTOLIC · mmHg",
   "@trendsChartHeader": { "description": "Header above the systolic/diastolic line chart on Trends." },
   "trendsLegendSystolic": "Systolic",
@@ -1439,6 +1489,26 @@
   "settingsManageReminders": "Manage reminders",
   "@settingsManageReminders": {
     "description": "Link from Settings into the reminders screen."
+  },
+  "settingsSectionNotifications": "NOTIFICATIONS",
+  "@settingsSectionNotifications": {
+    "description": "Section label above the streak/re-engagement notification toggles in Settings."
+  },
+  "settingsStreakRemindersTitle": "Streak reminders",
+  "@settingsStreakRemindersTitle": {
+    "description": "Settings toggle enabling the streak-at-risk local notification."
+  },
+  "settingsStreakRemindersSubtitle": "A gentle nudge when your logging streak is about to lapse.",
+  "@settingsStreakRemindersSubtitle": {
+    "description": "Subtitle explaining the streak reminders toggle."
+  },
+  "settingsReEngagementTitle": "Activity reminders",
+  "@settingsReEngagementTitle": {
+    "description": "Settings toggle enabling the missed-tracking/inactivity/weekly-summary local notifications."
+  },
+  "settingsReEngagementSubtitle": "Occasional reminders to check in if you haven't logged a reading in a while.",
+  "@settingsReEngagementSubtitle": {
+    "description": "Subtitle explaining the re-engagement notifications toggle."
   },
   "settingsPreferredNameLabel": "Preferred name",
   "@settingsPreferredNameLabel": {

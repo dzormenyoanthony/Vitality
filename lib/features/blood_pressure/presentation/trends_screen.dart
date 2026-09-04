@@ -6,6 +6,8 @@ import 'package:printing/printing.dart';
 import '../../../core/constants/app_spacing.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/i18n/formatters.dart';
+import '../../../core/paywall/paywall_placements.dart';
+import '../../../core/paywall/paywall_providers.dart';
 import '../../../core/router/auth_gate_provider.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/widgets/empty_view.dart';
@@ -723,18 +725,60 @@ class _DisclaimerCard extends StatelessWidget {
   }
 }
 
-class _ExportButton extends ConsumerWidget {
+class _ExportButton extends ConsumerStatefulWidget {
   const _ExportButton({required this.stats});
 
   final TrendStats stats;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_ExportButton> createState() => _ExportButtonState();
+}
+
+class _ExportButtonState extends ConsumerState<_ExportButton> {
+  bool _isExporting = false;
+
+  /// Gates the Trends PDF export behind the `export_report_data` placement
+  /// (PROJECT_SPEC.md §27) — the same premium action as History/Settings'
+  /// export, so this entry point can't bypass premium gating. No PDF is
+  /// built or shared unless Superwall grants access.
+  Future<void> _export() {
+    return ref.read(paywallServiceProvider).gateFeature(
+      placement: PaywallPlacements.exportReportData,
+      onAccessGranted: _exportPdf,
+    );
+  }
+
+  Future<void> _exportPdf() async {
+    if (!mounted) return;
+    setState(() => _isExporting = true);
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final gate = ref.read(authGateProvider);
+      final bytes = await buildTrendSummaryPdf(
+        l10n,
+        widget.stats,
+        patientName: gate is AuthGateReady ? gate.displayName : null,
+        reports: ref.read(savedReportsStreamProvider).value ?? const [],
+      );
+      if (!mounted) return;
+      await Printing.sharePdf(bytes: bytes, filename: 'vitaly-trend-summary.pdf');
+    } catch (_) {
+      if (mounted) {
+        messenger.showSnackBar(SnackBar(content: Text(l10n.trendsExportFailed)));
+      }
+    } finally {
+      if (mounted) setState(() => _isExporting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
-        onPressed: () => _exportPdf(context, ref),
+        onPressed: _isExporting ? null : _export,
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.dashboardAccentTeal,
           side: const BorderSide(color: AppColors.dashboardAccentTeal),
@@ -742,25 +786,19 @@ class _ExportButton extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
           textStyle: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700),
         ),
-        icon: const Icon(Icons.download_outlined),
+        icon: _isExporting
+            ? const SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.dashboardAccentTeal),
+              )
+            : const Icon(Icons.download_outlined),
         label: Text(
           AppLocalizations.of(context).trendsExportButton(
-            AppLocalizations.of(context).trendsExportPeriodName(stats.period.name),
+            AppLocalizations.of(context).trendsExportPeriodName(widget.stats.period.name),
           ),
         ),
       ),
     );
-  }
-
-  Future<void> _exportPdf(BuildContext context, WidgetRef ref) async {
-    final gate = ref.read(authGateProvider);
-    final bytes = await buildTrendSummaryPdf(
-      AppLocalizations.of(context),
-      stats,
-      patientName: gate is AuthGateReady ? gate.displayName : null,
-      reports: ref.read(savedReportsStreamProvider).value ?? const [],
-    );
-    if (!context.mounted) return;
-    await Printing.sharePdf(bytes: bytes, filename: 'vitaly-trend-summary.pdf');
   }
 }
