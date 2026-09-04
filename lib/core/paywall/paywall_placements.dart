@@ -7,11 +7,13 @@ abstract final class PaywallPlacements {
   static const String uploadPdfReport = 'upload_pdf_report';
   static const String exportReportData = 'export_report_data';
 
-  /// Shown once, right after a user finishes onboarding, before the
-  /// dashboard. Unlike the placements above it gates nothing: Superwall
-  /// skips it for users with an active subscription, and everyone else
-  /// reaches the dashboard whether or not they purchase. The campaign for
-  /// this placement must be configured "not gated" in the Superwall
-  /// dashboard.
+  /// A recurring nudge for signed-in users without an active subscription:
+  /// registered right after onboarding, on every later cold start, and on
+  /// every return to the foreground. Unlike the placements above it gates
+  /// nothing: everyone reaches the dashboard whether or not they purchase.
+  /// The campaign for this placement must stay configured "not gated" in
+  /// the Superwall dashboard, with a non-subscriber audience rule (and any
+  /// desired frequency capping) controlling how often it actually
+  /// presents — the app just registers it every time.
   static const String onboardingComplete = 'onboarding_complete';
 }

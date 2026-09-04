@@ -20,7 +20,6 @@ import 'core/analytics/analytics_providers.dart';
 import 'core/analytics/firebase_analytics_service.dart';
 import 'core/config/superwall_config.dart';
 import 'core/constants/app_routes.dart';
-import 'core/paywall/onboarding_completion_detector.dart';
 import 'core/paywall/paywall_placements.dart';
 import 'core/paywall/paywall_providers.dart';
 import 'core/paywall/paywall_service.dart';
@@ -207,11 +206,6 @@ class VitalyApp extends ConsumerStatefulWidget {
 
 class _VitalyAppState extends ConsumerState<VitalyApp>
     with WidgetsBindingObserver {
-  /// Recognises the [AuthGateNeedsOnboarding] → [AuthGateReady] transition
-  /// so the one-time post-onboarding paywall is offered then, and only
-  /// then. Instance state: one detector per app session.
-  final _onboardingCompletion = OnboardingCompletionDetector();
-
   @override
   void initState() {
     super.initState();
@@ -236,6 +230,15 @@ class _VitalyAppState extends ConsumerState<VitalyApp>
     final gate = ref.read(authGateProvider);
     if (gate is AuthGateReady) {
       ref.read(syncCoordinatorProvider).syncAll(gate.uid);
+      // Nudges a still-non-subscribed, already-signed-in user again on
+      // every return to the app, not just right after onboarding —
+      // Superwall's own non-subscriber audience rule on this placement's
+      // dashboard campaign (and any frequency capping set there) decides
+      // whether a paywall actually shows each time.
+      ref.read(paywallServiceProvider).gateFeature(
+        placement: PaywallPlacements.onboardingComplete,
+        onAccessGranted: () async {},
+      );
     }
     // Recomputes streak/re-engagement notifications (PROJECT_SPEC.md §23)
     // against the latest state every time the app comes back to the
@@ -257,7 +260,6 @@ class _VitalyAppState extends ConsumerState<VitalyApp>
   /// device never sees the previous account's cached rows
   /// (PROJECT_SPEC.md §21-22).
   void _handleAuthGateChange(AuthGateState? previous, AuthGateState next) {
-    final justOnboarded = _onboardingCompletion.onGateState(next);
     if (next is AuthGateReady) {
       ref.read(syncCoordinatorProvider).syncAll(next.uid);
       ref.read(engagementNotificationCoordinatorProvider).reschedule();
@@ -268,12 +270,11 @@ class _VitalyAppState extends ConsumerState<VitalyApp>
       // Ties entitlement state to the signed-in account so a purchase made
       // on one device is recognized after signing in on another, and
       // survives this app restarting while the subscription is active.
-      // When the user has *just* finished onboarding, also present the
-      // one-time post-onboarding paywall on the way to the dashboard.
-      _identifyThenMaybePromptOnboardingPaywall(
-        next.uid,
-        justOnboarded: justOnboarded,
-      );
+      // Also nudges a non-subscriber right on the way to the dashboard —
+      // right after onboarding and on every later cold start that reaches
+      // this state (see the resumed-lifecycle nudge above for warm
+      // returns to the app within the same process).
+      _identifyThenNudgeNonSubscriber(next.uid);
     } else if (next is AuthGateUnauthenticated) {
       ref.read(bloodPressureRepositoryProvider).deleteAll();
       ref.read(reminderRepositoryProvider).deleteAll();
@@ -285,25 +286,18 @@ class _VitalyAppState extends ConsumerState<VitalyApp>
     }
   }
 
-  /// Ties the paywall SDK to [uid], then — only when the user has just
-  /// finished onboarding ([justOnboarded]) — registers the non-gated
-  /// post-onboarding placement. Both onboarding paths converge on a
-  /// [AuthGateNeedsOnboarding] → [AuthGateReady] transition here; a
-  /// returning user who boots straight into [AuthGateReady] is skipped, so
-  /// the paywall is seen at most once, right after onboarding. Superwall
-  /// shows nothing for a user with an active subscription; for everyone
-  /// else the dashboard is reached whether or not they purchase (the
-  /// router already navigates there on [AuthGateReady], so the access
-  /// callback is a no-op). `identify` is awaited first so Superwall
-  /// resolves entitlements against the right account before deciding
-  /// whether to present.
-  Future<void> _identifyThenMaybePromptOnboardingPaywall(
-    String uid, {
-    required bool justOnboarded,
-  }) async {
+  /// Ties the paywall SDK to [uid], then registers the non-gated
+  /// non-subscriber-nudge placement — right after onboarding and again on
+  /// every later cold start that reaches [AuthGateReady]. Superwall shows
+  /// nothing for a user with an active subscription (the dashboard
+  /// campaign's non-subscriber audience rule); for everyone else the
+  /// dashboard is reached whether or not they purchase (the router already
+  /// navigates there on [AuthGateReady], so the access callback is a
+  /// no-op). `identify` is awaited first so Superwall resolves entitlements
+  /// against the right account before deciding whether to present.
+  Future<void> _identifyThenNudgeNonSubscriber(String uid) async {
     final paywallService = ref.read(paywallServiceProvider);
     await paywallService.identify(uid);
-    if (!justOnboarded) return;
     await paywallService.gateFeature(
       placement: PaywallPlacements.onboardingComplete,
       onAccessGranted: () async {},
