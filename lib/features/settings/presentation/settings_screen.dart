@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/legal_links.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/paywall/paywall_providers.dart';
 import '../../../core/theme/app_colors.dart';
@@ -96,6 +98,10 @@ class SettingsScreen extends ConsumerWidget {
                   _SectionLabel(l10n.settingsSectionSubscription, color: AppColors.dashboardAccentTeal),
                   const SizedBox(height: AppSpacing.sm),
                   const _SubscriptionCard(),
+                  const SizedBox(height: AppSpacing.lg),
+                  _SectionLabel(l10n.settingsSectionLegal, color: AppColors.dashboardAccentTeal),
+                  const SizedBox(height: AppSpacing.sm),
+                  const _LegalCard(),
                   const SizedBox(height: AppSpacing.lg),
                   _SectionLabel(l10n.settingsSectionAccount, color: AppColors.dashboardAccentCoral),
                   const SizedBox(height: AppSpacing.sm),
@@ -451,6 +457,39 @@ class _DataCard extends StatelessWidget {
             onTap: () => context.push(AppRoutes.exportData),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _LegalCard extends StatelessWidget {
+  const _LegalCard();
+
+  Future<void> _open(BuildContext context) async {
+    final uri = Uri.parse(LegalLinks.termsAndPrivacyUrl);
+    bool launched;
+    try {
+      launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      launched = false;
+    }
+    if (!launched && context.mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).settingsLinkOpenError)));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Card(
+      child: ListTile(
+        leading: const Icon(Icons.description_outlined),
+        title: Text(l10n.settingsTermsPrivacyTitle),
+        subtitle: Text(l10n.settingsTermsPrivacySubtitle),
+        trailing: const Icon(Icons.open_in_new),
+        onTap: () => _open(context),
       ),
     );
   }

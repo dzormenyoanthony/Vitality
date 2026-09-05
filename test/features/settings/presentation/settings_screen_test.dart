@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 
+import 'package:vitality/core/constants/legal_links.dart';
 import 'package:vitality/core/paywall/paywall_providers.dart';
 import 'package:vitality/core/services/shared_preferences_provider.dart';
 import 'package:vitality/features/authentication/data/auth_providers.dart';
@@ -17,6 +19,7 @@ import 'package:vitality/features/reminders/data/reminder_providers.dart';
 import 'package:vitality/features/settings/presentation/settings_screen.dart';
 
 import '../../../support/fake_paywall_service.dart';
+import '../../../support/fake_url_launcher.dart';
 import '../../../support/pump_app.dart';
 
 void main() {
@@ -401,6 +404,56 @@ void main() {
     await tester.pump(const Duration(milliseconds: 100));
 
     expect(find.text('No active subscription was found to restore.'), findsOneWidget);
+
+    await db.close();
+  });
+
+  testWidgets('tapping Terms & Privacy Policy opens the legal link', (tester) async {
+    tester.view.physicalSize = const Size(400, 2200);
+    tester.view.devicePixelRatio = 1.0;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final fakeLauncher = FakeUrlLauncher();
+    final previousLauncher = UrlLauncherPlatform.instance;
+    UrlLauncherPlatform.instance = fakeLauncher;
+    addTearDown(() => UrlLauncherPlatform.instance = previousLauncher);
+
+    final db = AppDatabase(NativeDatabase.memory());
+    addTearDown(db.close);
+    final scheduler = FakeNotificationScheduler();
+    addTearDown(scheduler.dispose);
+    final authRepository = FakeAuthRepository();
+    addTearDown(authRepository.dispose);
+    final profileRepository = FakeUserProfileRepository();
+    addTearDown(profileRepository.dispose);
+    final user = await authRepository.signUp(email: 'a@b.com', password: 'password123');
+    await profileRepository.createProfile(uid: user.uid, displayName: 'Ada');
+    final prefs = await mockPrefs();
+
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          appDatabaseProvider.overrideWithValue(db),
+          notificationSchedulerProvider.overrideWithValue(scheduler),
+          authRepositoryProvider.overrideWithValue(authRepository),
+          userProfileRepositoryProvider.overrideWithValue(profileRepository),
+          sharedPreferencesProvider.overrideWithValue(prefs),
+        ],
+        child: const MaterialApp(
+          localizationsDelegates: localizationWrappers,
+          supportedLocales: testSupportedLocales,
+          home: SettingsScreen(),
+        ),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 100));
+
+    await tester.tap(find.text('Terms & Privacy Policy'));
+    await tester.pump();
+
+    expect(fakeLauncher.launchedUrls, [LegalLinks.termsAndPrivacyUrl]);
 
     await db.close();
   });

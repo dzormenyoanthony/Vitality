@@ -1,9 +1,12 @@
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/constants/app_routes.dart';
 import '../../../core/constants/app_spacing.dart';
+import '../../../core/constants/legal_links.dart';
 import '../../../core/errors/failure.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../l10n/app_localizations.dart';
@@ -26,13 +29,39 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   bool _agreedToTerms = false;
+  late final TapGestureRecognizer _termsTapRecognizer;
+  late final TapGestureRecognizer _privacyTapRecognizer;
+
+  @override
+  void initState() {
+    super.initState();
+    _termsTapRecognizer = TapGestureRecognizer()..onTap = _openTermsAndPrivacy;
+    _privacyTapRecognizer = TapGestureRecognizer()..onTap = _openTermsAndPrivacy;
+  }
 
   @override
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
+    _termsTapRecognizer.dispose();
+    _privacyTapRecognizer.dispose();
     super.dispose();
+  }
+
+  Future<void> _openTermsAndPrivacy() async {
+    final uri = Uri.parse(LegalLinks.termsAndPrivacyUrl);
+    bool launched;
+    try {
+      launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (_) {
+      launched = false;
+    }
+    if (!launched && mounted) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(AppLocalizations.of(context).signUpLinkOpenError)));
+    }
   }
 
   void _submit() {
@@ -312,6 +341,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                                   AppColors.dashboardAccentTeal,
                                               fontWeight: FontWeight.w700,
                                             ),
+                                            recognizer: _termsTapRecognizer,
                                           ),
                                           TextSpan(
                                             text: l10n.signUpAgreeConjunction,
@@ -323,11 +353,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                                                   AppColors.dashboardAccentTeal,
                                               fontWeight: FontWeight.w700,
                                             ),
+                                            recognizer: _privacyTapRecognizer,
                                           ),
-                                          // Not linked anywhere yet — Vitaly has
-                                          // no Terms/Privacy Policy document to
-                                          // point to yet, so making these tap
-                                          // targets would go nowhere.
                                           TextSpan(
                                             text: l10n.signUpAgreeSuffix,
                                           ),

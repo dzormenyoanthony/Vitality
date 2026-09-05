@@ -205,7 +205,7 @@
   },
   "signUpTermsLink": "Terms",
   "@signUpTermsLink": {
-    "description": "The 'Terms' span in the Create Account agreement line (not yet linked)."
+    "description": "The 'Terms' span in the Create Account agreement line; opens LegalLinks.termsAndPrivacyUrl."
   },
   "signUpAgreeConjunction": " and ",
   "@signUpAgreeConjunction": {
@@ -213,11 +213,15 @@
   },
   "signUpPrivacyLink": "Privacy Policy",
   "@signUpPrivacyLink": {
-    "description": "The 'Privacy Policy' span in the Create Account agreement line (not yet linked)."
+    "description": "The 'Privacy Policy' span in the Create Account agreement line; opens LegalLinks.termsAndPrivacyUrl."
   },
   "signUpAgreeSuffix": ". Vitaly is not a medical device.",
   "@signUpAgreeSuffix": {
     "description": "Text after the Privacy Policy link in the Create Account agreement line."
+  },
+  "signUpLinkOpenError": "Couldn't open the link. Please try again.",
+  "@signUpLinkOpenError": {
+    "description": "Snackbar shown when the Terms/Privacy Policy link fails to open."
   },
   "signUpSubmit": "Create account",
   "@signUpSubmit": {
@@ -1486,6 +1490,10 @@
   "@settingsSectionAccount": {
     "description": "Section label above sign-out / delete-account in Settings."
   },
+  "settingsSectionLegal": "LEGAL",
+  "@settingsSectionLegal": {
+    "description": "Section label above the Terms & Privacy Policy row in Settings."
+  },
   "settingsManageReminders": "Manage reminders",
   "@settingsManageReminders": {
     "description": "Link from Settings into the reminders screen."
@@ -1587,6 +1595,18 @@
   "settingsExportDataSubtitle": "PDF, CSV, or a full archive — your choice",
   "@settingsExportDataSubtitle": {
     "description": "Subtitle for the Export data row; opens the Export data screen."
+  },
+  "settingsTermsPrivacyTitle": "Terms & Privacy Policy",
+  "@settingsTermsPrivacyTitle": {
+    "description": "Legal-section row that opens LegalLinks.termsAndPrivacyUrl in a browser."
+  },
+  "settingsTermsPrivacySubtitle": "Read Vitaly's terms and privacy policy",
+  "@settingsTermsPrivacySubtitle": {
+    "description": "Subtitle for the Terms & Privacy Policy row."
+  },
+  "settingsLinkOpenError": "Couldn't open the link. Please try again.",
+  "@settingsLinkOpenError": {
+    "description": "Snackbar shown when the Terms & Privacy Policy link fails to open."
   },
   "settingsExportMissingTitle": "Some report files are unavailable",
   "@settingsExportMissingTitle": {

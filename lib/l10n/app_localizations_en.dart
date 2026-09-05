@@ -172,6 +172,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signUpAgreeSuffix => '. Vitaly is not a medical device.';
 
   @override
+  String get signUpLinkOpenError =>
+      'Couldn\'t open the link. Please try again.';
+
+  @override
   String get signUpSubmit => 'Create account';
 
   @override
@@ -1615,6 +1619,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settingsSectionAccount => 'ACCOUNT';
 
   @override
+  String get settingsSectionLegal => 'LEGAL';
+
+  @override
   String get settingsManageReminders => 'Manage reminders';
 
   @override
@@ -1692,6 +1699,17 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get settingsExportDataSubtitle =>
       'PDF, CSV, or a full archive — your choice';
+
+  @override
+  String get settingsTermsPrivacyTitle => 'Terms & Privacy Policy';
+
+  @override
+  String get settingsTermsPrivacySubtitle =>
+      'Read Vitaly\'s terms and privacy policy';
+
+  @override
+  String get settingsLinkOpenError =>
+      'Couldn\'t open the link. Please try again.';
 
   @override
   String get settingsExportMissingTitle => 'Some report files are unavailable';

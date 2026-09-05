@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.3+14
+version: 1.0.4+15
 
 environment:
   sdk: ^3.13.1
@@ -67,6 +67,10 @@ dependencies:
   share_plus: ^13.3.0
   # Paywall/entitlement layer for premium gating (PROJECT_SPEC.md §27).
   superwallkit_flutter: ^2.4.12
+  # Opens the Terms/Privacy Policy link in the sign-up screen in an
+  # external browser. Official Flutter-team package; no existing
+  # dependency provides URL launching.
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:
@@ -93,6 +97,9 @@ dev_dependencies:
   # superwallkit_flutter's pigeon dependency).
   build_runner: 2.15.1
   fake_cloud_firestore: ^4.2.0
+  # Lets tests fake UrlLauncherPlatform.instance to assert on the Terms/
+  # Privacy Policy link without actually opening a browser.
+  url_launcher_platform_interface: ^2.3.2
   # Generator-only tool: produces every Android launcher-icon density
   # (plus the adaptive-icon XML) from assets/icon/icon.png. Not shipped
   # in the app; rerun `dart run flutter_launcher_icons` after replacing

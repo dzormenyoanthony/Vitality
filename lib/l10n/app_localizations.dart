@@ -388,7 +388,7 @@ abstract class AppLocalizations {
   /// **'I agree to the '**
   String get signUpAgreePrefix;
 
-  /// The 'Terms' span in the Create Account agreement line (not yet linked).
+  /// The 'Terms' span in the Create Account agreement line; opens LegalLinks.termsAndPrivacyUrl.
   ///
   /// In en, this message translates to:
   /// **'Terms'**
@@ -400,7 +400,7 @@ abstract class AppLocalizations {
   /// **' and '**
   String get signUpAgreeConjunction;
 
-  /// The 'Privacy Policy' span in the Create Account agreement line (not yet linked).
+  /// The 'Privacy Policy' span in the Create Account agreement line; opens LegalLinks.termsAndPrivacyUrl.
   ///
   /// In en, this message translates to:
   /// **'Privacy Policy'**
@@ -411,6 +411,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'. Vitaly is not a medical device.'**
   String get signUpAgreeSuffix;
+
+  /// Snackbar shown when the Terms/Privacy Policy link fails to open.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the link. Please try again.'**
+  String get signUpLinkOpenError;
 
   /// Primary button that submits the Create Account form.
   ///
@@ -2685,6 +2691,12 @@ abstract class AppLocalizations {
   /// **'ACCOUNT'**
   String get settingsSectionAccount;
 
+  /// Section label above the Terms & Privacy Policy row in Settings.
+  ///
+  /// In en, this message translates to:
+  /// **'LEGAL'**
+  String get settingsSectionLegal;
+
   /// Link from Settings into the reminders screen.
   ///
   /// In en, this message translates to:
@@ -2828,6 +2840,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'PDF, CSV, or a full archive — your choice'**
   String get settingsExportDataSubtitle;
+
+  /// Legal-section row that opens LegalLinks.termsAndPrivacyUrl in a browser.
+  ///
+  /// In en, this message translates to:
+  /// **'Terms & Privacy Policy'**
+  String get settingsTermsPrivacyTitle;
+
+  /// Subtitle for the Terms & Privacy Policy row.
+  ///
+  /// In en, this message translates to:
+  /// **'Read Vitaly\'s terms and privacy policy'**
+  String get settingsTermsPrivacySubtitle;
+
+  /// Snackbar shown when the Terms & Privacy Policy link fails to open.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t open the link. Please try again.'**
+  String get settingsLinkOpenError;
 
   /// Dialog title when some report files can't be found for the export.
   ///

@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher_platform_interface/url_launcher_platform_interface.dart';
 
+import 'package:vitality/core/constants/legal_links.dart';
 import 'package:vitality/core/services/shared_preferences_provider.dart';
 import 'package:vitality/features/authentication/data/auth_providers.dart';
 import 'package:vitality/features/authentication/data/fake_auth_repository.dart';
 import 'package:vitality/features/authentication/presentation/sign_in_screen.dart';
 import 'package:vitality/features/authentication/presentation/sign_up_screen.dart';
 
+import '../../../support/fake_url_launcher.dart';
 import '../../../support/pump_app.dart';
 
 void main() {
@@ -377,6 +380,69 @@ void main() {
         await tester.pump();
 
         expect(tester.takeException(), isNull);
+      },
+    );
+
+    testWidgets('tapping "Terms" opens the Terms/Privacy Policy link', (
+      tester,
+    ) async {
+      final fakeLauncher = FakeUrlLauncher();
+      final previousLauncher = UrlLauncherPlatform.instance;
+      UrlLauncherPlatform.instance = fakeLauncher;
+      addTearDown(() => UrlLauncherPlatform.instance = previousLauncher);
+
+      final authRepository = FakeAuthRepository();
+      addTearDown(authRepository.dispose);
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [authRepositoryProvider.overrideWithValue(authRepository)],
+          child: const MaterialApp(
+            localizationsDelegates: localizationWrappers,
+            supportedLocales: testSupportedLocales,
+            home: SignUpScreen(),
+          ),
+        ),
+      );
+
+      await tester.ensureVisible(find.textContaining('Terms'));
+      await tester.pump();
+      await tester.tapOnText(find.textRange.ofSubstring('Terms'));
+      await tester.pumpAndSettle();
+
+      expect(fakeLauncher.launchedUrls, [LegalLinks.termsAndPrivacyUrl]);
+    });
+
+    testWidgets(
+      'tapping "Privacy Policy" opens the Terms/Privacy Policy link',
+      (tester) async {
+        final fakeLauncher = FakeUrlLauncher();
+        final previousLauncher = UrlLauncherPlatform.instance;
+        UrlLauncherPlatform.instance = fakeLauncher;
+        addTearDown(() => UrlLauncherPlatform.instance = previousLauncher);
+
+        final authRepository = FakeAuthRepository();
+        addTearDown(authRepository.dispose);
+
+        await tester.pumpWidget(
+          ProviderScope(
+            overrides: [
+              authRepositoryProvider.overrideWithValue(authRepository),
+            ],
+            child: const MaterialApp(
+              localizationsDelegates: localizationWrappers,
+              supportedLocales: testSupportedLocales,
+              home: SignUpScreen(),
+            ),
+          ),
+        );
+
+        await tester.ensureVisible(find.textContaining('Privacy Policy'));
+        await tester.pump();
+        await tester.tapOnText(find.textRange.ofSubstring('Privacy Policy'));
+        await tester.pumpAndSettle();
+
+        expect(fakeLauncher.launchedUrls, [LegalLinks.termsAndPrivacyUrl]);
       },
     );
   });
